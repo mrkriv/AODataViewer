@@ -15,3 +15,6 @@
 1. Открываем Src/AODataViewer.sln
 1. Запускам Game
 1. PROFIT!
+
+
+![](https://raw.githubusercontent.com/mrkriv/AODataViewer/master/Prewiew.png)
