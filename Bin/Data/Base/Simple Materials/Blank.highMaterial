@@ -1,0 +1,8 @@
+highLevelMaterial Blank
+{
+	template = ShaderBaseMaterial
+	diffuse1Map
+	{
+		texture = "Base\\Tools\\ResourceEditorGrid\\ResourceEditorGrid_2.png"
+	}
+}

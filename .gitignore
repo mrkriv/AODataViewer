@@ -21,7 +21,7 @@
 x64/
 x86/
 bld/
-[Bb]in/
+Src/**/[Bb]in/
 [Oo]bj/
 [Ll]og/
 
@@ -264,4 +264,9 @@ __pycache__/
 *.pyc
 
 .idea/
-Bin/UserSettings/Logs/
+[Ll]ogs/
+
+Bin/AODataViewer.exe
+Bin/ProjectCommon.dll
+Bin/ProjectEntities.dll
+Bin/ProjectEntities.Editor.dll

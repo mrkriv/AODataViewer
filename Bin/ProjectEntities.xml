@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ProjectEntities</name>
+    </assembly>
+    <members>
+        <member name="T:ProjectEntities.GameMapType">
+            <summary>
+            Defines the <see cref="T:ProjectEntities.GameMap"/> entity type.
+            </summary>
+        </member>
+    </members>
+</doc>

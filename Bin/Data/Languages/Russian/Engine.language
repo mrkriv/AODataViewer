@@ -1,0 +1,14 @@
+language
+{
+	toolsUICulture = ru-RU
+
+	textTranslations
+	{
+		UISystem
+		{
+		}
+	}
+	fileRedirections
+	{
+	}
+}

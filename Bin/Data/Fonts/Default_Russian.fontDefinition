@@ -1,0 +1,37 @@
+fontDefinition
+{
+	type = TrueType
+	trueTypeFontName = "Fonts\\Game.ttf"
+	inGame3DGuiHeightInPixels = 24
+	textureSize = 1024
+	textureIndentBetweenCharacters = 8
+	drawOffsetY = -0.1
+	charactersRanges
+	{
+		item
+		{
+			begin = 0
+			end = 0
+		}
+		item
+		{
+			begin = 32
+			end = 127
+		}
+		item
+		{
+			begin = 160
+			end = 191
+		}
+		item
+		{
+			begin = 1025
+			end = 1025
+		}
+		item
+		{
+			begin = 1040
+			end = 1105
+		}
+	}
+}
