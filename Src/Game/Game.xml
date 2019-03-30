@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AODataViewer</name>
+    </assembly>
+    <members>
+        <member name="T:Game.GameEngineApp">
+            <summary>
+            Defines a game application.
+            </summary>
+        </member>
+        <member name="T:Game.Properties.Resources">
+            <summary>
+              Класс ресурса со строгой типизацией для поиска локализованных строк и т.д.
+            </summary>
+        </member>
+        <member name="P:Game.Properties.Resources.ResourceManager">
+            <summary>
+              Возвращает кэшированный экземпляр ResourceManager, использованный этим классом.
+            </summary>
+        </member>
+        <member name="P:Game.Properties.Resources.Culture">
+            <summary>
+              Перезаписывает свойство CurrentUICulture текущего потока для всех
+              обращений к ресурсу с помощью этого класса ресурса со строгой типизацией.
+            </summary>
+        </member>
+        <member name="P:Game.Properties.Resources.Logo">
+            <summary>
+              Поиск локализованного ресурса типа System.Drawing.Icon, аналогичного (Значок).
+            </summary>
+        </member>
+    </members>
+</doc>
