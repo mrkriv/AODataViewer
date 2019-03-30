@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Engine;
-using Engine.UISystem;
-using Engine.MathEx;
 
 namespace Game
 {
@@ -12,12 +9,12 @@ namespace Game
 
         public static List<Face> Read(List<byte> Data)
         {
-            List<Face> Faces = new List<Face>();
-            byte[] data = Data.ToArray();
+            var Faces = new List<Face>();
+            var data = Data.ToArray();
 
-            for (int i = 0; i < Data.Count / 6; i++)
+            for (var i = 0; i < Data.Count / 6; i++)
             {
-                Face f = new Face();
+                var f = new Face();
                 f.a = BitConverter.ToInt16(data, i * 6);
                 f.b = BitConverter.ToInt16(data, i * 6 + 2);
                 f.c = BitConverter.ToInt16(data, i * 6 + 4);
@@ -55,7 +52,7 @@ namespace Game
         {
             if (vt)
                 return string.Format("{0}/{0} {1}/{1} {2}/{2}", a.ToString(), b.ToString(), c.ToString());
-            return string.Format("{0} {1} {2}", a.ToString(), b.ToString(), c.ToString());
+            return $"{a.ToString()} {b.ToString()} {c.ToString()}";
         }
     }
 }

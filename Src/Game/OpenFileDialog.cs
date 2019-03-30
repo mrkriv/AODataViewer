@@ -1,17 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
 using Engine;
-using Engine.FileSystem;
 using Engine.UISystem;
-using Engine.EntitySystem;
-using Engine.MapSystem;
-using Engine.MathEx;
-using Engine.Renderer;
-using Engine.SoundSystem;
 using ProjectCommon;
-using ProjectEntities;
 
 namespace Game
 {
@@ -32,30 +23,30 @@ namespace Game
             get { return dir; }
             private set
             {
-                bool flag = value.EndsWith("..");
+                var flag = value.EndsWith("..");
                 dir = Path.GetFullPath(value);
 
                 if ((flag && dir.Length == 3) || !Directory.Exists(dir))
                     dir = "root";
 
-                IconListBox c = window.Controls["list"] as IconListBox;
+                var c = window.Controls["list"] as IconListBox;
                 c.Items.Clear();
 
                 if (dir == "root")
                 {
-                    DriveInfo[] allDrives = DriveInfo.GetDrives();
-                    foreach (DriveInfo d in allDrives)
-                        c.Items.Add(new string[] { d.Name, "hdd" });
+                    var allDrives = DriveInfo.GetDrives();
+                    foreach (var d in allDrives)
+                        c.Items.Add(new[] { d.Name, "hdd" });
                 }
                 else
                 {
-                    c.Items.Add(new string[] { "<--", "back" });
-                    foreach (string d in Directory.GetDirectories(dir))
-                        c.Items.Add(new string[] { Path.GetFileName(d), "dir" });
+                    c.Items.Add(new[] { "<--", "back" });
+                    foreach (var d in Directory.GetDirectories(dir))
+                        c.Items.Add(new[] { Path.GetFileName(d), "dir" });
 
                     if (SelectFile)
-                        foreach (string f in Directory.GetFiles(dir, File_mask))
-                            c.Items.Add(new string[] { Path.GetFileName(f), "file" });
+                        foreach (var f in Directory.GetFiles(dir, File_mask))
+                            c.Items.Add(new[] { Path.GetFileName(f), "file" });
                 }
             }
         }
@@ -94,11 +85,11 @@ namespace Game
                 window.Controls["file"].Text = ((string[])sender.SelectedItem)[0];
         }
 
-        void ListClick(object sender, IconListBox.ItemMouseEventArgs e)
+        void ListClick(object sender, ListBox.ItemMouseEventArgs e)
         {
             try
             {
-                string path = Path.Combine(dir, ((string[])(e.Item))[0].Replace("<--", ".."));
+                var path = Path.Combine(dir, ((string[])(e.Item))[0].Replace("<--", ".."));
 
                 if (File.Exists(path) || File.Exists(path + "\\Profiles\\game.version"))
                 {
@@ -110,8 +101,10 @@ namespace Game
                     Dir = path;
                 }
             }
-            catch
+            catch(Exception ex)
             {
+                EngineConsole.Instance.Print(ex.StackTrace);
+
                 window.Controls["file"].Text = "Ошибка.";
             }
         }

@@ -1,9 +1,6 @@
 // Copyright (C) NeoAxis Group Ltd. This is part of NeoAxis 3D Engine SDK.
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Reflection;
 using Engine;
 using Engine.MathEx;
@@ -233,9 +230,9 @@ namespace ProjectCommon
 			public override string ToString()
 			{
 				if( type == Types.Key )
-					return string.Format( "Key \"{0}\"", key );
+					return $"Key \"{key}\"";
 				else
-					return string.Format( "Mouse {0} button", mouseButton.ToString().ToLower() );
+					return $"Mouse {mouseButton.ToString().ToLower()} button";
 			}
 		}
 
@@ -332,26 +329,26 @@ namespace ProjectCommon
 
 				//defaultKeyboardMouseValue
 				{
-					FieldInfo field = typeof( GameControlKeys ).GetField(
+					var field = typeof( GameControlKeys ).GetField(
 						Enum.GetName( typeof( GameControlKeys ), controlKey ) );
-					DefaultKeyboardMouseValueAttribute[] attributes =
+					var attributes =
 						(DefaultKeyboardMouseValueAttribute[])Attribute.GetCustomAttributes(
 						field, typeof( DefaultKeyboardMouseValueAttribute ) );
 
 					defaultKeyboardMouseValues = new SystemKeyboardMouseValue[ attributes.Length ];
-					for( int n = 0; n < attributes.Length; n++ )
+					for( var n = 0; n < attributes.Length; n++ )
 						defaultKeyboardMouseValues[ n ] = attributes[ n ].Value;
 				}
 
 				//defaultJoystickValue
 				{
-					FieldInfo field = typeof( GameControlKeys ).GetField(
+					var field = typeof( GameControlKeys ).GetField(
 						Enum.GetName( typeof( GameControlKeys ), controlKey ) );
-					DefaultJoystickValueAttribute[] attributes = (DefaultJoystickValueAttribute[])
+					var attributes = (DefaultJoystickValueAttribute[])
 						Attribute.GetCustomAttributes( field, typeof( DefaultJoystickValueAttribute ) );
 
 					defaultJoystickValues = new SystemJoystickValue[ attributes.Length ];
-					for( int n = 0; n < attributes.Length; n++ )
+					for( var n = 0; n < attributes.Length; n++ )
 						defaultJoystickValues[ n ] = attributes[ n ].Value;
 				}
 			}
@@ -390,7 +387,7 @@ namespace ProjectCommon
 				Log.Fatal( "GameControlsManager class is already initialized." );
 
 			instance = new GameControlsManager();
-			bool ret = instance.InitInternal();
+			var ret = instance.InitInternal();
 			if( !ret )
 				Shutdown();
 			return ret;
@@ -423,25 +420,25 @@ namespace ProjectCommon
 
 			//create items
 			{
-				int controlKeyCount = 0;
+				var controlKeyCount = 0;
 				{
-					foreach( object value in Enum.GetValues( typeof( GameControlKeys ) ) )
+					foreach( var value in Enum.GetValues( typeof( GameControlKeys ) ) )
 					{
-						GameControlKeys controlKey = (GameControlKeys)value;
+						var controlKey = (GameControlKeys)value;
 						if( (int)controlKey >= controlKeyCount )
 							controlKeyCount = (int)controlKey + 1;
 					}
 				}
 
 				items = new GameControlItem[ controlKeyCount ];
-				for( int n = 0; n < controlKeyCount; n++ )
+				for( var n = 0; n < controlKeyCount; n++ )
 				{
 					if( !Enum.IsDefined( typeof( GameControlKeys ), n ) )
 					{
 						Log.Fatal( "GameControlsManager: Init: Invalid \"GameControlKeys\" enumeration." );
 						return false;
 					}
-					GameControlKeys controlKey = (GameControlKeys)n;
+					var controlKey = (GameControlKeys)n;
 					items[ n ] = new GameControlItem( controlKey );
 				}
 			}
@@ -449,7 +446,7 @@ namespace ProjectCommon
 			//itemsControlKeysDictionary
 			{
 				itemsControlKeysDictionary = new Dictionary<GameControlKeys, GameControlItem>();
-				foreach( GameControlItem item in items )
+				foreach( var item in items )
 					itemsControlKeysDictionary.Add( item.ControlKey, item );
 			}
 
@@ -467,17 +464,16 @@ namespace ProjectCommon
 		/// <returns><b>true</b> if such system key is used; otherwise, <b>false</b>.</returns>
 		public bool DoKeyDown( KeyEvent e )
 		{
-			bool handled = false;
+			var handled = false;
 			//!!!!!slowly
-			foreach( GameControlItem item in items )
+			foreach( var item in items )
 			{
 				//!!!!!need use binded values here
-				foreach( SystemKeyboardMouseValue value in item.DefaultKeyboardMouseValues )
+				foreach( var value in item.DefaultKeyboardMouseValues )
 				{
 					if( value.Type == SystemKeyboardMouseValue.Types.Key && value.Key == e.Key )
 					{
-						if( GameControlsEvent != null )
-							GameControlsEvent( new GameControlsKeyDownEventData( item.ControlKey, 1 ) );
+						GameControlsEvent?.Invoke( new GameControlsKeyDownEventData( item.ControlKey, 1 ) );
 						handled = true;
 					}
 				}
@@ -492,17 +488,16 @@ namespace ProjectCommon
 		/// <returns><b>true</b> if such system key is used; otherwise, <b>false</b>.</returns>
 		public bool DoKeyUp( KeyEvent e )
 		{
-			bool handled = false;
+			var handled = false;
 			//!!!!!slowly
-			foreach( GameControlItem item in items )
+			foreach( var item in items )
 			{
 				//!!!!!need use binded values here
-				foreach( SystemKeyboardMouseValue value in item.DefaultKeyboardMouseValues )
+				foreach( var value in item.DefaultKeyboardMouseValues )
 				{
 					if( value.Type == SystemKeyboardMouseValue.Types.Key && value.Key == e.Key )
 					{
-						if( GameControlsEvent != null )
-							GameControlsEvent( new GameControlsKeyUpEventData( item.ControlKey ) );
+						GameControlsEvent?.Invoke( new GameControlsKeyUpEventData( item.ControlKey ) );
 						handled = true;
 					}
 				}
@@ -517,18 +512,17 @@ namespace ProjectCommon
 		/// <returns><b>true</b> if such system key is used; otherwise, <b>false</b>.</returns>
 		public bool DoMouseDown( EMouseButtons button )
 		{
-			bool handled = false;
+			var handled = false;
 			//!!!!!slowly
-			foreach( GameControlItem item in items )
+			foreach( var item in items )
 			{
 				//!!!!!need use binded values here
-				foreach( SystemKeyboardMouseValue value in item.DefaultKeyboardMouseValues )
+				foreach( var value in item.DefaultKeyboardMouseValues )
 				{
 					if( value.Type == SystemKeyboardMouseValue.Types.MouseButton &&
 						value.MouseButton == button )
 					{
-						if( GameControlsEvent != null )
-							GameControlsEvent( new GameControlsKeyDownEventData( item.ControlKey, 1 ) );
+						GameControlsEvent?.Invoke( new GameControlsKeyDownEventData( item.ControlKey, 1 ) );
 						handled = true;
 					}
 				}
@@ -543,18 +537,17 @@ namespace ProjectCommon
 		/// <returns><b>true</b> if such system key is used; otherwise, <b>false</b>.</returns>
 		public bool DoMouseUp( EMouseButtons button )
 		{
-			bool handled = false;
+			var handled = false;
 			//!!!!!slowly
-			foreach( GameControlItem item in items )
+			foreach( var item in items )
 			{
 				//!!!!!need use binded values here
-				foreach( SystemKeyboardMouseValue value in item.DefaultKeyboardMouseValues )
+				foreach( var value in item.DefaultKeyboardMouseValues )
 				{
 					if( value.Type == SystemKeyboardMouseValue.Types.MouseButton &&
 						value.MouseButton == button )
 					{
-						if( GameControlsEvent != null )
-							GameControlsEvent( new GameControlsKeyUpEventData( item.ControlKey ) );
+						GameControlsEvent?.Invoke( new GameControlsKeyUpEventData( item.ControlKey ) );
 						handled = true;
 					}
 				}
@@ -568,32 +561,28 @@ namespace ProjectCommon
 		/// <param name="mouseOffset">Current mouse position.</param>
 		public void DoMouseMoveRelative( Vec2 mouseOffset )
 		{
-			if( GameControlsEvent != null )
-				GameControlsEvent( new GameControlsMouseMoveEventData( mouseOffset ) );
+			GameControlsEvent?.Invoke( new GameControlsMouseMoveEventData( mouseOffset ) );
 		}
 
 		public bool DoJoystickEvent( JoystickInputEvent e )
 		{
 			//JoystickButtonDownEvent
 			{
-				JoystickButtonDownEvent evt = e as JoystickButtonDownEvent;
+				var evt = e as JoystickButtonDownEvent;
 				if( evt != null )
 				{
-					bool handled = false;
+					var handled = false;
 					//!!!!!slowly
-					foreach( GameControlItem item in items )
+					foreach( var item in items )
 					{
 						//!!!!!need use binded values here
-						foreach( SystemJoystickValue value in item.DefaultJoystickValues )
+						foreach( var value in item.DefaultJoystickValues )
 						{
 							if( value.Type == SystemJoystickValue.Types.Button &&
 								value.Button == evt.Button.Name )
 							{
-								if( GameControlsEvent != null )
-								{
-									GameControlsEvent( new GameControlsKeyDownEventData(
-										item.ControlKey, 1 ) );
-								}
+								GameControlsEvent?.Invoke( new GameControlsKeyDownEventData(
+									item.ControlKey, 1 ) );
 								handled = true;
 							}
 						}
@@ -604,21 +593,20 @@ namespace ProjectCommon
 
 			//JoystickButtonUpEvent
 			{
-				JoystickButtonUpEvent evt = e as JoystickButtonUpEvent;
+				var evt = e as JoystickButtonUpEvent;
 				if( evt != null )
 				{
-					bool handled = false;
+					var handled = false;
 					//!!!!!slowly
-					foreach( GameControlItem item in items )
+					foreach( var item in items )
 					{
 						//!!!!!need use binded values here
-						foreach( SystemJoystickValue value in item.DefaultJoystickValues )
+						foreach( var value in item.DefaultJoystickValues )
 						{
 							if( value.Type == SystemJoystickValue.Types.Button &&
 								value.Button == evt.Button.Name )
 							{
-								if( GameControlsEvent != null )
-									GameControlsEvent( new GameControlsKeyUpEventData( item.ControlKey ) );
+								GameControlsEvent?.Invoke( new GameControlsKeyUpEventData( item.ControlKey ) );
 								handled = true;
 							}
 						}
@@ -629,15 +617,15 @@ namespace ProjectCommon
 
 			//JoystickAxisChangedEvent
 			{
-				JoystickAxisChangedEvent evt = e as JoystickAxisChangedEvent;
+				var evt = e as JoystickAxisChangedEvent;
 				if( evt != null )
 				{
-					bool handled = false;
+					var handled = false;
 					//!!!!!slowly
-					foreach( GameControlItem item in items )
+					foreach( var item in items )
 					{
 						//!!!!!need use binded values here
-						foreach( SystemJoystickValue value in item.DefaultJoystickValues )
+						foreach( var value in item.DefaultJoystickValues )
 						{
 							if( value.Type == SystemJoystickValue.Types.Axis &&
 								value.Axis == evt.Axis.Name )
@@ -662,19 +650,13 @@ namespace ProjectCommon
 
 								if( strength != 0 )
 								{
-									if( GameControlsEvent != null )
-									{
-										GameControlsEvent( new GameControlsKeyDownEventData(
-											item.ControlKey, strength ) );
-									}
+									GameControlsEvent?.Invoke( new GameControlsKeyDownEventData(
+										item.ControlKey, strength ) );
 								}
 								else
 								{
-									if( GameControlsEvent != null )
-									{
-										GameControlsEvent( new GameControlsKeyUpEventData(
-											item.ControlKey ) );
-									}
+									GameControlsEvent?.Invoke( new GameControlsKeyUpEventData(
+										item.ControlKey ) );
 								}
 
 								handled = true;
@@ -688,34 +670,28 @@ namespace ProjectCommon
 
 			//JoystickPOVChangedEvent
 			{
-				JoystickPOVChangedEvent evt = e as JoystickPOVChangedEvent;
+				var evt = e as JoystickPOVChangedEvent;
 				if( evt != null )
 				{
-					bool handled = false;
+					var handled = false;
 					//!!!!!slowly
-					foreach( GameControlItem item in items )
+					foreach( var item in items )
 					{
 						//!!!!!need use binded values here
-						foreach( SystemJoystickValue value in item.DefaultJoystickValues )
+						foreach( var value in item.DefaultJoystickValues )
 						{
 							if( value.Type == SystemJoystickValue.Types.POV &&
 								value.POV == evt.POV.Name )
 							{
 								if( ( value.POVDirection & evt.POV.Value ) != 0 )
 								{
-									if( GameControlsEvent != null )
-									{
-										GameControlsEvent( new GameControlsKeyDownEventData(
-											item.ControlKey, 1 ) );
-									}
+									GameControlsEvent?.Invoke( new GameControlsKeyDownEventData(
+										item.ControlKey, 1 ) );
 								}
 								else
 								{
-									if( GameControlsEvent != null )
-									{
-										GameControlsEvent( new GameControlsKeyUpEventData(
-											item.ControlKey ) );
-									}
+									GameControlsEvent?.Invoke( new GameControlsKeyUpEventData(
+										item.ControlKey ) );
 								}
 								handled = true;
 							}
@@ -727,7 +703,7 @@ namespace ProjectCommon
 
 			//JoystickSliderChangedEvent
 			{
-				JoystickSliderChangedEvent evt = e as JoystickSliderChangedEvent;
+				var evt = e as JoystickSliderChangedEvent;
 				if( evt != null )
 				{
 					//..
@@ -739,19 +715,17 @@ namespace ProjectCommon
 
 		public void DoTick( float delta )
 		{
-			if( GameControlsEvent != null )
-				GameControlsEvent( new GameControlsTickEventData( delta ) );
+			GameControlsEvent?.Invoke( new GameControlsTickEventData( delta ) );
 		}
 
 		public void DoKeyUpAll()
 		{
-			foreach( GameControlItem item in items )
+			foreach( var item in items )
 			{
-				GameControlsKeyUpEventData eventData =
+				var eventData =
 					new GameControlsKeyUpEventData( item.ControlKey );
 
-				if( GameControlsEvent != null )
-					GameControlsEvent( eventData );
+				GameControlsEvent?.Invoke( eventData );
 			}
 		}
 

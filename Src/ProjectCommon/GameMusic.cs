@@ -1,7 +1,3 @@
-// Copyright (C) NeoAxis Group Ltd. This is part of NeoAxis 3D Engine SDK.
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Engine.SoundSystem;
 using Engine.FileSystem;
 
@@ -62,7 +58,7 @@ namespace ProjectCommon
 
 			if( !string.IsNullOrEmpty( fileName ) && VirtualFile.Exists( fileName ) )
 			{
-				SoundMode mode = SoundMode.Stream;
+				var mode = SoundMode.Stream;
 				if( loop )
 					mode |= SoundMode.Loop;
 

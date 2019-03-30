@@ -1,12 +1,5 @@
-﻿using Engine;
-using Engine.MathEx;
-using Engine.Renderer;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Drawing;
-using System.Reflection;
 
 namespace Engine.UISystem
 {
@@ -16,8 +9,8 @@ namespace Engine.UISystem
         private Button plus;
         private Button minus;
         private int step = 1;
-        private int min = 0;
-        private int max = 0;
+        private int min;
+        private int max;
         private Button.ClickDelegate plusClick;
         private Button.ClickDelegate minusClick;
         private Control.DefaultEventDelegate editBoxText;
@@ -215,12 +208,12 @@ namespace Engine.UISystem
 
         public void OnTextChange(Control sender)
         {
-            string numbers = "-0123456789";
-            string str = "";
+            var numbers = "-0123456789";
+            var str = "";
 
-            foreach (char c in editLine.Text)
+            foreach (var c in editLine.Text)
             {
-                foreach (char n in numbers)
+                foreach (var n in numbers)
                 {
                     if (c == n)
                     {
@@ -239,8 +232,7 @@ namespace Engine.UISystem
 
         public void OnValueChange()
         {
-            if (ValueChange != null)
-                ValueChange(this, Value);
+            ValueChange?.Invoke(this, Value);
         }
 
         public void OnMinus(Button sender = null)

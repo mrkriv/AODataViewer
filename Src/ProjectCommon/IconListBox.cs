@@ -209,7 +209,7 @@ namespace Engine.UISystem
                         OnSelectedIndexChange();
                         if (selectIndex != -1 && btns.Count > selectIndex)
                         {
-                            bool flag = true;
+                            var flag = true;
                             if (hideSelectionWhenDisabled && !base.IsEnabledInHierarchy())
                             {
                                 flag = false;
@@ -222,17 +222,17 @@ namespace Engine.UISystem
                     }
                     if (bar != null && btn != null && selectIndex != -1)
                     {
-                        float single = a();
-                        Vec2 screenSize = base.GetScreenSize();
-                        Vec2 offsetByTypeFromLocal = base.GetOffsetByTypeFromLocal(Control.ScaleType.Screen, base.GetLocalOffsetByValue(clipRectangleBorders));
-                        float y = screenSize.Y - offsetByTypeFromLocal.Y * 2f;
-                        float count = single * (float)items.Count;
-                        float single1 = count - y;
+                        var single = a();
+                        var screenSize = base.GetScreenSize();
+                        var offsetByTypeFromLocal = base.GetOffsetByTypeFromLocal(Control.ScaleType.Screen, base.GetLocalOffsetByValue(clipRectangleBorders));
+                        var y = screenSize.Y - offsetByTypeFromLocal.Y * 2f;
+                        var count = single * (float)items.Count;
+                        var single1 = count - y;
                         if (single1 > 0f)
                         {
-                            float maximum = bar.Value * single1;
-                            float single2 = single * (float)selectIndex;
-                            Range range = new Range(single2, single2 + single);
+                            var maximum = bar.Value * single1;
+                            var single2 = single * (float)selectIndex;
+                            var range = new Range(single2, single2 + single);
                             if (range.Minimum >= maximum)
                             {
                                 if (range.Maximum > maximum + y)
@@ -280,11 +280,11 @@ namespace Engine.UISystem
 
         private float a()
         {
-            Vec2 screenSize = ItemButton.GetScreenSize();
-            float y = screenSize.Y;
+            var screenSize = ItemButton.GetScreenSize();
+            var y = screenSize.Y;
             if (aMY != 0)
             {
-                float single = (float)aMY;
+                var single = (float)aMY;
                 y = y * single;
                 y = (float)((int)y);
                 y = y / single;
@@ -299,7 +299,7 @@ namespace Engine.UISystem
 
         private void RemoveBtn()
         {
-            foreach (Button button in btns)
+            foreach (var button in btns)
             {
                 button.Click -= new Button.ClickDelegate(BunClick);
                 button.MouseDoubleClick -= new Control.MouseButtonDelegate(MouseDoubleClick);
@@ -311,10 +311,10 @@ namespace Engine.UISystem
 
         private void BunClick(object A)
         {
-            Button btn = (Button)A;
+            var btn = (Button)A;
             if (btn.UserData != null)
             {
-                int userData = (int)btn.UserData;
+                var userData = (int)btn.UserData;
                 if (userData < items.Count)
                 {
                     SelectedIndex = userData;
@@ -335,10 +335,10 @@ namespace Engine.UISystem
         {
             if (base.IsEnabledInHierarchy())
             {
-                Button button = (Button)A;
+                var button = (Button)A;
                 if (button.UserData != null)
                 {
-                    int userData = (int)button.UserData;
+                    var userData = (int)button.UserData;
                     if (userData < items.Count)
                     {
                         OnItemMouseDoubleClick(userData);
@@ -364,7 +364,7 @@ namespace Engine.UISystem
         {
             if (selectIndex != -1 && btns.Count > selectIndex)
             {
-                bool flag = true;
+                var flag = true;
                 if (hideSelectionWhenDisabled && !base.IsEnabledInHierarchy())
                 {
                     flag = false;
@@ -385,8 +385,8 @@ namespace Engine.UISystem
                 }
                 while (btns.Count < items.Count)
                 {
-                    int count = btns.Count;
-                    Button _btn = (Button)btn.Clone();
+                    var count = btns.Count;
+                    var _btn = (Button)btn.Clone();
                     _btn.FileNameCreated = null;
                     _btn.FileNameDeclared = null;
                     _btn.UserData = count;
@@ -399,52 +399,52 @@ namespace Engine.UISystem
                     base.Controls.Add(_btn);
                     btns.Add(_btn);
                 }
-                float value = 0f;
+                var value = 0f;
                 if (bar != null)
                 {
                     value = bar.Value;
                 }
-                float single1 = a();
-                float count1 = single1 * (float)items.Count;
-                Vec2 screenSize = base.GetScreenSize();
-                Vec2 offsetByTypeFromLocal = base.GetOffsetByTypeFromLocal(Control.ScaleType.Screen, base.GetLocalOffsetByValue(clipRectangleBorders));
-                float y = screenSize.Y - offsetByTypeFromLocal.Y * 2f;
-                float single2 = count1 - y;
+                var single1 = a();
+                var count1 = single1 * (float)items.Count;
+                var screenSize = base.GetScreenSize();
+                var offsetByTypeFromLocal = base.GetOffsetByTypeFromLocal(Control.ScaleType.Screen, base.GetLocalOffsetByValue(clipRectangleBorders));
+                var y = screenSize.Y - offsetByTypeFromLocal.Y * 2f;
+                var single2 = count1 - y;
                 single = (single2 <= 0f ? 0f : -value * single2);
                 if (bar != null)
                 {
-                    ScrollBar scrollBar = bar;
+                    var scrollBar = bar;
                     flag = (single2 > 0f ? true : showBar);
                     scrollBar.Visible = flag;
                 }
-                for (int i = 0; i < items.Count; i++)
+                for (var i = 0; i < items.Count; i++)
                 {
                     if (btns.Count <= i)
                         break;
-                    Button item = btns[i];
+                    var item = btns[i];
                     if (items[i] is string[])
                     {
-                        string[] it = items[i] as string[];
+                        var it = items[i] as string[];
                         item.Text = it[0];
                         if (item.Controls[0].Controls.Count != 0 && it.Length > 1 && it[1] != "")
                         {
-                            foreach (Control c in item.Controls)
+                            foreach (var c in item.Controls)
                                 c.Controls[0].BackTexture = TextureManager.Instance.Load(iconDir + "\\" + it[1] + ".png");
                         }
                     }
                     else
                         item.Text = items[i].ToString();
 
-                    bool active = selectIndex == i;
+                    var active = selectIndex == i;
                     if (hideSelectionWhenDisabled && !base.IsEnabledInHierarchy())
                     {
                         active = false;
                     }
                     item.Active = active;
                     item.Position = new Control.ScaleValue(Control.ScaleType.Screen, btn.GetScreenPosition() + new Vec2(0f, single + single1 * (float)i));
-                    Rect screenRectangle = base.GetScreenRectangle();
+                    var screenRectangle = base.GetScreenRectangle();
                     item.Visible = screenRectangle.IsIntersectsRect(item.GetScreenRectangle());
-                    Rect rect = base.GetScreenRectangle();
+                    var rect = base.GetScreenRectangle();
                     rect.Expand(-base.GetOffsetByTypeFromLocal(Control.ScaleType.Screen, base.GetLocalOffsetByValue(clipRectangleBorders)));
                     item.SetScreenClipRectangle(rect);
                 }
@@ -466,26 +466,23 @@ namespace Engine.UISystem
 
         protected override Control.StandardChildSlotItem[] OnGetStandardChildSlots()
         {
-            Control.StandardChildSlotItem[] standardChildSlotItem = new Control.StandardChildSlotItem[] { new Control.StandardChildSlotItem("ItemButton", ItemButton), new Control.StandardChildSlotItem("ScrollBar", ScrollBar) };
+            var standardChildSlotItem = new[] { new Control.StandardChildSlotItem("ItemButton", ItemButton), new Control.StandardChildSlotItem("ScrollBar", ScrollBar) };
             return standardChildSlotItem;
         }
 
         protected void OnItemMouseDoubleClick(int itemIndex)
         {
-            if (Handler != null)
-            {
-                Handler(this, new ItemMouseEventArgs(itemIndex, items[itemIndex]));
-            }
+            Handler?.Invoke(this, new ItemMouseEventArgs(itemIndex, items[itemIndex]));
         }
 
         protected override bool OnMouseWheel(int delta)
         {
             if (base.Visible)
             {
-                Rect rect = new Rect(0f, 0f, 1f, 1f);
+                var rect = new Rect(0f, 0f, 1f, 1f);
                 if (rect.IsContainsPoint(base.MousePosition) && base.IsEnabledInHierarchy() && bar != null && bar.IsEnabledInHierarchy())
                 {
-                    ScrollBar value = bar;
+                    var value = bar;
                     value.Value = value.Value - (float)delta / 1500f;
                     return true;
                 }
@@ -497,9 +494,9 @@ namespace Engine.UISystem
         {
             if (renderer.IsScreen)
             {
-                RectI dimensionsInPixels = renderer.ViewportForScreenGuiRenderer.DimensionsInPixels;
-                Vec2I size = dimensionsInPixels.Size;
-                int y = size.Y;
+                var dimensionsInPixels = renderer.ViewportForScreenGuiRenderer.DimensionsInPixels;
+                var size = dimensionsInPixels.Size;
+                var y = size.Y;
                 if (y != aMY)
                 {
                     aMY = y;
@@ -522,10 +519,7 @@ namespace Engine.UISystem
 
         protected virtual void OnSelectedIndexChange()
         {
-            if (SelectedIndexChangeD != null)
-            {
-                SelectedIndexChangeD(this);
-            }
+            SelectedIndexChangeD?.Invoke(this);
         }
 
         protected override void OnSetEnable()
@@ -540,7 +534,7 @@ namespace Engine.UISystem
         protected override void OnTick(float delta)
         {
             base.OnTick(delta);
-            Vec2 screenPosition = base.GetScreenPosition();
+            var screenPosition = base.GetScreenPosition();
             if (screenPosition != aMx)
             {
                 needUpdate = true;
@@ -681,7 +675,7 @@ namespace Engine.UISystem
             [LogicSystemBrowsable(true)]
             public bool Remove(object item)
             {
-                int num = items.IndexOf(item);
+                var num = items.IndexOf(item);
                 if (num != -1)
                 {
                     RemoveAt(num);

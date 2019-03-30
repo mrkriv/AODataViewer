@@ -1,10 +1,6 @@
 ﻿using Engine;
 using Engine.MathEx;
 using Engine.UISystem;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
 
 namespace Game
 {
@@ -12,8 +8,8 @@ namespace Game
     {
         private Vec2 mouseOffset;
         private Vec2 MinSize;
-        private bool isMove = false;
-        private bool isReSize = false;
+        private bool isMove;
+        private bool isReSize;
         protected Control window;
 
         public Window(string gui)
@@ -62,7 +58,7 @@ namespace Game
         {
             if (GameEngineApp.Instance != null && GameEngineApp.Instance.ControlManager != null)
             {
-                ControlCollection cl = GameEngineApp.Instance.ControlManager.Controls;
+                var cl = GameEngineApp.Instance.ControlManager.Controls;
                 if (cl.Count != 0 && this != cl[cl.Count - 1])
                     cl.BringToFront(this);
             }
@@ -119,7 +115,7 @@ namespace Game
                 mouseOffset = MousePosition - mouseOffset;
                 mouseOffset *= .75f;
                 mouseOffset *= new Vec2(1024, 768);
-                Vec2 NewSize = window.Size.Value + mouseOffset;
+                var NewSize = window.Size.Value + mouseOffset;
 
                 if (window.Size.Value.X < MinSize.X)
                     NewSize.X = MinSize.X;

@@ -1,18 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
-using System.IO.Compression;
 using Engine;
 using Engine.FileSystem;
 using Engine.UISystem;
-using Engine.EntitySystem;
-using Engine.MapSystem;
 using Engine.MathEx;
 using Engine.Renderer;
-using Engine.SoundSystem;
-using ProjectCommon;
-using ProjectEntities;
 
 namespace Game
 {
@@ -38,11 +30,15 @@ namespace Game
             ((Button)window.Controls["open"]).Click += open_file;
             ((Button)window.Controls["exit"]).Click += exit;
 
-            string[] bk = Directory.GetFiles("Data\\" + window.Text);
-            Random rand = new Random();
-            window.BackTexture = TextureManager.Instance.Load(VirtualFileSystem.GetVirtualPathByReal(bk[rand.Next(0, bk.Length - 1)]));
+            var backgrounds = Directory.GetFiles("Data\\" + window.Text);
+            var rand = new Random();
+            var background = backgrounds[rand.Next(0, backgrounds.Length - 1)];
+            
+            window.BackTexture = TextureManager.Instance.Load(VirtualFileSystem.GetVirtualPathByReal(background));
 
             ResetTime();
+            
+            open_file(null);
         }
 
         void exit(Button sender)

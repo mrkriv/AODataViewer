@@ -1,17 +1,6 @@
-// Copyright (C) NeoAxis Group Ltd. This is part of NeoAxis 3D Engine SDK.
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Diagnostics;
-using System.ComponentModel;
-using System.Drawing.Design;
 using Engine.EntitySystem;
-using Engine.PhysicsSystem;
 using Engine.MapSystem;
-using Engine.MathEx;
-using Engine.Renderer;
-using Engine.Utils;
-using ProjectCommon;
+
 
 namespace ProjectEntities
 {
@@ -25,6 +14,6 @@ namespace ProjectEntities
 
 	public class GameMap : Map
 	{
-        GameMapType _type = null; public new GameMapType Type { get { return _type; } }
+		GameMapType _type = null; public new GameMapType Type { get { return _type; } }
 	}
 }

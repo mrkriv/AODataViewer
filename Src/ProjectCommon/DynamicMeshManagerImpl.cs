@@ -1,10 +1,7 @@
 ﻿// Copyright (C) NeoAxis Group Ltd. This is part of NeoAxis 3D Engine SDK.
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Runtime.InteropServices;
 using Engine;
-using Engine.FileSystem;
 using Engine.Renderer;
 using Engine.MathEx;
 using Engine.Utils;
@@ -99,7 +96,7 @@ namespace ProjectCommon
 
 				public int AddTrianglesOneBatchGetHashCode()
 				{
-					int hash = trianglesVertexComponents.GetHashCode();
+					var hash = trianglesVertexComponents.GetHashCode();
 					if( material != null )
 						hash ^= material.GetHashCodeForBatching();
 					return hash;
@@ -144,14 +141,14 @@ namespace ProjectCommon
 				/// <returns></returns>
 				public SceneObject GetFromCacheExact( ref Vec3 pos, ref Quat rot, ref Vec3 scl, MaterialDataImpl material )
 				{
-					int hash = pos.GetHashCode() ^ rot.GetHashCode() ^ scl.GetHashCode();
+					var hash = pos.GetHashCode() ^ rot.GetHashCode() ^ scl.GetHashCode();
 
 					List<SceneObject> list;
 					if( sceneObjectsByHash.TryGetValue( hash, out list ) )
 					{
-						for( int n = 0; n < list.Count; n++ )
+						for( var n = 0; n < list.Count; n++ )
 						{
-							SceneObject sceneObject = list[ n ];
+							var sceneObject = list[ n ];
 							if( sceneObject != null )
 							{
 								if( sceneObject.position == pos && sceneObject.rotation == rot && sceneObject.scale == scl &&
@@ -197,16 +194,16 @@ namespace ProjectCommon
 				public SceneObject GetFromCacheNotExact( ref Vec3 pos, ref Quat rot, ref Vec3 scl, MaterialDataImpl material,
 					out bool exactTransform, out bool exactMaterial )
 				{
-					int hash = pos.GetHashCode() ^ rot.GetHashCode() ^ scl.GetHashCode();
+					var hash = pos.GetHashCode() ^ rot.GetHashCode() ^ scl.GetHashCode();
 
 					//find with exact transform
 					{
 						List<SceneObject> list;
 						if( sceneObjectsByHash.TryGetValue( hash, out list ) )
 						{
-							for( int n = 0; n < list.Count; n++ )
+							for( var n = 0; n < list.Count; n++ )
 							{
-								SceneObject sceneObject = list[ n ];
+								var sceneObject = list[ n ];
 								if( sceneObject != null )
 								{
 									if( sceneObject.position == pos && sceneObject.rotation == rot && sceneObject.scale == scl )
@@ -238,15 +235,15 @@ namespace ProjectCommon
 					}
 
 					//get first any
-					foreach( KeyValuePair<int, List<SceneObject>> pair in sceneObjectsByHash )
+					foreach( var pair in sceneObjectsByHash )
 					{
-						List<SceneObject> list = pair.Value;
+						var list = pair.Value;
 						if( list.Count == 0 )
 							Log.Fatal( "DynamicMeshManagerImpl: BlockImpl: SceneObjectCachingData: GetFromCacheNotExact: list.Count == 0." );
 
-						for( int n = 0; n < list.Count; n++ )
+						for( var n = 0; n < list.Count; n++ )
 						{
-							SceneObject sceneObject = list[ n ];
+							var sceneObject = list[ n ];
 							if( sceneObject != null )
 							{
 								exactTransform = sceneObject.position == pos && sceneObject.rotation == rot && sceneObject.scale == scl;
@@ -292,13 +289,13 @@ namespace ProjectCommon
 
 					sceneObject.inCacheFromTime = time;
 
-					int hash = sceneObject.position.GetHashCode() ^ sceneObject.rotation.GetHashCode() ^
+					var hash = sceneObject.position.GetHashCode() ^ sceneObject.rotation.GetHashCode() ^
 						sceneObject.scale.GetHashCode();
 
 					List<SceneObject> list;
 					if( sceneObjectsByHash.TryGetValue( hash, out list ) )
 					{
-						for( int n = 0; n < list.Count; n++ )
+						for( var n = 0; n < list.Count; n++ )
 						{
 							if( list[ n ] == null )
 							{
@@ -320,14 +317,13 @@ namespace ProjectCommon
 
 				public void DeleteAll()
 				{
-					foreach( KeyValuePair<int, List<SceneObject>> pair in sceneObjectsByHash )
+					foreach( var pair in sceneObjectsByHash )
 					{
-						List<SceneObject> list = pair.Value;
-						for( int n = 0; n < list.Count; n++ )
+						var list = pair.Value;
+						for( var n = 0; n < list.Count; n++ )
 						{
-							SceneObject sceneObject = list[ n ];
-							if( sceneObject != null )
-								sceneObject.Dispose();
+							var sceneObject = list[ n ];
+							sceneObject?.Dispose();
 						}
 					}
 					sceneObjectsByHash.Clear();
@@ -335,10 +331,10 @@ namespace ProjectCommon
 
 				public int GetSceneObjectCount()
 				{
-					int count = 0;
-					foreach( List<SceneObject> list in sceneObjectsByHash.Values )
+					var count = 0;
+					foreach( var list in sceneObjectsByHash.Values )
 					{
-						for( int n = 0; n < list.Count; n++ )
+						for( var n = 0; n < list.Count; n++ )
 						{
 							if( list[ n ] != null )
 								count++;
@@ -354,17 +350,17 @@ namespace ProjectCommon
 
 				public void DeleteLongTimeNotUsedObjects( float time )
 				{
-					float maxLifeTimeNotUsedDataInCache = owner.owner.maxLifeTimeNotUsedDataInCache;
+					var maxLifeTimeNotUsedDataInCache = owner.owner.maxLifeTimeNotUsedDataInCache;
 					List<int> needRemoveHashes = null;
 
-					foreach( KeyValuePair<int, List<SceneObject>> pair in sceneObjectsByHash )
+					foreach( var pair in sceneObjectsByHash )
 					{
-						int hash = pair.Key;
-						List<SceneObject> list = pair.Value;
+						var hash = pair.Key;
+						var list = pair.Value;
 
-						for( int n = 0; n < list.Count; n++ )
+						for( var n = 0; n < list.Count; n++ )
 						{
-							SceneObject sceneObject = list[ n ];
+							var sceneObject = list[ n ];
 							if( sceneObject != null )
 							{
 								if( time - sceneObject.inCacheFromTime > maxLifeTimeNotUsedDataInCache )
@@ -395,7 +391,7 @@ namespace ProjectCommon
 
 					if( needRemoveHashes != null )
 					{
-						for( int n = 0; n < needRemoveHashes.Count; n++ )
+						for( var n = 0; n < needRemoveHashes.Count; n++ )
 							sceneObjectsByHash.Remove( needRemoveHashes[ n ] );
 					}
 				}
@@ -425,8 +421,7 @@ namespace ProjectCommon
 
 			public void Dispose()
 			{
-				if( freeSceneObjectsCache != null )
-					freeSceneObjectsCache.DeleteAll();
+				freeSceneObjectsCache?.DeleteAll();
 
 				DestroyCompiledData();
 				disposed = true;
@@ -442,7 +437,7 @@ namespace ProjectCommon
 			{
 				if( vertices.Length != 0 && indices.Length != 0 )
 				{
-					InputItem item = new InputItem();
+					var item = new InputItem();
 					item.dataType = InputItem.DataTypes.Triangles;
 					if( cloneArrays )
 						item.trianglesVertices = (Vertex[])vertices.Clone();
@@ -510,10 +505,10 @@ namespace ProjectCommon
 
 				if( vertices.Length != 0 && indices.Length != 0 )
 				{
-					Vertex[] vertices2 = new Vertex[ vertices.Length ];
-					for( int n = 0; n < vertices.Length; n++ )
+					var vertices2 = new Vertex[ vertices.Length ];
+					for( var n = 0; n < vertices.Length; n++ )
 					{
-						Vertex vertex = new Vertex();
+						var vertex = new Vertex();
 						vertex.position = vertices[ n ];
 						vertices2[ n ] = vertex;
 					}
@@ -541,7 +536,7 @@ namespace ProjectCommon
 				if( IsCompiled() )
 					return;
 
-				InputItem item = new InputItem();
+				var item = new InputItem();
 				item.dataType = InputItem.DataTypes.Mesh;
 				item.meshName = meshName;
 				item.position = position;
@@ -554,14 +549,14 @@ namespace ProjectCommon
 
 			CompiledItem CompileInputItems( List<InputItem> inputItems )
 			{
-				InputItem inputItem0 = inputItems[ 0 ];
+				var inputItem0 = inputItems[ 0 ];
 
-				bool allTransformsAreEqual = true;
+				var allTransformsAreEqual = true;
 				if( inputItems.Count > 1 )
 				{
-					for( int n = 1; n < inputItems.Count; n++ )
+					for( var n = 1; n < inputItems.Count; n++ )
 					{
-						InputItem item = inputItems[ n ];
+						var item = inputItems[ n ];
 						if( inputItem0.position != item.position || inputItem0.rotation != item.rotation ||
 							inputItem0.scale != item.scale )
 						{
@@ -571,34 +566,34 @@ namespace ProjectCommon
 					}
 				}
 
-				int totalVertices = 0;
-				int totalIndices = 0;
-				for( int n = 0; n < inputItems.Count; n++ )
+				var totalVertices = 0;
+				var totalIndices = 0;
+				for( var n = 0; n < inputItems.Count; n++ )
 				{
-					InputItem item = inputItems[ n ];
+					var item = inputItems[ n ];
 					totalVertices += item.trianglesVertices.Length;
 					totalIndices += item.trianglesIndices.Length;
 				}
 
-				CompiledItem compiledItem = new CompiledItem();
+				var compiledItem = new CompiledItem();
 
 				uniqueMeshNameCounter++;
 				if( uniqueMeshNameCounter == long.MaxValue )
 					uniqueMeshNameCounter = 0;
 
-				string meshName = MeshManager.Instance.GetUniqueName(
-					string.Format( "DynamicMeshManagerImpl{0}", uniqueMeshNameCounter ) );
+				var meshName = MeshManager.Instance.GetUniqueName(
+					$"DynamicMeshManagerImpl{uniqueMeshNameCounter}");
 				compiledItem.mesh = MeshManager.Instance.CreateManual( meshName );
 
-				SubMesh subMesh = compiledItem.mesh.CreateSubMesh();
+				var subMesh = compiledItem.mesh.CreateSubMesh();
 				subMesh.UseSharedVertices = false;
 				subMesh.MaterialName = "White";
 
 				//init vertex data
-				VertexData vertexData = new VertexData();
-				VertexDeclaration declaration = vertexData.VertexDeclaration;
+				var vertexData = new VertexData();
+				var declaration = vertexData.VertexDeclaration;
 
-				int vertexSize = 12;
+				var vertexSize = 12;
 				declaration.AddElement( 0, 0, VertexElementType.Float3, VertexElementSemantic.Position );
 				if( ( inputItem0.trianglesVertexComponents & VertexComponents.Normal ) != 0 )
 				{
@@ -636,32 +631,32 @@ namespace ProjectCommon
 					vertexSize = 88;
 				}
 
-				VertexBufferBinding bufferBinding = vertexData.VertexBufferBinding;
-				HardwareVertexBuffer vertexBuffer = HardwareBufferManager.Instance.CreateVertexBuffer( vertexSize, totalVertices,
+				var bufferBinding = vertexData.VertexBufferBinding;
+				var vertexBuffer = HardwareBufferManager.Instance.CreateVertexBuffer( vertexSize, totalVertices,
 					HardwareBuffer.Usage.StaticWriteOnly );
 				bufferBinding.SetBinding( 0, vertexBuffer, true );
 				vertexData.VertexCount = totalVertices;
 
-				Bounds bounds = Bounds.Cleared;
-				float boundingRadiusSqr = .001f;
+				var bounds = Bounds.Cleared;
+				var boundingRadiusSqr = .001f;
 
 				//copy data to the vertex buffer, apply transform, calculate bounds
 				unsafe
 				{
-					IntPtr buffer = vertexBuffer.Lock( HardwareBuffer.LockOptions.Normal );
+					var buffer = vertexBuffer.Lock( HardwareBuffer.LockOptions.Normal );
 
-					byte* destPointer = (byte*)buffer;
+					var destPointer = (byte*)buffer;
 
-					int vertexPosition = 0;
+					var vertexPosition = 0;
 
-					for( int nInputItem = 0; nInputItem < inputItems.Count; nInputItem++ )
+					for( var nInputItem = 0; nInputItem < inputItems.Count; nInputItem++ )
 					{
-						InputItem item = inputItems[ nInputItem ];
+						var item = inputItems[ nInputItem ];
 
 						fixed( Vertex* pVertices = item.trianglesVertices )
 						{
-							Mat4 transform = Mat4.Zero;
-							Mat3 transformRotation = Mat3.Zero;
+							var transform = Mat4.Zero;
+							var transformRotation = Mat3.Zero;
 							if( !allTransformsAreEqual )
 							{
 								transformRotation = item.rotation.ToMat3();
@@ -670,12 +665,12 @@ namespace ProjectCommon
 								transform = new Mat4( transformRotation, item.position );
 							}
 
-							Vertex* sourcePointer = pVertices;
-							for( int nVertex = 0; nVertex < item.trianglesVertices.Length; nVertex++ )
+							var sourcePointer = pVertices;
+							for( var nVertex = 0; nVertex < item.trianglesVertices.Length; nVertex++ )
 							{
 								NativeUtils.CopyMemory( (IntPtr)destPointer, (IntPtr)sourcePointer, vertexSize );
 
-								Vertex* pVertex = (Vertex*)destPointer;
+								var pVertex = (Vertex*)destPointer;
 
 								//apply transform
 								if( !allTransformsAreEqual )
@@ -689,7 +684,7 @@ namespace ProjectCommon
 
 								//calculate bounds
 								bounds.Add( pVertex->position );
-								float radiusSqr = pVertex->position.LengthSqr();
+								var radiusSqr = pVertex->position.LengthSqr();
 								if( radiusSqr > boundingRadiusSqr )
 									boundingRadiusSqr = radiusSqr;
 
@@ -710,14 +705,14 @@ namespace ProjectCommon
 
 				//init index buffer
 				{
-					int[] indices = new int[ totalIndices ];
+					var indices = new int[ totalIndices ];
 
-					int indexPosition = 0;
-					int vertexPosition = 0;
-					for( int nInputItem = 0; nInputItem < inputItems.Count; nInputItem++ )
+					var indexPosition = 0;
+					var vertexPosition = 0;
+					for( var nInputItem = 0; nInputItem < inputItems.Count; nInputItem++ )
 					{
-						InputItem item = inputItems[ nInputItem ];
-						for( int nIndex = 0; nIndex < item.trianglesIndices.Length; nIndex++ )
+						var item = inputItems[ nInputItem ];
+						for( var nIndex = 0; nIndex < item.trianglesIndices.Length; nIndex++ )
 						{
 							indices[ indexPosition ] = item.trianglesIndices[ nIndex ] + vertexPosition;
 							indexPosition++;
@@ -771,7 +766,7 @@ namespace ProjectCommon
 
 				if( boxVertices == null )
 				{
-					boxVertices = new Vertex[]
+					boxVertices = new[]
 					{
 						new Vertex( new Vec3( -1, 1, -1 ), new Vec3( 0, 1, 0 ) ),
 						new Vertex( new Vec3( -1, 1, 1 ), new Vec3( 0, 1, 0 ) ),
@@ -802,7 +797,7 @@ namespace ProjectCommon
 
 				if( boxIndices == null )
 				{
-					boxIndices = new int[] { 
+					boxIndices = new[] { 
 						0, 1, 2, 2, 
 						3, 0, 4, 5, 
 						6, 6, 7, 4, 
@@ -814,9 +809,9 @@ namespace ProjectCommon
 						22, 22, 23, 20 };
 				}
 
-				Vec3 position = box.Center;
-				Quat rotation = box.Axis.ToQuat();
-				Vec3 scale = box.Extents;
+				var position = box.Center;
+				var rotation = box.Axis.ToQuat();
+				var scale = box.Extents;
 
 				AddTrianglesInternal( allowBatching, boxVertices, VertexComponents.Normal, DynamicMeshManagerImpl.boxIndices,
 					ref position, ref rotation, ref scale, material, false );
@@ -855,51 +850,51 @@ namespace ProjectCommon
 
 				//vertices
 				{
-					int vertexCount = hSegments * ( vSegments - 1 ) + 2;
+					var vertexCount = hSegments * ( vSegments - 1 ) + 2;
 					vertices = new Vertex[ vertexCount ];
 
-					float[] cosTable = new float[ hSegments ];
-					float[] sinTable = new float[ hSegments ];
+					var cosTable = new float[ hSegments ];
+					var sinTable = new float[ hSegments ];
 					{
-						float angleStep = MathFunctions.PI * 2 / hSegments;
-						for( int n = 0; n < hSegments; n++ )
+						var angleStep = MathFunctions.PI * 2 / hSegments;
+						for( var n = 0; n < hSegments; n++ )
 						{
-							float angle = angleStep * n;
+							var angle = angleStep * n;
 							cosTable[ n ] = MathFunctions.Cos( angle );
 							sinTable[ n ] = MathFunctions.Sin( angle );
 						}
 					}
 
-					int currentVertex = 0;
+					var currentVertex = 0;
 
-					int levelCount = vSegments + 1;
+					var levelCount = vSegments + 1;
 
-					for( int v = 0; v < levelCount; v++ )
+					for( var v = 0; v < levelCount; v++ )
 					{
 						if( v == 0 )
 						{
-							Vertex vertex = new Vertex();
+							var vertex = new Vertex();
 							vertex.position = new Vec3( 0, 0, 1 );
 							vertex.normal = vertex.position;
 							vertices[ currentVertex++ ] = vertex;
 						}
 						else if( v == vSegments )
 						{
-							Vertex vertex = new Vertex();
+							var vertex = new Vertex();
 							vertex.position = new Vec3( 0, 0, -1 );
 							vertex.normal = vertex.position;
 							vertices[ currentVertex++ ] = vertex;
 						}
 						else
 						{
-							float c = ( (float)v / (float)vSegments );
-							float angle = -( c * 2 - 1 ) * MathFunctions.PI / 2;
-							float hRadius = MathFunctions.Cos( angle );
-							float h = MathFunctions.Sin( angle );
+							var c = ( (float)v / (float)vSegments );
+							var angle = -( c * 2 - 1 ) * MathFunctions.PI / 2;
+							var hRadius = MathFunctions.Cos( angle );
+							var h = MathFunctions.Sin( angle );
 
-							for( int n = 0; n < hSegments; n++ )
+							for( var n = 0; n < hSegments; n++ )
 							{
-								Vertex vertex = new Vertex();
+								var vertex = new Vertex();
 								vertex.position = new Vec3( cosTable[ n ] * hRadius, sinTable[ n ] * hRadius, h );
 								vertex.normal = vertex.position;
 								vertices[ currentVertex++ ] = vertex;
@@ -913,13 +908,13 @@ namespace ProjectCommon
 
 				//indices
 				{
-					int indexCount = hSegments * ( vSegments - 2 ) * 2 * 3 + hSegments * 3 + hSegments * 3;
+					var indexCount = hSegments * ( vSegments - 2 ) * 2 * 3 + hSegments * 3 + hSegments * 3;
 					indices = new int[ indexCount ];
 
-					int levelCount = vSegments + 1;
-					int currentIndex = 0;
+					var levelCount = vSegments + 1;
+					var currentIndex = 0;
 
-					for( int v = 0; v < levelCount - 1; v++ )
+					for( var v = 0; v < levelCount - 1; v++ )
 					{
 						int index;
 						int nextIndex;
@@ -935,10 +930,10 @@ namespace ProjectCommon
 							nextIndex = 1;
 						}
 
-						for( int n = 0; n < hSegments; n++ )
+						for( var n = 0; n < hSegments; n++ )
 						{
-							int start = n;
-							int end = ( n + 1 ) % hSegments;
+							var start = n;
+							var end = ( n + 1 ) % hSegments;
 
 							if( v == 0 )
 							{
@@ -970,7 +965,7 @@ namespace ProjectCommon
 						Log.Fatal( "DynamicMeshManagerImpl: BlockImpl: AddSphere: indices.Length != currentIndex." );
 				}
 
-				Vec3 scale = new Vec3( radius, radius, radius );
+				var scale = new Vec3( radius, radius, radius );
 				AddTrianglesInternal( allowBatching, vertices, VertexComponents.Normal, indices, ref position, ref rotation,
 					ref scale, material, false );
 			}
@@ -1007,34 +1002,34 @@ namespace ProjectCommon
 				Vertex[] vertices;
 				int[] indices;
 
-				int bottomIndex = 0;
+				var bottomIndex = 0;
 
 				//vertices
 				{
-					int vertexCount = 0;
+					var vertexCount = 0;
 					if( addSide )
 						vertexCount += segments * 2;
 					if( addBottom )
 						vertexCount += segments + 1;
 					vertices = new Vertex[ vertexCount ];
 
-					float[] cosTable = new float[ segments ];
-					float[] sinTable = new float[ segments ];
+					var cosTable = new float[ segments ];
+					var sinTable = new float[ segments ];
 					{
-						float angleStep = MathFunctions.PI * 2 / segments;
-						for( int n = 0; n < segments; n++ )
+						var angleStep = MathFunctions.PI * 2 / segments;
+						for( var n = 0; n < segments; n++ )
 						{
-							float angle = angleStep * n;
+							var angle = angleStep * n;
 							cosTable[ n ] = MathFunctions.Cos( angle );
 							sinTable[ n ] = MathFunctions.Sin( angle );
 						}
 					}
 
-					int currentVertex = 0;
+					var currentVertex = 0;
 
 					if( addSide )
 					{
-						for( int n = 0; n < segments; n++ )
+						for( var n = 0; n < segments; n++ )
 						{
 							Vec3 normal;
 							if( length != 0 )
@@ -1046,14 +1041,14 @@ namespace ProjectCommon
 								normal = new Vec3( 1, 0, 0 );
 
 							{
-								Vertex vertex = new Vertex();
+								var vertex = new Vertex();
 								vertex.position = new Vec3( length, 0, 0 );
 								vertex.normal = normal;
 								vertices[ currentVertex++ ] = vertex;
 							}
 
 							{
-								Vertex vertex = new Vertex();
+								var vertex = new Vertex();
 								vertex.position = new Vec3( 0, cosTable[ n ] * radius, sinTable[ n ] * radius );
 								vertex.normal = normal;
 								vertices[ currentVertex++ ] = vertex;
@@ -1065,15 +1060,15 @@ namespace ProjectCommon
 					{
 						{
 							bottomIndex = currentVertex;
-							Vertex vertex = new Vertex();
+							var vertex = new Vertex();
 							vertex.position = new Vec3( 0, 0, 0 );
 							vertex.normal = new Vec3( -1, 0, 0 );
 							vertices[ currentVertex++ ] = vertex;
 						}
 
-						for( int n = 0; n < segments; n++ )
+						for( var n = 0; n < segments; n++ )
 						{
-							Vertex vertex = new Vertex();
+							var vertex = new Vertex();
 							vertex.position = new Vec3( 0, cosTable[ n ] * radius, sinTable[ n ] * radius );
 							vertex.normal = new Vec3( -1, 0, 0 );
 							vertices[ currentVertex++ ] = vertex;
@@ -1086,18 +1081,18 @@ namespace ProjectCommon
 
 				//indices
 				{
-					int indexCount = 0;
+					var indexCount = 0;
 					if( addSide )
 						indexCount += segments * 3;
 					if( addBottom )
 						indexCount += segments * 3;
 					indices = new int[ indexCount ];
 
-					int currentIndex = 0;
+					var currentIndex = 0;
 
 					if( addSide )
 					{
-						for( int n = 0; n < segments; n++ )
+						for( var n = 0; n < segments; n++ )
 						{
 							indices[ currentIndex++ ] = n * 2;
 							indices[ currentIndex++ ] = n * 2 + 1;
@@ -1106,7 +1101,7 @@ namespace ProjectCommon
 					}
 					if( addBottom )
 					{
-						for( int n = 0; n < segments; n++ )
+						for( var n = 0; n < segments; n++ )
 						{
 							indices[ currentIndex++ ] = bottomIndex + 1 + ( n + 1 ) % segments;
 							indices[ currentIndex++ ] = bottomIndex + 1 + n;
@@ -1118,7 +1113,7 @@ namespace ProjectCommon
 						Log.Fatal( "DynamicMeshManagerImpl: BlockImpl: AddCone: indices.Length != currentIndex." );
 				}
 
-				Vec3 scale = Vec3.One;
+				var scale = Vec3.One;
 				AddTrianglesInternal( allowBatching, vertices, VertexComponents.Normal, indices, ref position, ref rotation,
 					ref scale, material, false );
 			}
@@ -1158,55 +1153,55 @@ namespace ProjectCommon
 
 				//vertices
 				{
-					int vertexCount = hSegments * ( vSegments - 1 ) + 2;
+					var vertexCount = hSegments * ( vSegments - 1 ) + 2;
 					vertices = new Vertex[ vertexCount ];
 
-					float[] cosTable = new float[ hSegments ];
-					float[] sinTable = new float[ hSegments ];
+					var cosTable = new float[ hSegments ];
+					var sinTable = new float[ hSegments ];
 					{
-						float angleStep = MathFunctions.PI * 2 / hSegments;
-						for( int n = 0; n < hSegments; n++ )
+						var angleStep = MathFunctions.PI * 2 / hSegments;
+						for( var n = 0; n < hSegments; n++ )
 						{
-							float angle = angleStep * n;
+							var angle = angleStep * n;
 							cosTable[ n ] = MathFunctions.Cos( angle );
 							sinTable[ n ] = MathFunctions.Sin( angle );
 						}
 					}
 
-					int currentVertex = 0;
-					int levelCount = vSegments + 1;
+					var currentVertex = 0;
+					var levelCount = vSegments + 1;
 
-					for( int v = 0; v < levelCount; v++ )
+					for( var v = 0; v < levelCount; v++ )
 					{
 						if( v == 0 )
 						{
-							Vertex vertex = new Vertex();
+							var vertex = new Vertex();
 							vertex.position = new Vec3( 0, 0, radius + length * .5f );
 							vertex.normal = new Vec3( 0, 0, 1 );
 							vertices[ currentVertex++ ] = vertex;
 						}
 						else if( v == vSegments )
 						{
-							Vertex vertex = new Vertex();
+							var vertex = new Vertex();
 							vertex.position = new Vec3( 0, 0, -radius - length * .5f );
 							vertex.normal = new Vec3( 0, 0, -1 );
 							vertices[ currentVertex++ ] = vertex;
 						}
 						else
 						{
-							bool top = v <= vSegments / 2;
+							var top = v <= vSegments / 2;
 							float c;
 							if( top )
 								c = ( (float)v / (float)( vSegments - 1 ) );
 							else
 								c = ( (float)( v - 1 ) / (float)( vSegments - 1 ) );
-							float angle = -( c * 2 - 1 ) * MathFunctions.PI / 2;
-							float hRadius = MathFunctions.Cos( angle ) * radius;
-							float h = MathFunctions.Sin( angle ) * radius + ( top ? length * .5f : -length * .5f );
+							var angle = -( c * 2 - 1 ) * MathFunctions.PI / 2;
+							var hRadius = MathFunctions.Cos( angle ) * radius;
+							var h = MathFunctions.Sin( angle ) * radius + ( top ? length * .5f : -length * .5f );
 
-							for( int n = 0; n < hSegments; n++ )
+							for( var n = 0; n < hSegments; n++ )
 							{
-								Vertex vertex = new Vertex();
+								var vertex = new Vertex();
 								vertex.position = new Vec3( cosTable[ n ] * hRadius, sinTable[ n ] * hRadius, h );
 								vertex.normal = new Vec3( cosTable[ n ] * hRadius, sinTable[ n ] * hRadius,
 									MathFunctions.Sin( angle ) * radius ).GetNormalize();
@@ -1221,13 +1216,13 @@ namespace ProjectCommon
 
 				//indices
 				{
-					int indexCount = hSegments * ( vSegments - 2 ) * 2 * 3 + hSegments * 3 + hSegments * 3;
+					var indexCount = hSegments * ( vSegments - 2 ) * 2 * 3 + hSegments * 3 + hSegments * 3;
 					indices = new int[ indexCount ];
 
-					int levelCount = vSegments + 1;
-					int currentIndex = 0;
+					var levelCount = vSegments + 1;
+					var currentIndex = 0;
 
-					for( int v = 0; v < levelCount - 1; v++ )
+					for( var v = 0; v < levelCount - 1; v++ )
 					{
 						int index;
 						int nextIndex;
@@ -1243,10 +1238,10 @@ namespace ProjectCommon
 							nextIndex = 1;
 						}
 
-						for( int n = 0; n < hSegments; n++ )
+						for( var n = 0; n < hSegments; n++ )
 						{
-							int start = n;
-							int end = ( n + 1 ) % hSegments;
+							var start = n;
+							var end = ( n + 1 ) % hSegments;
 
 							if( v == 0 )
 							{
@@ -1277,7 +1272,7 @@ namespace ProjectCommon
 						Log.Fatal( "DynamicMeshManagerImpl: BlockImpl: AddCapsule: indices.Length != currentIndex." );
 				}
 
-				Vec3 scale = Vec3.One;
+				var scale = Vec3.One;
 				AddTrianglesInternal( allowBatching, vertices, VertexComponents.Normal, indices, ref position, ref rotation,
 					ref scale, material, false );
 			}
@@ -1311,18 +1306,18 @@ namespace ProjectCommon
 				Vertex[] vertices;
 				int[] indices;
 
-				int topIndex = 0;
-				int topStartIndex = 0;
+				var topIndex = 0;
+				var topStartIndex = 0;
 
-				int bottomIndex = 0;
-				int bottomStartIndex = 0;
+				var bottomIndex = 0;
+				var bottomStartIndex = 0;
 
-				int sideTopIndex = 0;
-				int sideBottomIndex = 0;
+				var sideTopIndex = 0;
+				var sideBottomIndex = 0;
 
 				//vertices
 				{
-					int vertexCount = 0;
+					var vertexCount = 0;
 
 					if( addSide )
 						vertexCount += segments * 2;
@@ -1332,24 +1327,24 @@ namespace ProjectCommon
 						vertexCount += segments + 1;
 					vertices = new Vertex[ vertexCount ];
 
-					float[] cosTable = new float[ segments ];
-					float[] sinTable = new float[ segments ];
+					var cosTable = new float[ segments ];
+					var sinTable = new float[ segments ];
 					{
-						float angleStep = MathFunctions.PI * 2 / segments;
-						for( int n = 0; n < segments; n++ )
+						var angleStep = MathFunctions.PI * 2 / segments;
+						for( var n = 0; n < segments; n++ )
 						{
-							float angle = angleStep * n;
+							var angle = angleStep * n;
 							cosTable[ n ] = MathFunctions.Cos( angle );
 							sinTable[ n ] = MathFunctions.Sin( angle );
 						}
 					}
 
-					int currentVertex = 0;
+					var currentVertex = 0;
 
 					if( addSide )
 					{
 						sideTopIndex = currentVertex;
-						for( int n = 0; n < segments; n++ )
+						for( var n = 0; n < segments; n++ )
 						{
 							vertices[ currentVertex++ ] = new Vertex(
 								new Vec3( cosTable[ n ] * radius, sinTable[ n ] * radius, height * .5f ),
@@ -1357,7 +1352,7 @@ namespace ProjectCommon
 						}
 
 						sideBottomIndex = currentVertex;
-						for( int n = 0; n < segments; n++ )
+						for( var n = 0; n < segments; n++ )
 						{
 							vertices[ currentVertex++ ] = new Vertex(
 								new Vec3( cosTable[ n ] * radius, sinTable[ n ] * radius, -height * .5f ),
@@ -1368,7 +1363,7 @@ namespace ProjectCommon
 					if( addTop )
 					{
 						topStartIndex = currentVertex;
-						for( int n = 0; n < segments; n++ )
+						for( var n = 0; n < segments; n++ )
 						{
 							vertices[ currentVertex++ ] = new Vertex(
 								new Vec3( cosTable[ n ] * radius, sinTable[ n ] * radius, height * .5f ),
@@ -1384,7 +1379,7 @@ namespace ProjectCommon
 					if( addBottom )
 					{
 						bottomStartIndex = currentVertex;
-						for( int n = 0; n < segments; n++ )
+						for( var n = 0; n < segments; n++ )
 						{
 							vertices[ currentVertex++ ] = new Vertex(
 								new Vec3( cosTable[ n ] * radius, sinTable[ n ] * radius, -height * .5f ),
@@ -1403,7 +1398,7 @@ namespace ProjectCommon
 
 				//indices
 				{
-					int indexCount = 0;
+					var indexCount = 0;
 
 					if( addSide )
 						indexCount += segments * 2 * 3;
@@ -1414,14 +1409,14 @@ namespace ProjectCommon
 
 					indices = new int[ indexCount ];
 
-					int currentIndex = 0;
+					var currentIndex = 0;
 
 					if( addSide )
 					{
-						for( int n = 0; n < segments; n++ )
+						for( var n = 0; n < segments; n++ )
 						{
-							int start = n;
-							int end = ( n + 1 ) % segments;
+							var start = n;
+							var end = ( n + 1 ) % segments;
 
 							indices[ currentIndex++ ] = sideTopIndex + end;
 							indices[ currentIndex++ ] = sideTopIndex + start;
@@ -1434,10 +1429,10 @@ namespace ProjectCommon
 					}
 					if( addTop )
 					{
-						for( int n = 0; n < segments; n++ )
+						for( var n = 0; n < segments; n++ )
 						{
-							int start = n;
-							int end = ( n + 1 ) % segments;
+							var start = n;
+							var end = ( n + 1 ) % segments;
 
 							indices[ currentIndex++ ] = topStartIndex + start;
 							indices[ currentIndex++ ] = topStartIndex + end;
@@ -1446,10 +1441,10 @@ namespace ProjectCommon
 					}
 					if( addBottom )
 					{
-						for( int n = 0; n < segments; n++ )
+						for( var n = 0; n < segments; n++ )
 						{
-							int start = n;
-							int end = ( n + 1 ) % segments;
+							var start = n;
+							var end = ( n + 1 ) % segments;
 
 							indices[ currentIndex++ ] = bottomStartIndex + end;
 							indices[ currentIndex++ ] = bottomStartIndex + start;
@@ -1461,7 +1456,7 @@ namespace ProjectCommon
 						Log.Fatal( "DynamicMeshManagerImpl: BlockImpl: AddCylinder: indices.Length != currentIndex." );
 				}
 
-				Vec3 scale = Vec3.One;
+				var scale = Vec3.One;
 				AddTrianglesInternal( allowBatching, vertices, VertexComponents.Normal, indices, ref position, ref rotation,
 					ref scale, material, false );
 			}
@@ -1469,34 +1464,34 @@ namespace ProjectCommon
 			public override void AddLine( bool allowBatching, Vec3 start, Vec3 end, float thickness, int segments, bool addCaps,
 				MaterialData material )
 			{
-				Vec3 position = ( start + end ) * .5f;
-				Vec3 direction = end - start;
-				float length = direction.Normalize();
+				var position = ( start + end ) * .5f;
+				var direction = end - start;
+				var length = direction.Normalize();
 				length += thickness;
-				Quat rotation = Quat.FromDirectionZAxisUp( direction ) * Mat3.FromRotateByY( MathFunctions.PI / 2 ).ToQuat();
+				var rotation = Quat.FromDirectionZAxisUp( direction ) * Mat3.FromRotateByY( MathFunctions.PI / 2 ).ToQuat();
 				AddCylinder( allowBatching, position, rotation, length, thickness * .5f, segments, addCaps, true, addCaps, material );
 			}
 
 			unsafe static Vertex[] GetVerticesFromVertexData( VertexData vertexData, out VertexComponents components )
 			{
-				int vertexCount = vertexData.VertexCount;
+				var vertexCount = vertexData.VertexCount;
 
 				components = 0;
-				Vertex[] vertices = new Vertex[ vertexCount ];
+				var vertices = new Vertex[ vertexCount ];
 
 				fixed( Vertex* pVertices = vertices )
 				{
 					//enumerate source buffers
-					for( int source = 0; source < vertexData.VertexBufferBinding.GetBufferCount(); source++ )
+					for( var source = 0; source < vertexData.VertexBufferBinding.GetBufferCount(); source++ )
 					{
 						if( vertexData.VertexBufferBinding.IsBufferBound( source ) )
 						{
-							HardwareVertexBuffer buffer = vertexData.VertexBufferBinding.GetBuffer( source );
-							int vertexSize = buffer.VertexSizeInBytes;
-							byte* sourcePointer = (byte*)buffer.Lock( HardwareBuffer.LockOptions.ReadOnly );
+							var buffer = vertexData.VertexBufferBinding.GetBuffer( source );
+							var vertexSize = buffer.VertexSizeInBytes;
+							var sourcePointer = (byte*)buffer.Lock( HardwareBuffer.LockOptions.ReadOnly );
 							sourcePointer += vertexData.VertexStart * vertexSize;
 
-							foreach( VertexElement element in vertexData.VertexDeclaration.GetElements() )
+							foreach( var element in vertexData.VertexDeclaration.GetElements() )
 							{
 								if( element.Source == source )
 								{
@@ -1506,9 +1501,9 @@ namespace ProjectCommon
 										if( element.Type == VertexElementType.Float3 )
 										{
 											//copy data
-											Vertex* pVertex = pVertices;
-											byte* pointer = sourcePointer + element.Offset;
-											for( int n = 0; n < vertexCount; n++ )
+											var pVertex = pVertices;
+											var pointer = sourcePointer + element.Offset;
+											for( var n = 0; n < vertexCount; n++ )
 											{
 												pVertex->position = *(Vec3*)pointer;
 												pVertex++;
@@ -1518,9 +1513,9 @@ namespace ProjectCommon
 										else if( element.Type == VertexElementType.Float2 )
 										{
 											//copy data
-											Vertex* pVertex = pVertices;
-											byte* pointer = sourcePointer + element.Offset;
-											for( int n = 0; n < vertexCount; n++ )
+											var pVertex = pVertices;
+											var pointer = sourcePointer + element.Offset;
+											for( var n = 0; n < vertexCount; n++ )
 											{
 												pVertex->position = new Vec3( *(Vec2*)pointer, 0 );
 												pVertex++;
@@ -1534,9 +1529,9 @@ namespace ProjectCommon
 										components |= VertexComponents.Normal;
 
 										//copy data
-										Vertex* pVertex = pVertices;
-										byte* pointer = sourcePointer + element.Offset;
-										for( int n = 0; n < vertexCount; n++ )
+										var pVertex = pVertices;
+										var pointer = sourcePointer + element.Offset;
+										for( var n = 0; n < vertexCount; n++ )
 										{
 											pVertex->normal = *(Vec3*)pointer;
 											pVertex++;
@@ -1554,9 +1549,9 @@ namespace ProjectCommon
 												components |= VertexComponents.TexCoord0;
 
 												//copy data
-												Vertex* pVertex = pVertices;
-												byte* pointer = sourcePointer + element.Offset;
-												for( int n = 0; n < vertexCount; n++ )
+												var pVertex = pVertices;
+												var pointer = sourcePointer + element.Offset;
+												for( var n = 0; n < vertexCount; n++ )
 												{
 													pVertex->texCoord0 = *(Vec2*)pointer;
 													pVertex++;
@@ -1570,9 +1565,9 @@ namespace ProjectCommon
 												components |= VertexComponents.TexCoord1;
 
 												//copy data
-												Vertex* pVertex = pVertices;
-												byte* pointer = sourcePointer + element.Offset;
-												for( int n = 0; n < vertexCount; n++ )
+												var pVertex = pVertices;
+												var pointer = sourcePointer + element.Offset;
+												for( var n = 0; n < vertexCount; n++ )
 												{
 													pVertex->texCoord1 = *(Vec2*)pointer;
 													pVertex++;
@@ -1586,9 +1581,9 @@ namespace ProjectCommon
 												components |= VertexComponents.TexCoord2;
 
 												//copy data
-												Vertex* pVertex = pVertices;
-												byte* pointer = sourcePointer + element.Offset;
-												for( int n = 0; n < vertexCount; n++ )
+												var pVertex = pVertices;
+												var pointer = sourcePointer + element.Offset;
+												for( var n = 0; n < vertexCount; n++ )
 												{
 													pVertex->texCoord2 = *(Vec2*)pointer;
 													pVertex++;
@@ -1602,9 +1597,9 @@ namespace ProjectCommon
 												components |= VertexComponents.TexCoord3;
 
 												//copy data
-												Vertex* pVertex = pVertices;
-												byte* pointer = sourcePointer + element.Offset;
-												for( int n = 0; n < vertexCount; n++ )
+												var pVertex = pVertices;
+												var pointer = sourcePointer + element.Offset;
+												for( var n = 0; n < vertexCount; n++ )
 												{
 													pVertex->texCoord3 = *(Vec2*)pointer;
 													pVertex++;
@@ -1621,9 +1616,9 @@ namespace ProjectCommon
 										components |= VertexComponents.Tangent;
 
 										//copy data
-										Vertex* pVertex = pVertices;
-										byte* pointer = sourcePointer + element.Offset;
-										for( int n = 0; n < vertexCount; n++ )
+										var pVertex = pVertices;
+										var pointer = sourcePointer + element.Offset;
+										for( var n = 0; n < vertexCount; n++ )
 										{
 											pVertex->tangent = *(Vec4*)pointer;
 											pVertex++;
@@ -1638,9 +1633,9 @@ namespace ProjectCommon
 											components |= VertexComponents.Color;
 
 											//copy data
-											Vertex* pVertex = pVertices;
-											byte* pointer = sourcePointer + element.Offset;
-											for( int n = 0; n < vertexCount; n++ )
+											var pVertex = pVertices;
+											var pointer = sourcePointer + element.Offset;
+											for( var n = 0; n < vertexCount; n++ )
 											{
 												pVertex->color = new ColorValue( *(Vec4*)pointer );
 												pVertex++;
@@ -1652,11 +1647,11 @@ namespace ProjectCommon
 											components |= VertexComponents.Color;
 
 											//copy data
-											Vertex* pVertex = pVertices;
-											byte* pointer = sourcePointer + element.Offset;
-											for( int n = 0; n < vertexCount; n++ )
+											var pVertex = pVertices;
+											var pointer = sourcePointer + element.Offset;
+											for( var n = 0; n < vertexCount; n++ )
 											{
-												Vec3 v = *(Vec3*)pointer;
+												var v = *(Vec3*)pointer;
 												pVertex->color = new ColorValue( v.X, v.Y, v.Z, 1 );
 												pVertex++;
 												pointer += vertexSize;
@@ -1667,7 +1662,7 @@ namespace ProjectCommon
 										{
 											components |= VertexComponents.Color;
 
-											VertexElementType elementType = element.Type;
+											var elementType = element.Type;
 											if( elementType == VertexElementType.Color )
 											{
 												if( RenderSystem.Instance.IsDirect3D() )
@@ -1679,15 +1674,15 @@ namespace ProjectCommon
 											if( elementType == VertexElementType.ColorARGB )
 											{
 												//copy data
-												Vertex* pVertex = pVertices;
-												byte* pointer = sourcePointer + element.Offset;
-												for( int n = 0; n < vertexCount; n++ )
+												var pVertex = pVertices;
+												var pointer = sourcePointer + element.Offset;
+												for( var n = 0; n < vertexCount; n++ )
 												{
-													uint color = *(uint*)pointer;
-													float a = ( ( color & 0xFF000000 ) >> 24 ) / 255.0f;
-													float r = ( ( color & 0x00FF0000 ) >> 16 ) / 255.0f;
-													float g = ( ( color & 0x0000FF00 ) >> 8 ) / 255.0f;
-													float b = ( ( color & 0x000000FF ) >> 0 ) / 255.0f;
+													var color = *(uint*)pointer;
+													var a = ( ( color & 0xFF000000 ) >> 24 ) / 255.0f;
+													var r = ( ( color & 0x00FF0000 ) >> 16 ) / 255.0f;
+													var g = ( ( color & 0x0000FF00 ) >> 8 ) / 255.0f;
+													var b = ( ( color & 0x000000FF ) >> 0 ) / 255.0f;
 													pVertex->color = new ColorValue( r, g, b, a );
 													pVertex++;
 													pointer += vertexSize;
@@ -1696,15 +1691,15 @@ namespace ProjectCommon
 											else
 											{
 												//copy data
-												Vertex* pVertex = pVertices;
-												byte* pointer = sourcePointer + element.Offset;
-												for( int n = 0; n < vertexCount; n++ )
+												var pVertex = pVertices;
+												var pointer = sourcePointer + element.Offset;
+												for( var n = 0; n < vertexCount; n++ )
 												{
-													uint color = *(uint*)pointer;
-													float a = ( ( color & 0xFF000000 ) >> 24 ) / 255.0f;
-													float b = ( ( color & 0x00FF0000 ) >> 16 ) / 255.0f;
-													float g = ( ( color & 0x0000FF00 ) >> 8 ) / 255.0f;
-													float r = ( ( color & 0x000000FF ) >> 0 ) / 255.0f;
+													var color = *(uint*)pointer;
+													var a = ( ( color & 0xFF000000 ) >> 24 ) / 255.0f;
+													var b = ( ( color & 0x00FF0000 ) >> 16 ) / 255.0f;
+													var g = ( ( color & 0x0000FF00 ) >> 8 ) / 255.0f;
+													var r = ( ( color & 0x000000FF ) >> 0 ) / 255.0f;
 													pVertex->color = new ColorValue( r, g, b, a );
 													pVertex++;
 													pointer += vertexSize;
@@ -1730,12 +1725,12 @@ namespace ProjectCommon
 
 				DestroyCompiledData();
 
-				List<CompiledItem> compiledDataList = new List<CompiledItem>();
+				var compiledDataList = new List<CompiledItem>();
 
-				Dictionary<InputItem, List<InputItem>> batches =
+				var batches =
 					new Dictionary<InputItem, List<InputItem>>( inputData.Count, compileBatchComparer );
 
-				foreach( InputItem inputItem in inputData )
+				foreach( var inputItem in inputData )
 				{
 					if( inputItem.dataType == InputItem.DataTypes.Mesh )
 					{
@@ -1744,7 +1739,7 @@ namespace ProjectCommon
 							//meshes
 
 							//load mesh
-							Mesh mesh = MeshManager.Instance.GetByName( inputItem.meshName );
+							var mesh = MeshManager.Instance.GetByName( inputItem.meshName );
 							if( mesh == null )
 								mesh = MeshManager.Instance.Load( inputItem.meshName );
 							if( mesh == null )
@@ -1759,14 +1754,14 @@ namespace ProjectCommon
 								//make batches, compile later.
 
 								//create input items from the mesh
-								List<InputItem> meshInputItems = new List<InputItem>( mesh.SubMeshes.Length );
-								foreach( SubMesh subMesh in mesh.SubMeshes )
+								var meshInputItems = new List<InputItem>( mesh.SubMeshes.Length );
+								foreach( var subMesh in mesh.SubMeshes )
 								{
-									InputItem item = new InputItem();
+									var item = new InputItem();
 									item.dataType = InputItem.DataTypes.Triangles;
 
 									//create triangles, indices from sub mesh
-									VertexData vertexData = subMesh.UseSharedVertices ? mesh.SharedVertexData : subMesh.VertexData;
+									var vertexData = subMesh.UseSharedVertices ? mesh.SharedVertexData : subMesh.VertexData;
 									item.trianglesVertices = GetVerticesFromVertexData( vertexData, out item.trianglesVertexComponents );
 									item.trianglesIndices = subMesh.IndexData.GetIndices();
 									item.position = inputItem.position;
@@ -1783,7 +1778,7 @@ namespace ProjectCommon
 								}
 
 								//add input items to the batches dictionary
-								foreach( InputItem meshInputItem in meshInputItems )
+								foreach( var meshInputItem in meshInputItems )
 								{
 									List<InputItem> list;
 									if( !batches.TryGetValue( meshInputItem, out list ) )
@@ -1797,7 +1792,7 @@ namespace ProjectCommon
 							else
 							{
 								//compile non batched items
-								CompiledItem compiledItem = new CompiledItem();
+								var compiledItem = new CompiledItem();
 								compiledItem.mesh = mesh;
 								compiledItem.needDisposeMesh = false;
 								compiledItem.position = inputItem.position;
@@ -1827,18 +1822,18 @@ namespace ProjectCommon
 						else
 						{
 							//compile non batched items
-							List<InputItem> list = new List<InputItem>( 1 );
+							var list = new List<InputItem>( 1 );
 							list.Add( inputItem );
-							CompiledItem compiledItem = CompileInputItems( list );
+							var compiledItem = CompileInputItems( list );
 							compiledDataList.Add( compiledItem );
 						}
 					}
 				}
 
 				//generate batches for triangles
-				foreach( List<InputItem> list in batches.Values )
+				foreach( var list in batches.Values )
 				{
-					CompiledItem compiledItem = CompileInputItems( list );
+					var compiledItem = CompileInputItems( list );
 					compiledDataList.Add( compiledItem );
 				}
 
@@ -1852,10 +1847,10 @@ namespace ProjectCommon
 			{
 				if( compiledData != null )
 				{
-					foreach( CompiledItem item in compiledData )
+					foreach( var item in compiledData )
 					{
-						if( item.needDisposeMesh && item.mesh != null )
-							item.mesh.Dispose();
+						if( item.needDisposeMesh )
+							item.mesh?.Dispose();
 					}
 					compiledData = null;
 				}
@@ -1968,12 +1963,10 @@ namespace ProjectCommon
 			{
 				if( meshObjects != null )
 				{
-					foreach( MeshObjectItem item in meshObjects )
+					foreach( var item in meshObjects )
 					{
-						if( item.sceneNode != null )
-							item.sceneNode.Dispose();
-						if( item.meshObject != null )
-							item.meshObject.Dispose();
+						item.sceneNode?.Dispose();
+						item.meshObject?.Dispose();
 					}
 					meshObjects = null;
 				}
@@ -1987,10 +1980,10 @@ namespace ProjectCommon
 					rotation = rot;
 					scale = scl;
 
-					for( int nMeshObject = 0; nMeshObject < meshObjects.Length; nMeshObject++ )
+					for( var nMeshObject = 0; nMeshObject < meshObjects.Length; nMeshObject++ )
 					{
-						MeshObjectItem meshObjectItem = meshObjects[ nMeshObject ];
-						BlockImpl.CompiledItem compiledItem = block.compiledData[ nMeshObject ];
+						var meshObjectItem = meshObjects[ nMeshObject ];
+						var compiledItem = block.compiledData[ nMeshObject ];
 						meshObjectItem.sceneNode.Position = position + rotation * ( compiledItem.position * scale );
 						meshObjectItem.sceneNode.Rotation = rotation * compiledItem.rotation;
 						meshObjectItem.sceneNode.Scale = scale * compiledItem.scale;
@@ -2000,9 +1993,9 @@ namespace ProjectCommon
 
 			public void SetVisible( bool visible )
 			{
-				for( int n = 0; n < meshObjects.Length; n++ )
+				for( var n = 0; n < meshObjects.Length; n++ )
 				{
-					SceneObject.MeshObjectItem item = meshObjects[ n ];
+					var item = meshObjects[ n ];
 					if( item.sceneNode != null )
 						item.sceneNode.Visible = visible;
 				}
@@ -2014,9 +2007,9 @@ namespace ProjectCommon
 				{
 					this.castShadows = castShadows;
 
-					for( int n = 0; n < meshObjects.Length; n++ )
+					for( var n = 0; n < meshObjects.Length; n++ )
 					{
-						SceneObject.MeshObjectItem item = meshObjects[ n ];
+						var item = meshObjects[ n ];
 						if( item.meshObject != null && item.meshObject.CastShadows != castShadows )
 							item.meshObject.CastShadows = castShadows;
 					}
@@ -2042,7 +2035,7 @@ namespace ProjectCommon
 					//      "and material.Parameters == null." );
 					//}
 
-					ShaderBaseMaterial realMaterial = owner.materialManagerWithoutTextures.GetOrCreateRealMaterial(
+					var realMaterial = owner.materialManagerWithoutTextures.GetOrCreateRealMaterial(
 						material.parameters, material.materialManagerWithoutTexturesIndex );
 					if( realMaterial != null )
 					{
@@ -2051,11 +2044,11 @@ namespace ProjectCommon
 						materialsUpdated = true;
 
 						//update gpu parameters
-						foreach( MeshObject.SubObject subObject in meshObject.SubObjects )
+						foreach( var subObject in meshObject.SubObjects )
 						{
 							subObject.SetCustomGpuParameter( (int)ShaderBaseMaterial.GpuParameters.dynamicDiffuseScale,
 								material.parameters.DiffuseColor.ToVec4() );
-							ColorValue spec = material.parameters.SpecularColor;
+							var spec = material.parameters.SpecularColor;
 							subObject.SetCustomGpuParameter( (int)ShaderBaseMaterial.GpuParameters.dynamicSpecularScaleAndShininess,
 								new Vec4( spec.Red, spec.Green, spec.Blue, material.parameters.SpecularShininess ) );
 						}
@@ -2066,7 +2059,7 @@ namespace ProjectCommon
 				{
 					//MaterialParameter with diffuse map
 
-					ShaderBaseMaterial realMaterial = owner.materialManagerWithTextures.GetOrCreateRealMaterial( material.parameters );
+					var realMaterial = owner.materialManagerWithTextures.GetOrCreateRealMaterial( material.parameters );
 					if( realMaterial != null )
 					{
 						//update material names
@@ -2074,11 +2067,11 @@ namespace ProjectCommon
 						materialsUpdated = true;
 
 						//update gpu parameters
-						foreach( MeshObject.SubObject subObject in meshObject.SubObjects )
+						foreach( var subObject in meshObject.SubObjects )
 						{
 							subObject.SetCustomGpuParameter( (int)ShaderBaseMaterial.GpuParameters.dynamicDiffuseScale,
 								material.parameters.DiffuseColor.ToVec4() );
-							ColorValue spec = material.parameters.SpecularColor;
+							var spec = material.parameters.SpecularColor;
 							subObject.SetCustomGpuParameter( (int)ShaderBaseMaterial.GpuParameters.dynamicSpecularScaleAndShininess,
 								new Vec4( spec.Red, spec.Green, spec.Blue, material.parameters.SpecularShininess ) );
 						}
@@ -2095,11 +2088,11 @@ namespace ProjectCommon
 					this.material = materialOfSceneItem;
 
 					//update mesh objects
-					for( int nMeshObject = 0; nMeshObject < meshObjects.Length; nMeshObject++ )
+					for( var nMeshObject = 0; nMeshObject < meshObjects.Length; nMeshObject++ )
 					{
-						MeshObjectItem item = meshObjects[ nMeshObject ];
+						var item = meshObjects[ nMeshObject ];
 
-						MeshObject meshObject = item.meshObject;
+						var meshObject = item.meshObject;
 						if( meshObject != null )
 						{
 							//get new material for mesh object
@@ -2112,8 +2105,8 @@ namespace ProjectCommon
 							//need to update material for mesh object
 							if( item.assignedMaterial != materialForItem )
 							{
-								bool materialsUpdated = false;
-								bool gpuParametersUpdated = false;
+								var materialsUpdated = false;
+								var gpuParametersUpdated = false;
 
 								//set material to mesh object
 								if( materialForItem != null )
@@ -2126,11 +2119,11 @@ namespace ProjectCommon
 								//restore original material names from the mesh. reset gpu parameters.
 								if( item.assignedMaterial != null && ( !materialsUpdated || !gpuParametersUpdated ) )
 								{
-									Mesh mesh = meshObject.Mesh;
-									for( int nSubMesh = 0; nSubMesh < meshObject.SubObjects.Length; nSubMesh++ )
+									var mesh = meshObject.Mesh;
+									for( var nSubMesh = 0; nSubMesh < meshObject.SubObjects.Length; nSubMesh++ )
 									{
-										MeshObject.SubObject subObject = meshObject.SubObjects[ nSubMesh ];
-										string materialName = mesh.SubMeshes[ nSubMesh ].MaterialName;
+										var subObject = meshObject.SubObjects[ nSubMesh ];
+										var materialName = mesh.SubMeshes[ nSubMesh ].MaterialName;
 
 										//remove custom gpu parameters
 										if( !gpuParametersUpdated )
@@ -2211,9 +2204,9 @@ namespace ProjectCommon
 
 			public void DisposeAllRealMaterials()
 			{
-				for( int n = 0; n < realMaterials.Length; n++ )
+				for( var n = 0; n < realMaterials.Length; n++ )
 				{
-					ShaderBaseMaterial material = realMaterials[ n ];
+					var material = realMaterials[ n ];
 					if( material != null )
 					{
 						material.Dispose();
@@ -2224,7 +2217,7 @@ namespace ProjectCommon
 
 			public int GetIndex( MaterialParameters parameters )
 			{
-				int index = 0;
+				var index = 0;
 
 				switch( parameters.Blending )
 				{
@@ -2286,7 +2279,7 @@ namespace ProjectCommon
 
 			public void DisposeAllRealMaterials()
 			{
-				foreach( KeyValuePair<MaterialParameters, ShaderBaseMaterial> pair in realMaterials )
+				foreach( var pair in realMaterials )
 					pair.Value.Dispose();
 				realMaterials.Clear();
 
@@ -2349,7 +2342,7 @@ namespace ProjectCommon
 
 		public override Block CreateBlock( string uniqueKeyForCaching )
 		{
-			BlockImpl block = new BlockImpl( this );
+			var block = new BlockImpl( this );
 
 			if( maxLifeTimeNotUsedDataInCache != 0 && !string.IsNullOrEmpty( uniqueKeyForCaching ) )
 			{
@@ -2401,13 +2394,13 @@ namespace ProjectCommon
 				materialImpl = null;
 
 			//TO DO: we can compile data from EndScene() method. Also parallelization on the threads is possible.
-			BlockImpl blockImpl = (BlockImpl)block;
+			var blockImpl = (BlockImpl)block;
 			if( !blockImpl.IsCompiled() )
 				blockImpl.Compile();
 
 			if( blockImpl.IsCompiled() )
 			{
-				SceneItem item = new SceneItem();
+				var item = new SceneItem();
 				item.block = blockImpl;
 				item.position = position;
 				item.rotation = rotation;
@@ -2430,36 +2423,33 @@ namespace ProjectCommon
 				sceneObjectsArray = new SceneObject[ sceneItems.Count ];
 
 				//try get scene object from the cache with exact settings (equal transform, equal material)
-				for( int nSceneObject = 0; nSceneObject < sceneObjectsArray.Length; nSceneObject++ )
+				for( var nSceneObject = 0; nSceneObject < sceneObjectsArray.Length; nSceneObject++ )
 				{
-					SceneItem item = sceneItems[ nSceneObject ];
-					if( item.block.freeSceneObjectsCache != null )
+					var item = sceneItems[ nSceneObject ];
+					var sceneObject = item.block.freeSceneObjectsCache?.GetFromCacheExact( ref item.position,
+						ref item.rotation, ref item.scale, item.material );
+					if( sceneObject != null )
 					{
-						SceneObject sceneObject = item.block.freeSceneObjectsCache.GetFromCacheExact( ref item.position,
-							ref item.rotation, ref item.scale, item.material );
-						if( sceneObject != null )
-						{
-							//update cast shadows flag
-							sceneObject.SetCastShadows( item.castShadows, true );
-							//show scene object
-							sceneObject.SetVisible( showScene );
+						//update cast shadows flag
+						sceneObject.SetCastShadows( item.castShadows, true );
+						//show scene object
+						sceneObject.SetVisible( showScene );
 
-							sceneObjectsArray[ nSceneObject ] = sceneObject;
-						}
+						sceneObjectsArray[ nSceneObject ] = sceneObject;
 					}
 				}
 
 				//try get scene object from the cache with different settings (diffrent transform or/and different material)
-				for( int nSceneObject = 0; nSceneObject < sceneObjectsArray.Length; nSceneObject++ )
+				for( var nSceneObject = 0; nSceneObject < sceneObjectsArray.Length; nSceneObject++ )
 				{
 					if( sceneObjectsArray[ nSceneObject ] == null )
 					{
-						SceneItem item = sceneItems[ nSceneObject ];
+						var item = sceneItems[ nSceneObject ];
 						if( item.block.freeSceneObjectsCache != null )
 						{
 							bool exactTransform;
 							bool exactMaterial;
-							SceneObject sceneObject = item.block.freeSceneObjectsCache.GetFromCacheNotExact( ref item.position,
+							var sceneObject = item.block.freeSceneObjectsCache.GetFromCacheNotExact( ref item.position,
 								ref item.rotation, ref item.scale, item.material, out exactTransform, out exactMaterial );
 							if( sceneObject != null )
 							{
@@ -2483,22 +2473,22 @@ namespace ProjectCommon
 				}
 
 				//create new scene objects
-				for( int nSceneObject = 0; nSceneObject < sceneObjectsArray.Length; nSceneObject++ )
+				for( var nSceneObject = 0; nSceneObject < sceneObjectsArray.Length; nSceneObject++ )
 				{
 					if( sceneObjectsArray[ nSceneObject ] == null )
 					{
-						SceneItem item = sceneItems[ nSceneObject ];
+						var item = sceneItems[ nSceneObject ];
 
-						SceneObject sceneObject = new SceneObject();
+						var sceneObject = new SceneObject();
 						sceneObject.block = item.block;
 
 						//create mesh objects
 						sceneObject.meshObjects = new SceneObject.MeshObjectItem[ item.block.compiledData.Length ];
-						for( int nMeshObject = 0; nMeshObject < sceneObject.meshObjects.Length; nMeshObject++ )
+						for( var nMeshObject = 0; nMeshObject < sceneObject.meshObjects.Length; nMeshObject++ )
 						{
-							SceneObject.MeshObjectItem meshObjectItem = new SceneObject.MeshObjectItem();
+							var meshObjectItem = new SceneObject.MeshObjectItem();
 
-							BlockImpl.CompiledItem compiledItem = item.block.compiledData[ nMeshObject ];
+							var compiledItem = item.block.compiledData[ nMeshObject ];
 
 							//create mesh object
 							meshObjectItem.meshObject = SceneManager.Instance.CreateMeshObject( compiledItem.mesh.Name );
@@ -2531,16 +2521,16 @@ namespace ProjectCommon
 			if( sceneUnderConstruction )
 				Log.Fatal( "DynamicMeshManagerImpl: ClearScene: The scene is under construction." );
 
-			float time = EngineApp.Instance.Time;
+			var time = EngineApp.Instance.Time;
 
 			//clear scene objects from the scene. move scene objects to the cache or delete all for clearCaches == true.
 			if( sceneObjectsArray != null )
 			{
-				foreach( SceneObject sceneObject in sceneObjectsArray )
+				foreach( var sceneObject in sceneObjectsArray )
 				{
 					if( sceneObject != null )
 					{
-						BlockImpl block = sceneObject.block;
+						var block = sceneObject.block;
 						if( maxLifeTimeNotUsedDataInCache != 0 && !clearCaches && block.useCaching )
 						{
 							//move scene object to the cache
@@ -2573,7 +2563,7 @@ namespace ProjectCommon
 
 			//delete scene objects from the cache which are not used long time or delete all for clearCaches == true.
 			{
-				foreach( BlockImpl block in blockCache.Values )
+				foreach( var block in blockCache.Values )
 				{
 					if( block.freeSceneObjectsCache != null )
 					{
@@ -2583,7 +2573,7 @@ namespace ProjectCommon
 							block.freeSceneObjectsCache.DeleteAll();
 					}
 				}
-				foreach( BlockImpl block in blocksWithoutCaching )
+				foreach( var block in blocksWithoutCaching )
 				{
 					if( block.freeSceneObjectsCache != null )
 					{
@@ -2605,7 +2595,7 @@ namespace ProjectCommon
 					}
 					else
 					{
-						foreach( BlockImpl block in blockCache.Values )
+						foreach( var block in blockCache.Values )
 						{
 							if( block.freeSceneObjectsCache != null && !block.freeSceneObjectsCache.IsEmpty() )
 								Log.Fatal( "DynamicMeshManagerImpl: Internal error: block.freeSceneObjectsCache != null && !block.freeSceneObjectsCache.IsEmpty()." );
@@ -2622,7 +2612,7 @@ namespace ProjectCommon
 				{
 					Set<BlockImpl> savedBlocks = null;
 
-					foreach( BlockImpl block in blocksWithoutCaching )
+					foreach( var block in blocksWithoutCaching )
 					{
 						if( block.freeSceneObjectsCache != null && !block.freeSceneObjectsCache.IsEmpty() )
 						{
@@ -2666,11 +2656,11 @@ namespace ProjectCommon
 
 				if( sceneObjectsArray != null )
 				{
-					foreach( SceneObject sceneObject in sceneObjectsArray )
+					foreach( var sceneObject in sceneObjectsArray )
 					{
 						if( sceneObject != null && sceneObject.meshObjects != null )
 						{
-							foreach( SceneObject.MeshObjectItem item in sceneObject.meshObjects )
+							foreach( var item in sceneObject.meshObjects )
 							{
 								if( item.sceneNode != null )
 									item.sceneNode.Visible = showScene;
@@ -2688,7 +2678,7 @@ namespace ProjectCommon
 
 		protected override MaterialData OnCreateMaterial( string materialName )
 		{
-			MaterialDataImpl material = new MaterialDataImpl( this );
+			var material = new MaterialDataImpl( this );
 			material.materialName = materialName;
 			material.materialNameHashCode = materialName.GetHashCode();
 			return material;
@@ -2696,7 +2686,7 @@ namespace ProjectCommon
 
 		protected override MaterialData OnCreateMaterial( MaterialParameters parameters )
 		{
-			MaterialDataImpl material = new MaterialDataImpl( this );
+			var material = new MaterialDataImpl( this );
 			material.parameters = parameters;
 			if( string.IsNullOrEmpty( parameters.DiffuseMap ) )
 				material.materialManagerWithoutTexturesIndex = materialManagerWithoutTextures.GetIndex( parameters );
@@ -2712,7 +2702,7 @@ namespace ProjectCommon
 			sceneObjectsInScene = 0;
 			if( sceneObjectsArray != null )
 			{
-				for( int n = 0; n < sceneObjectsArray.Length; n++ )
+				for( var n = 0; n < sceneObjectsArray.Length; n++ )
 				{
 					if( sceneObjectsArray[ n ] != null )
 						sceneObjectsInScene++;
@@ -2720,12 +2710,12 @@ namespace ProjectCommon
 			}
 
 			freeSceneObjects = 0;
-			foreach( BlockImpl block in blockCache.Values )
+			foreach( var block in blockCache.Values )
 			{
 				if( block.freeSceneObjectsCache != null )
 					freeSceneObjects += block.freeSceneObjectsCache.GetSceneObjectCount();
 			}
-			foreach( BlockImpl block in blocksWithoutCaching )
+			foreach( var block in blocksWithoutCaching )
 			{
 				if( block.freeSceneObjectsCache != null )
 					freeSceneObjects += block.freeSceneObjectsCache.GetSceneObjectCount();
@@ -2734,14 +2724,14 @@ namespace ProjectCommon
 
 		void DeleteLongTimeNotUsedBlocksFromCache()
 		{
-			float time = EngineApp.Instance.Time;
+			var time = EngineApp.Instance.Time;
 
 			List<KeyValuePair<string, BlockImpl>> pairsToDelete = null;
 
-			foreach( KeyValuePair<string, BlockImpl> pair in blockCache )
+			foreach( var pair in blockCache )
 			{
-				string key = pair.Key;
-				BlockImpl block = pair.Value;
+				var key = pair.Key;
+				var block = pair.Value;
 
 				if( time - block.lastUsingTime > maxLifeTimeNotUsedDataInCache )
 				{
@@ -2756,10 +2746,10 @@ namespace ProjectCommon
 
 			if( pairsToDelete != null )
 			{
-				for( int n = 0; n < pairsToDelete.Count; n++ )
+				for( var n = 0; n < pairsToDelete.Count; n++ )
 				{
-					string key = pairsToDelete[ n ].Key;
-					BlockImpl block = pairsToDelete[ n ].Value;
+					var key = pairsToDelete[ n ].Key;
+					var block = pairsToDelete[ n ].Value;
 
 					blockCache.Remove( key );
 					block.Dispose();
@@ -2777,16 +2767,15 @@ namespace ProjectCommon
 					uniqueMaterialNameForMaterialsWithTextures = 0;
 
 				materialName = HighLevelMaterialManager.Instance.GetUniqueMaterialName(
-					string.Format( "DynamicMeshManagerImpl_MaterialManager_{0}_{1}", parameters.DiffuseMap,
-					uniqueMaterialNameForMaterialsWithTextures ) );
+					$"DynamicMeshManagerImpl_MaterialManager_{parameters.DiffuseMap}_{uniqueMaterialNameForMaterialsWithTextures}");
 			}
 			else
 			{
 				materialName = HighLevelMaterialManager.Instance.GetUniqueMaterialName(
-					string.Format( "DynamicMeshManagerImpl_MaterialManager_{0}", indexForMaterialsWithoutTexture ) );
+					$"DynamicMeshManagerImpl_MaterialManager_{indexForMaterialsWithoutTexture}");
 			}
 
-			ShaderBaseMaterial material = (ShaderBaseMaterial)HighLevelMaterialManager.Instance.CreateMaterial( materialName,
+			var material = (ShaderBaseMaterial)HighLevelMaterialManager.Instance.CreateMaterial( materialName,
 				"ShaderBaseMaterial" );
 
 			//general parameters

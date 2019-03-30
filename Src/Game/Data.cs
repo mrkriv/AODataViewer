@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Text;
-using ICSharpCode.SharpZipLib.Checksums;
 using ICSharpCode.SharpZipLib.Zip;
 using System.IO;
 using System.IO.Compression;
@@ -16,110 +14,130 @@ namespace Game
 
         public Data(string path)
         {
-            DateTime d = DateTime.Now;
+            var loadBeginDate = DateTime.Now;
 
-            string pak = "";
-            long TotalSize = 0;
-            int TotalFile = 0;
-            File Loc = null;
+            VerInfo.TotalSize = 0;
+            VerInfo.TotalFile = 0;
+            VerInfo.TotalVFile = 0;
+            VerInfo.Path = path;
+
             Files = new List<File>();
 
-            ZipFile z = new ZipFile(path + "\\data\\Packs\\Version.pak");
-            ZipEntry e = z.GetEntry("Version/DataPacksInfo.bin");
-            Stream s = z.GetInputStream(e);
+            LoadDataDirectory(path, "data");
+            LoadTextsPack("data");
 
-            byte[] buffer = new byte[e.Size];
-            s.Read(buffer, 0, (int)e.Size);
-
-            string[] str = Encoding.UTF8.GetString(buffer).Split('\n');
-
-            foreach (string item in str)
+            if (Directory.Exists(path + "\\data_warp"))
             {
-                if (item != "")
-                {
-                    string[] sub = item.Split('\t');
-                    if (pak == "")
-                    {
-                        pak = sub[0];
-                        TotalSize += int.Parse(sub[2]);
-                        TotalFile += int.Parse(sub[1]);
-                    }
-                    else
-                    {
-                        File f = new File(sub[0], pak, int.Parse(sub[2]));
-                        if (sub[0] == "Bin/pack.loc")
-                            Loc = f;
-                        else
-                            Files.Add(f);
-                    }
-                }
-                else
-                    pak = "";
+                LoadTextsPack("data_warp");
             }
 
-            s.Close();
-            z.Close();
-            VerInfo.Path = path;
-            VerInfo.TotalSize = TotalSize;
-            VerInfo.TotalFile = TotalFile;
+            //Files.Sort((a, b) => a.Name.CompareTo(b.Name));
+
+            var offest = DateTime.Now - loadBeginDate;
+            EngineConsole.Instance.Print("Файловая система загружена " + offest.TotalSeconds.ToString("0.00") + "c");
+
+            VerInfo.LoadTime = offest.TotalSeconds;
+        }
+
+        private void LoadDataDirectory(string path, string dataFolder)
+        {
+            var buffer = ReadFromZip(path + "\\" + dataFolder + "\\Packs\\Version.pak", "Version/DataPacksInfo.bin");
+
+            var pak = "";
+            var str = Encoding.UTF8.GetString(buffer).Split('\n');
+            var folder = "\\" + dataFolder + "\\Packs\\";
+
+            foreach (var item in str)
+            {
+                if (item == "")
+                {
+                    pak = "";
+                    continue;
+                }
+
+                var sub = item.Split('\t');
+                if (pak == "")
+                {
+                    pak = sub[0];
+                    VerInfo.TotalSize += int.Parse(sub[2]);
+                    VerInfo.TotalFile += int.Parse(sub[1]);
+                }
+                else
+                {
+                    var localPathToPak = folder + pak;
+                    var f = new File(sub[0], localPathToPak, int.Parse(sub[2]));
+                    Files.Add(f);
+                }
+            }
+        }
+
+        private void LoadTextsPack(string dataFolder)
+        {
+            var Loc = new File("Bin/pack.loc", dataFolder + "\\Packs\\Texts.pak", 0);
 
             Loc.ReadData(true);
-            buffer = Loc.Data.GetRange(0, 16).ToArray();
-            List<byte> loc = Loc.Data.GetRange(16, Loc.Data.Count - 16);
+            var buffer = Loc.Data.GetRange(0, 16).ToArray();
+            var loc = Loc.Data.GetRange(16, Loc.Data.Count - 16);
 
-            int sizes_pos = BitConverter.ToInt32(buffer, 4);
-            int item_count = BitConverter.ToInt32(buffer, 12);
+            var sizes_pos = BitConverter.ToInt32(buffer, 4);
+            var item_count = BitConverter.ToInt32(buffer, 12);
 
-            int i = 0;
-            for (; i < item_count; i++)
+            for (var i = 0; i < item_count; i++)
             {
-                byte[] item = loc.GetRange(i * 12, 12).ToArray();
-                int pos = BitConverter.ToInt32(item, 0);
-                int str_size = BitConverter.ToInt32(item, 4);
-                int id = BitConverter.ToInt32(item, 8);
+                var item = loc.GetRange(i * 12, 12).ToArray();
+                var pos = BitConverter.ToInt32(item, 0);
+                var str_size = BitConverter.ToInt32(item, 4);
+                var id = BitConverter.ToInt32(item, 8);
 
-                byte[] fat_entry = loc.GetRange(sizes_pos + id * 8, 8).ToArray();
-                int item_filesize = BitConverter.ToInt32(fat_entry, 0);
-                int item_filepos = BitConverter.ToInt32(fat_entry, 4);
+                var fat_entry = loc.GetRange(sizes_pos + id * 8, 8).ToArray();
+                var item_filesize = BitConverter.ToInt32(fat_entry, 0);
+                var item_filepos = BitConverter.ToInt32(fat_entry, 4);
 
-                string item_name = Encoding.UTF8.GetString(loc.GetRange(pos + 12 * id, str_size - 1).ToArray());
-                
-                File f = new File(item_name, "", 0);
+                var item_name = Encoding.UTF8.GetString(loc.GetRange(pos + 12 * id, str_size - 1).ToArray());
+
+                var f = new File(item_name, "", 0);
                 f.Data = loc.GetRange(8 + sizes_pos + item_filepos + item_count * 8, item_filesize * 2);
                 Files.Add(f);
+
+                VerInfo.TotalVFile++;
             }
 
             Loc.ClearCache();
+        }
 
-            TimeSpan offest = DateTime.Now - d;
-            EngineConsole.Instance.Print("Файловая система загружена " + offest.TotalSeconds.ToString("0.00") + "c");
+        private byte[] ReadFromZip(string pathToArchive, string pathToFile)
+        {
+            using (var archive = new ZipFile(pathToArchive))
+            {
+                var file = archive.GetEntry(pathToFile);
+                using (var s = archive.GetInputStream(file))
+                {
+                    var buffer = new byte[file.Size];
+                    s.Read(buffer, 0, (int)file.Size);
 
-            VerInfo.TotalVFile = i;
-            VerInfo.LoadTime = offest.TotalSeconds;
+                    return buffer;
+                }
+            }
         }
 
         public class File
         {
-            string name;
-            public int Size;
-            public string Pak;
             public List<byte> Data;
 
-            public string Name
-            {
-                get { return name; }
-            }
+            public int Size { get; }
+            public string Pak { get; }
+            public string Name { get; }
 
             public File(string file, string pak, int size)
             {
-                name = file;
+                Name = file;
                 Pak = pak;
                 Size = size;
             }
 
             public string GetOnlyName()
             {
-                string[] str = name.Split('/');
+                var str = Name.Split('/');
                 return str[str.Length - 1].Split('.')[0];
             }
 
@@ -128,42 +146,47 @@ namespace Game
                 if (Data != null)
                     return;
 
-                ZipFile z = new ZipFile(VerInfo.Path + "\\data\\Packs\\" + Pak);
-                ZipEntry e = z.GetEntry(name);
-                Stream s = z.GetInputStream(e);
+                var z = new ZipFile(VerInfo.Path + "\\" + Pak);
+                var e = z.GetEntry(Name);
+                var s = z.GetInputStream(e);
 
                 if (unzip)
                     UnGZip(s);
                 else
                 {
                     Data = new List<byte>();
-                    byte[] buffer = new byte[e.Size];
+                    var buffer = new byte[e.Size];
                     s.Read(buffer, 0, (int)e.Size);
 
-                    foreach (byte by in buffer)
+                    foreach (var by in buffer)
                         Data.Add(by);
                 }
             }
 
-            public void UnGZip(Stream Stream)
+            public void UnGZip(Stream stream)
             {
                 Data = new List<byte>();
-                Stream.ReadByte();
-                Stream.ReadByte();
-                Stream stream2 = (Stream)new MemoryStream(67108882);
-                using (DeflateStream deflateStream = new DeflateStream(Stream, CompressionMode.Decompress))
-                {
-                    byte[] buffer = new byte[32768];
-                    int count;
-                    while ((count = deflateStream.Read(buffer, 0, buffer.Length)) != 0)
-                        stream2.Write(buffer, 0, count);
-                }
-                byte[] b = new byte[stream2.Length];
-                stream2.Position = 0L;
-                stream2.Read(b, 0, (int)stream2.Length);
 
-                foreach (byte by in b)
-                    Data.Add(by);
+                stream.ReadByte();
+                stream.ReadByte();
+
+                using (var stream2 = (Stream) new MemoryStream(67108882))
+                {
+                    using (var deflateStream = new DeflateStream(stream, CompressionMode.Decompress))
+                    {
+                        var buffer = new byte[32768];
+                        int count;
+                        while ((count = deflateStream.Read(buffer, 0, buffer.Length)) != 0)
+                            stream2.Write(buffer, 0, count);
+                    }
+
+                    var b = new byte[stream2.Length];
+                    stream2.Position = 0L;
+                    stream2.Read(b, 0, (int) stream2.Length);
+
+                    foreach (var by in b)
+                        Data.Add(by);
+                }
             }
 
             public void ClearCache()

@@ -1,7 +1,6 @@
 ﻿using Engine.MathEx;
 using Engine.Renderer;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 
@@ -82,13 +81,13 @@ namespace Engine.UISystem
         {
             base.OnRenderUI(renderer);
 
-            Vec2 offest = GetScreenPosition();
-            Vec2 scale = GetScreenSize();
+            var offest = GetScreenPosition();
+            var scale = GetScreenSize();
 
-            for (int i = 0; i < Buffer.Count - 1; i++)
+            for (var i = 0; i < Buffer.Count - 1; i++)
             {
-                Vec2 In = offest + new Vec2((float)i / (float)Buffer.Count, Buffer[i]) * scale;
-                Vec2 To = offest + new Vec2((float)(i + 1) / (float)Buffer.Count, Buffer[i + 1]) * scale;
+                var In = offest + new Vec2((float)i / (float)Buffer.Count, Buffer[i]) * scale;
+                var To = offest + new Vec2((float)(i + 1) / (float)Buffer.Count, Buffer[i + 1]) * scale;
 
                 renderer.AddLine(In, To, LineColor);
             }
@@ -102,11 +101,11 @@ namespace Engine.UISystem
         void UpdateBuffer()
         {
             Buffer = new List<float>();
-            int max = 0;
+            var max = 0;
 
-            int step = (int)Math.Ceiling(Data.Count / ((int)EngineApp.Instance.VideoMode.X * (double)GetScreenSize().X));
+            var step = (int)Math.Ceiling(Data.Count / ((int)EngineApp.Instance.VideoMode.X * (double)GetScreenSize().X));
 
-            for (int i = 0; i < Data.Count; i += step)
+            for (var i = 0; i < Data.Count; i += step)
             {
                 if (Data[i] > max)
                     max = Data[i];
@@ -114,7 +113,7 @@ namespace Engine.UISystem
                 Buffer.Add(Data[i]);
             }
 
-            for (int i = 0; i < Buffer.Count; i++)
+            for (var i = 0; i < Buffer.Count; i++)
                 Buffer[i] = 1 - Buffer[i] / (float)max;
         }
 

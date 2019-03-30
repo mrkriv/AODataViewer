@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using Engine;
 using Engine.Renderer;
 using Engine.MathEx;
@@ -112,7 +111,7 @@ namespace ProjectCommon
 		void InitInternal()
 		{
 			AddStandardCommands();
-			foreach( Config.Parameter parameter in EngineApp.Instance.Config.Parameters )
+			foreach( var parameter in EngineApp.Instance.Config.Parameters )
 				RegisterConfigParameter( parameter );
 		}
 
@@ -150,14 +149,14 @@ namespace ProjectCommon
 			if( GetCommandByName( name ) != null )
 				return;
 
-			Command command = new Command();
+			var command = new Command();
 			command.name = name;
 			command.handler = handler;
 			command.extendedHandler = extendedHandler;
 			command.description = description;
 			command.userData = userData;
 
-			for( int n = 0; n < commands.Count; n++ )
+			for( var n = 0; n < commands.Count; n++ )
 			{
 				if( string.Equals( name, commands[ n ].Name, StringComparison.OrdinalIgnoreCase ) )
 				{
@@ -192,7 +191,7 @@ namespace ProjectCommon
 
 		public void RemoveCommand( string name )
 		{
-			Command command = GetCommandByName( name );
+			var command = GetCommandByName( name );
 			if( command != null )
 				commands.Remove( command );
 		}
@@ -210,7 +209,7 @@ namespace ProjectCommon
 
 		Command GetCommandByName( string name )
 		{
-			foreach( Command command in commands )
+			foreach( var command in commands )
 				if( string.Equals( command.Name, name, StringComparison.OrdinalIgnoreCase ) )
 					return command;
 			return null;
@@ -226,11 +225,11 @@ namespace ProjectCommon
 			while( strings.Count > 256 )
 				strings.RemoveAt( 0 );
 
-			GuiRenderer renderer = EngineApp.Instance.ScreenGuiRenderer;
+			var renderer = EngineApp.Instance.ScreenGuiRenderer;
 			if( font != null && renderer != null )
 			{
-				Font.WordWrapLinesItem[] items = font.GetWordWrapLines( renderer, text, .98f );
-				foreach( Font.WordWrapLinesItem item in items )
+				var items = font.GetWordWrapLines( renderer, text, .98f );
+				foreach( var item in items )
 				{
 					if( stringDownPosition == strings.Count - 1 )
 						stringDownPosition++;
@@ -268,7 +267,7 @@ namespace ProjectCommon
 			string name;
 			string args;
 			{
-				int index = str.IndexOf( ' ' );
+				var index = str.IndexOf( ' ' );
 
 				if( index != -1 )
 				{
@@ -290,20 +289,18 @@ namespace ProjectCommon
 			while( history.Count > 256 )
 				history.RemoveAt( 0 );
 
-			Command command = GetCommandByName( name );
+			var command = GetCommandByName( name );
 			if( command == null )
 			{
 				if( defaultCommandHandler != null )
 					defaultCommandHandler( str );
 				else
-					Print( string.Format( "Unknown command \"{0}\"", name ), new ColorValue( 1, 0, 0 ) );
+					Print($"Unknown command \"{name}\"", new ColorValue( 1, 0, 0 ) );
 				return false;
 			}
 
-			if( command.Handler != null )
-				command.Handler( args );
-			if( command.ExtendedHandler != null )
-				command.ExtendedHandler( args, command.UserData );
+			command.Handler?.Invoke( args );
+			command.ExtendedHandler?.Invoke( args, command.UserData );
 
 			return true;
 		}
@@ -401,15 +398,15 @@ namespace ProjectCommon
 
 			case EKeys.Tab:
 				{
-					string str = currentString.Trim();
+					var str = currentString.Trim();
 
 					if( str.Length != 0 )
 					{
-						int count = 0;
-						string lastFounded = "";
-						for( int n = 0; n < commands.Count; n++ )
+						var count = 0;
+						var lastFounded = "";
+						for( var n = 0; n < commands.Count; n++ )
 						{
-							string name = commands[ n ].Name;
+							var name = commands[ n ].Name;
 
 							if( name.Length >= str.Length && string.Equals( name.Substring(
 								0, str.Length ), str, StringComparison.OrdinalIgnoreCase ) )
@@ -421,11 +418,11 @@ namespace ProjectCommon
 
 						if( count != 1 )
 						{
-							List<string> list = new List<string>( 128 );
+							var list = new List<string>( 128 );
 
-							for( int n = 0; n < commands.Count; n++ )
+							for( var n = 0; n < commands.Count; n++ )
 							{
-								string name = commands[ n ].Name;
+								var name = commands[ n ].Name;
 
 								if( name.Length >= str.Length && string.Equals( name.Substring(
 									0, str.Length ), str, StringComparison.OrdinalIgnoreCase ) )
@@ -434,20 +431,20 @@ namespace ProjectCommon
 								}
 							}
 
-							foreach( string s in list )
+							foreach( var s in list )
 								Print( s );
 
 							currentString = str;
 
 							if( list.Count != 0 )
 							{
-								int pos = currentString.Length;
+								var pos = currentString.Length;
 								while( true )
 								{
 									if( list[ 0 ].Length <= pos )
 										break;
-									char c = list[ 0 ][ pos ];
-									for( int n = 1; n < list.Count; n++ )
+									var c = list[ 0 ][ pos ];
+									for( var n = 1; n < list.Count; n++ )
 									{
 										if( list[ n ].Length <= pos )
 											goto end;
@@ -477,7 +474,7 @@ namespace ProjectCommon
 
 			if( currentString.Length < 1024 )
 			{
-				bool allowCharacter = false;
+				var allowCharacter = false;
 
 				if( font != null )
 					allowCharacter = e.KeyChar >= 32 && font.IsCharacterInitialized( e.KeyChar );
@@ -496,7 +493,7 @@ namespace ProjectCommon
 			if( !active )
 				return false;
 
-			int step = delta / 10;
+			var step = delta / 10;
 			stringDownPosition -= step;
 			if( stringDownPosition < 0 )
 				stringDownPosition = 0;
@@ -533,7 +530,7 @@ namespace ProjectCommon
 		{
             try
             {
-                GuiRenderer renderer = EngineApp.Instance.ScreenGuiRenderer;
+                var renderer = EngineApp.Instance.ScreenGuiRenderer;
 
                 if (transparency == 0.0f)
                     return;
@@ -551,22 +548,22 @@ namespace ProjectCommon
                 if (font == null)
                     return;
 
-                Vec2 viewportSize = renderer.ViewportForScreenGuiRenderer.DimensionsInPixels.Size.ToVec2();
-                Vec2 shadowOffset = new Vec2(1, 1) / viewportSize;
+                var viewportSize = renderer.ViewportForScreenGuiRenderer.DimensionsInPixels.Size.ToVec2();
+                var shadowOffset = new Vec2(1, 1) / viewportSize;
 
                 //draw background
-                Rect textureRect = new Rect(0, 0, 10 * renderer.AspectRatio, 10 / 2);
+                var textureRect = new Rect(0, 0, 10 * renderer.AspectRatio, 10 / 2);
                 textureRect -= textureOffset;
                 renderer.AddQuad(new Rect(0, 0, 1, .5f), textureRect, texture, new ColorValue(1, 1, 1, transparency), false);
 
                 //draw border line
                 renderer.AddQuad(new Rect(0, .5f, 1, .508f), new ColorValue(0.29f, 0.6f, 0.86f, 0.9f * transparency));
 
-                float fontheight = font.Height;
+                var fontheight = font.Height;
 
-                float x = .01f;
+                var x = .01f;
 
-                float y = .5f - fontheight;
+                var y = .5f - fontheight;
 
                 string str;
                 if (stringDownPosition != strings.Count - 1)
@@ -587,10 +584,10 @@ namespace ProjectCommon
 
                 y -= fontheight + fontheight * .5f;
 
-                int startpos = stringDownPosition;
+                var startpos = stringDownPosition;
                 if (startpos > strings.Count - 1)
                     startpos = strings.Count - 1;
-                for (int n = startpos; n >= 0 && y - fontheight > 0; n--)
+                for (var n = startpos; n >= 0 && y - fontheight > 0; n--)
                 {
                     renderer.AddText(font, strings[n].text, new Vec2(x, y) + shadowOffset, HorizontalAlign.Left, VerticalAlign.Center, strings[n].color * new ColorValue(0, 0, 0, transparency / 2));
                     renderer.AddText(font, strings[n].text, new Vec2(x, y), HorizontalAlign.Left, VerticalAlign.Center, strings[n].color * new ColorValue(1, 1, 1, transparency));
@@ -602,13 +599,12 @@ namespace ProjectCommon
 
 		void OnConsoleConfigCommand( string arguments, object userData )
 		{
-			Config.Parameter parameter = (Config.Parameter)userData;
+			var parameter = (Config.Parameter)userData;
 
 			if( string.IsNullOrEmpty( arguments ) )
 			{
-				object value = parameter.GetValue();
-				Print( string.Format( "Value: \"{0}\", Default value: \"{1}\"",
-					value != null ? value : "(null)", parameter.DefaultValue ) );
+				var value = parameter.GetValue();
+				Print($"Value: \"{(value != null ? value : "(null)")}\", Default value: \"{parameter.DefaultValue}\"");
 				return;
 			}
 
@@ -616,7 +612,7 @@ namespace ProjectCommon
 			{
 				if( parameter.Field != null )
 				{
-					object value = SimpleTypesUtils.GetSimpleTypeValue( parameter.Field.FieldType,
+					var value = SimpleTypesUtils.GetSimpleTypeValue( parameter.Field.FieldType,
 						arguments );
 					if( value == null )
 						throw new Exception( "Not simple type" );
@@ -624,7 +620,7 @@ namespace ProjectCommon
 				}
 				else if( parameter.Property != null )
 				{
-					object value = SimpleTypesUtils.GetSimpleTypeValue( parameter.Property.PropertyType,
+					var value = SimpleTypesUtils.GetSimpleTypeValue( parameter.Property.PropertyType,
 						arguments );
 					if( value == null )
 						throw new Exception( "Not simple type" );
@@ -633,26 +629,24 @@ namespace ProjectCommon
 			}
 			catch( FormatException e )
 			{
-				string s = "";
+				var s = "";
 				if( parameter.Field != null )
 					s = parameter.Field.FieldType.ToString();
 				else if( parameter.Property != null )
 					s = parameter.Property.PropertyType.ToString();
-				Print( string.Format( "Config : Invalid parameter format \"{0}\" {1}", s,
-					e.Message ), new ColorValue( 1, 0, 0 ) );
+				Print($"Config : Invalid parameter format \"{s}\" {e.Message}", new ColorValue( 1, 0, 0 ) );
 			}
 		}
 
 		public void RegisterConfigParameter( Config.Parameter parameter )
 		{
-			string strType = "";
+			var strType = "";
 			if( parameter.Field != null )
 				strType = parameter.Field.FieldType.Name;
 			else if( parameter.Property != null )
 				strType = parameter.Property.PropertyType.Name;
 
-			string description = string.Format( "\"{0}\", Default: \"{1}\"", strType,
-				parameter.DefaultValue );
+			var description = $"\"{strType}\", Default: \"{parameter.DefaultValue}\"";
 			AddCommand( parameter.Name, OnConsoleConfigCommand, parameter, description );
 		}
 
@@ -678,9 +672,9 @@ namespace ProjectCommon
 		void OnConsoleCommands( string arguments )
 		{
 			Print( "List of commands:" );
-			foreach( Command command in commands )
+			foreach( var command in commands )
 			{
-				string text = command.Name;
+				var text = command.Name;
 				if( command.Description != null )
 					text += " (" + command.Description + ")";
 				Print( text );
@@ -710,8 +704,7 @@ namespace ProjectCommon
 			}
 			else
 			{
-				Print( string.Format( "Value: \"{0}\", Default value: \"{1}\"",
-					EngineApp.Instance.FullScreen, true ) );
+				Print($"Value: \"{EngineApp.Instance.FullScreen}\", Default value: \"{true}\"");
 			}
 		}
 
@@ -721,12 +714,12 @@ namespace ProjectCommon
 			{
 				try
 				{
-					Vec2I mode = Vec2I.Parse( arguments );
+					var mode = Vec2I.Parse( arguments );
 
 					if( EngineApp.Instance.FullScreen && !DisplaySettings.VideoModeExists( mode ) )
 					{
-						string text = string.Format( "Cannot change screen resolution to \"{0}x{1}\". " +
-							"This resolution is not supported by the system.", mode.X, mode.Y );
+						var text = $"Cannot change screen resolution to \"{mode.X}x{mode.Y}\". " +
+						           "This resolution is not supported by the system.";
 						Log.Warning( text );
 						return;
 					}
@@ -740,7 +733,7 @@ namespace ProjectCommon
 			}
 			else
 			{
-				Print( string.Format( "Value: \"{0}\"", EngineApp.Instance.VideoMode ) );
+				Print($"Value: \"{EngineApp.Instance.VideoMode}\"");
 			}
 		}
 
@@ -765,7 +758,7 @@ namespace ProjectCommon
 			}
 			else
 			{
-				Print( string.Format( "Value: \"{0}\"", EngineApp.Instance.TimeScale ) );
+				Print($"Value: \"{EngineApp.Instance.TimeScale}\"");
 			}
 		}
 
@@ -784,7 +777,7 @@ namespace ProjectCommon
 			}
 			else
 			{
-				Print( string.Format( "Value: \"{0}\"", SoundWorld.Instance.MasterChannelGroup.Pitch ) );
+				Print($"Value: \"{SoundWorld.Instance.MasterChannelGroup.Pitch}\"");
 			}
 		}
 

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Engine;
-using Engine.UISystem;
-using Engine.MathEx;
 
 namespace Game
 {
@@ -14,7 +11,7 @@ namespace Game
 
         public Vertex(List<byte> Data, VertexType type)
         {
-            byte[] data = Data.ToArray();
+            var data = Data.ToArray();
 
             if (type.position != 255)
             {
@@ -36,9 +33,9 @@ namespace Game
 
         public static List<Vertex> Read(List<byte> data, VertexType type)
         {
-            List<Vertex> Vertexs = new List<Vertex>();
+            var Vertexs = new List<Vertex>();
 
-            for (int i = 0; i < data.Count / type.Size; i++)
+            for (var i = 0; i < data.Count / type.Size; i++)
                 Vertexs.Add(new Vertex(data.GetRange(i * type.Size, type.Size), type));
 
             return Vertexs;
@@ -46,7 +43,8 @@ namespace Game
 
         public override string ToString()
         {
-            return string.Format("{0} \t{1} \t{2} \t[{3} \t{4}]", x.ToString("0.00"), y.ToString("0.00"), z.ToString("0.00"), u.ToString("0.0000"), v.ToString("0.0000"));
+            return
+                $"{x.ToString("0.00")} \t{y.ToString("0.00")} \t{z.ToString("0.00")} \t[{u.ToString("0.0000")} \t{v.ToString("0.0000")}]";
         }
     }
 

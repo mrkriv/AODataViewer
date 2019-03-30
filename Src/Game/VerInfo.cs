@@ -1,8 +1,5 @@
 ﻿using Engine;
-using Engine.MathEx;
-using Engine.UISystem;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -21,7 +18,7 @@ namespace Game
         public VerInfo(string path)
             : base("VerInfo")
         {
-            byte[] gv = File.ReadAllBytes(path + "\\Profiles\\game.version");
+            var gv = File.ReadAllBytes(path + "\\Profiles\\game.version");
 
             Head = Encoding.UTF8.GetString(gv, 4, 4);
             Ver = Encoding.UTF8.GetString(gv, 12, BitConverter.ToInt32(gv, 8));

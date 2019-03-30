@@ -1,73 +1,51 @@
-// Copyright (C) NeoAxis Group Ltd. This is part of NeoAxis 3D Engine SDK.
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using Engine;
-using Engine.MathEx;
 using Engine.FileSystem;
-using Engine.Renderer;
-using Engine.Utils;
 using ProjectCommon;
-using ProjectEntities;
 
 namespace Game
 {
     public static class Program
     {
-        public static bool needRestartApplication;
         [STAThread]
         static void Main()
         {
-            if (Debugger.IsAttached)
-            {
-                Main2();
-            }
-            else
-            {
-                try
-                {
-                    Main2();
-                }
-                catch (Exception e)
-                {
-                    Log.FatalAsException(e.ToString());
-                }
-            }
-        }
+           // try
+           // {
+                var date = DateTime.Now.ToString("HH.mm.dd.MM.yy");
+                if (!VirtualFileSystem.Init("user:Logs/" + date + ".log", true, null, null, null, null))
+                    return;
 
-        static void Main2()
-        {
-            string date = DateTime.Now.ToString("HH.mm.dd.MM.yy");
-            if (!VirtualFileSystem.Init("user:Logs/" + date + ".log", true, null, null, null, null))
-                return;
+                EngineApp.ConfigName = "user:Config.config";
+                EngineApp.UseDirectInputForMouseRelativeMode = true;
+                EngineApp.AllowWriteEngineConfigFile = true;
+                EngineApp.AllowChangeVideoMode = true;
+                EngineApp.Init(new GameEngineApp());
+                EngineApp.Instance.Config.RegisterClassParameters(typeof(GameEngineApp));
 
-            EngineApp.ConfigName = "user:Config.config";
-            EngineApp.UseDirectInputForMouseRelativeMode = true;
+                EngineApp.Instance.WindowTitle = "Allods Online Viewer";
+                EngineApp.Instance.WindowState = EngineApp.WindowStates.Maximized;
+                EngineApp.Instance.ShowFPS = false;
+                EngineApp.Instance.Icon = Properties.Resources.Logo;
 
-            EngineApp.AllowJoysticksAndCustomInputDevices = true;
-            EngineApp.AllowWriteEngineConfigFile = true;
-            EngineApp.AllowChangeVideoMode = true;
-            EngineApp.Init(new GameEngineApp());
-            EngineApp.Instance.Config.RegisterClassParameters(typeof(GameEngineApp));
+                EngineConsole.Init();
+                if (EngineApp.Instance.Create())
+                    EngineApp.Instance.Run();
 
-            EngineApp.Instance.WindowTitle = "Allods Online Model Viewer";
-            EngineApp.Instance.WindowState = EngineApp.WindowStates.Maximized;
-            EngineApp.Instance.ShowFPS = false;
-            EngineApp.Instance.Icon = Game.Properties.Resources.Logo;
+                EngineApp.Shutdown();
 
-            EngineConsole.Init();
-            if (EngineApp.Instance.Create())
-                EngineApp.Instance.Run();
+                Log.DumpToFile("Program END\r\n");
 
-            EngineApp.Shutdown();
+                VirtualFileSystem.Shutdown();
+           //}
+           //catch (Exception e)
+           //{
+           //    if (Debugger.IsAttached)
+           //        throw;
 
-            Log.DumpToFile("Program END\r\n");
-
-            VirtualFileSystem.Shutdown();
-
-            if (needRestartApplication)
-                Process.Start(System.Reflection.Assembly.GetExecutingAssembly().Location, "");
+           //    Log.FatalAsException(e.ToString());
+           //}
         }
     }
 }

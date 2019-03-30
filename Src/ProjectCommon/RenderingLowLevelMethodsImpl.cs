@@ -1,11 +1,9 @@
 // Copyright (C) NeoAxis Group Ltd. This is part of NeoAxis 3D Engine SDK.
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Engine;
 using Engine.MathEx;
 using Engine.Renderer;
-using Engine.Utils;
 using Engine.MapSystem;
 
 namespace ProjectCommon
@@ -29,28 +27,28 @@ namespace ProjectCommon
 
 		public override void OnSceneManagementUpdateShadowSettings()
 		{
-			ShadowTechniques needShadowTechnique = Map.Instance.ShadowTechnique;
-			PixelFormat textureFormatForDirectionalLight = PixelFormat.L8;
-			PixelFormat textureFormatForSpotLight = PixelFormat.L8;
-			PixelFormat textureFormatForPointLight = PixelFormat.L8;
-			HighLevelMaterial[] defaultCasterMaterials = new HighLevelMaterial[ 3 ];
-			bool textureSelfShadow = false;
-			bool renderBackFaces = false;
-			bool pssm = false;
-			float[] pssmSplitDistances = new float[ 0 ];
-			int directionalLightMaxTextureCount = Map.Instance.ShadowDirectionalLightMaxTextureCount;
-			int spotLightMaxTextureCount = Map.Instance.ShadowSpotLightMaxTextureCount;
-			int pointLightMaxTextureCount = Map.Instance.ShadowPointLightMaxTextureCount;
-			int maxTextureSize = RenderSystem.Instance.Capabilities.MaxTextureSize;
-			Vec2[] shadowLightBiasDirectionalLight = new Vec2[ 3 ];
-			Vec2 shadowLightBiasPointLight = Vec2.Zero;
-			Vec2 shadowLightBiasSpotLight = Vec2.Zero;
+			var needShadowTechnique = Map.Instance.ShadowTechnique;
+			var textureFormatForDirectionalLight = PixelFormat.L8;
+			var textureFormatForSpotLight = PixelFormat.L8;
+			var textureFormatForPointLight = PixelFormat.L8;
+			var defaultCasterMaterials = new HighLevelMaterial[ 3 ];
+			var textureSelfShadow = false;
+			var renderBackFaces = false;
+			var pssm = false;
+			var pssmSplitDistances = new float[ 0 ];
+			var directionalLightMaxTextureCount = Map.Instance.ShadowDirectionalLightMaxTextureCount;
+			var spotLightMaxTextureCount = Map.Instance.ShadowSpotLightMaxTextureCount;
+			var pointLightMaxTextureCount = Map.Instance.ShadowPointLightMaxTextureCount;
+			var maxTextureSize = RenderSystem.Instance.Capabilities.MaxTextureSize;
+			var shadowLightBiasDirectionalLight = new Vec2[ 3 ];
+			var shadowLightBiasPointLight = Vec2.Zero;
+			var shadowLightBiasSpotLight = Vec2.Zero;
 
 			//no shadows for OpenGL ES.
 			if( RenderSystem.Instance.IsOpenGLES() )
 				needShadowTechnique = ShadowTechniques.None;
 
-			bool shadowMap =
+			var shadowMap =
 				needShadowTechnique == ShadowTechniques.ShadowmapLow ||
 				needShadowTechnique == ShadowTechniques.ShadowmapMedium ||
 				needShadowTechnique == ShadowTechniques.ShadowmapHigh ||
@@ -60,8 +58,8 @@ namespace ProjectCommon
 
 			if( shadowMap )
 			{
-				bool atiHardwareShadows = false;
-				bool nvidiaHardwareShadows = false;
+				var atiHardwareShadows = false;
+				var nvidiaHardwareShadows = false;
 				{
 					if( ( RenderSystem.Instance.IsDirect3D() || RenderSystem.Instance.IsOpenGL() ) &&
 						RenderSystem.Instance.IsDepthShadowmapSupported() &&
@@ -89,11 +87,11 @@ namespace ProjectCommon
 					}
 
 					//create material for each light type
-					for( int nLightType = 0; nLightType < 3; nLightType++ )
+					for( var nLightType = 0; nLightType < 3; nLightType++ )
 					{
-						RenderLightType lightType = (RenderLightType)nLightType;
+						var lightType = (RenderLightType)nLightType;
 
-						string materialName = string.Format( "__(system)DefaultShadowCaster_{0}Light", lightType );
+						var materialName = $"__(system)DefaultShadowCaster_{lightType}Light";
 						if( lightType == RenderLightType.Directional || lightType == RenderLightType.Spot )
 						{
 							if( atiHardwareShadows )
@@ -102,7 +100,7 @@ namespace ProjectCommon
 								materialName += "_NvidiaHardwareShadows";
 						}
 
-						DefaultShadowCasterMaterial material = (DefaultShadowCasterMaterial)
+						var material = (DefaultShadowCasterMaterial)
 							HighLevelMaterialManager.Instance.GetMaterialByName( materialName );
 						if( material == null )
 						{
@@ -162,7 +160,7 @@ namespace ProjectCommon
 				{
 					needShadowTechnique = ShadowTechniques.ShadowmapLow;
 
-					ColorValue shadowColor = Map.Instance.ShadowColor;
+					var shadowColor = Map.Instance.ShadowColor;
 					if( shadowColor.Red == shadowColor.Green && shadowColor.Red == shadowColor.Blue )
 					{
 						textureFormatForDirectionalLight = PixelFormat.L8;
@@ -223,27 +221,27 @@ namespace ProjectCommon
 							switch( needShadowTechnique )
 							{
 							case ShadowTechniques.ShadowmapLow:
-								factors = new float[] { 1.0f };
+								factors = new[] { 1.0f };
 								break;
 							case ShadowTechniques.ShadowmapMedium:
-								factors = new float[] { 1.5f };
+								factors = new[] { 1.5f };
 								break;
 							case ShadowTechniques.ShadowmapHigh:
-								factors = new float[] { 1.5f };
+								factors = new[] { 1.5f };
 								break;
 							case ShadowTechniques.ShadowmapLowPSSM:
-								factors = new float[] { 1.0f, 1.0f, 1.0f };
+								factors = new[] { 1.0f, 1.0f, 1.0f };
 								break;
 							case ShadowTechniques.ShadowmapMediumPSSM:
-								factors = new float[] { 1.5f, 1.0f, 1.0f };
+								factors = new[] { 1.5f, 1.0f, 1.0f };
 								break;
 							case ShadowTechniques.ShadowmapHighPSSM:
-								factors = new float[] { 1.5f, 1.5f, 1.0f };
+								factors = new[] { 1.5f, 1.5f, 1.0f };
 								break;
 							}
 
 							float iterationCount = pssm ? 3 : 1;
-							for( int index = 0; index < iterationCount; index++ )
+							for( var index = 0; index < iterationCount; index++ )
 							{
 								if( nvidiaHardwareShadows )
 								{
@@ -272,7 +270,7 @@ namespace ProjectCommon
 							{
 								//Depth24 texture format
 								float textureSize = Map.Instance.GetShadowSpotLightTextureSizeAsInteger();
-								float textureSizeFactor = 1024.0f / textureSize;
+								var textureSizeFactor = 1024.0f / textureSize;
 								shadowLightBiasSpotLight =
 									new Vec2( .001f * qualityFactor * textureSizeFactor, .001f * qualityFactor );
 							}
@@ -317,9 +315,9 @@ namespace ProjectCommon
 
 				SceneManager.Instance.ShadowTextureSelfShadow = textureSelfShadow;
 
-				for( int n = 0; n < shadowLightBiasDirectionalLight.Length; n++ )
+				for( var n = 0; n < shadowLightBiasDirectionalLight.Length; n++ )
 				{
-					Vec2 value = shadowLightBiasDirectionalLight[ n ];
+					var value = shadowLightBiasDirectionalLight[ n ];
 					SceneManager.Instance.SetShadowLightBias( RenderLightType.Directional, n, value.X, value.Y );
 				}
 				SceneManager.Instance.SetShadowLightBias( RenderLightType.Point, 0,
@@ -337,15 +335,14 @@ namespace ProjectCommon
 
 			//update default caster materials
 			{
-				foreach( HighLevelMaterial material in defaultCasterMaterials )
+				foreach( var material in defaultCasterMaterials )
 				{
-					if( material != null )
-						material.UpdateBaseMaterial();
+					material?.UpdateBaseMaterial();
 				}
 
-				for( int n = 0; n < 3; n++ )
+				for( var n = 0; n < 3; n++ )
 				{
-					HighLevelMaterial material = defaultCasterMaterials[ n ];
+					var material = defaultCasterMaterials[ n ];
 					SceneManager.Instance.SetShadowTextureDefaultCasterMaterialName(
 						(RenderLightType)n, material != null ? material.Name : "" );
 				}
@@ -355,10 +352,10 @@ namespace ProjectCommon
 		void GetDirectionalLightCameraCornerPoints( Camera mainCamera, float initialNearDistance,
 			float initialFarDistance, bool clipByShadowFarDistance, out Vec3[] cornerPoints )
 		{
-			float nearDistance = initialNearDistance;
-			float farDistance = initialFarDistance;
+			var nearDistance = initialNearDistance;
+			var farDistance = initialFarDistance;
 
-			Frustum frustum = FrustumUtils.GetFrustumByCamera( mainCamera );
+			var frustum = FrustumUtils.GetFrustumByCamera( mainCamera );
 
 			//clip by shadow far distance sphere (only for perspective camera)
 			if( mainCamera.ProjectionType == ProjectionTypes.Perspective && clipByShadowFarDistance )
@@ -366,26 +363,26 @@ namespace ProjectCommon
 				Vec3[] points = null;
 				frustum.ToPoints( ref points );
 
-				Sphere sphere = new Sphere( mainCamera.DerivedPosition, farDistance );
+				var sphere = new Sphere( mainCamera.DerivedPosition, farDistance );
 
-				Vec3[] intersections = new Vec3[ 3 ];
+				var intersections = new Vec3[ 3 ];
 
-				for( int n = 0; n < 3; n++ )
+				for( var n = 0; n < 3; n++ )
 				{
-					Vec3 pointEnd = points[ n + 4 ];
+					var pointEnd = points[ n + 4 ];
 
 					float scale1;
 					float scale2;
-					Ray ray = new Ray( mainCamera.DerivedPosition, pointEnd - mainCamera.DerivedPosition );
+					var ray = new Ray( mainCamera.DerivedPosition, pointEnd - mainCamera.DerivedPosition );
 					sphere.RayIntersection( ray, out scale1, out scale2 );
-					float scale = Math.Max( scale1, scale2 );
+					var scale = Math.Max( scale1, scale2 );
 
 					intersections[ n ] = ray.GetPointOnRay( scale );
 				}
 
-				Plane farPlane = Plane.FromPoints( intersections[ 0 ], intersections[ 1 ], intersections[ 2 ] );
+				var farPlane = Plane.FromPoints( intersections[ 0 ], intersections[ 1 ], intersections[ 2 ] );
 
-				Ray cameraDirectionAsRay = new Ray( mainCamera.DerivedPosition, mainCamera.DerivedDirection );
+				var cameraDirectionAsRay = new Ray( mainCamera.DerivedPosition, mainCamera.DerivedDirection );
 
 				Vec3 pointByDirection;
 				farPlane.RayIntersection( cameraDirectionAsRay, out pointByDirection );
@@ -412,12 +409,12 @@ namespace ProjectCommon
 			{
 				//perspective camera
 
-				Ray cameraDirectionAsRay = new Ray( mainCamera.DerivedPosition, mainCamera.DerivedDirection );
+				var cameraDirectionAsRay = new Ray( mainCamera.DerivedPosition, mainCamera.DerivedDirection );
 
-				Vec3 nearPoint = cornerPoints[ 0 ];
-				Vec3 farPoint = cornerPoints[ 4 ];
+				var nearPoint = cornerPoints[ 0 ];
+				var farPoint = cornerPoints[ 4 ];
 
-				Vec3 projectedPoint = MathUtils.ProjectPointToLine( cameraDirectionAsRay.Origin,
+				var projectedPoint = MathUtils.ProjectPointToLine( cameraDirectionAsRay.Origin,
 					cameraDirectionAsRay.Origin + cameraDirectionAsRay.Direction, farPoint );
 
 				if( ( projectedPoint - farPoint ).Length() >= ( projectedPoint - nearPoint ).Length() )
@@ -426,10 +423,10 @@ namespace ProjectCommon
 				}
 				else
 				{
-					Vec3 centerBetweenPoints = ( nearPoint + farPoint ) / 2;
+					var centerBetweenPoints = ( nearPoint + farPoint ) / 2;
 
-					Vec3 normal = ( farPoint - centerBetweenPoints ).GetNormalize();
-					Plane plane = Plane.FromPointAndNormal( centerBetweenPoints, normal );
+					var normal = ( farPoint - centerBetweenPoints ).GetNormalize();
+					var plane = Plane.FromPointAndNormal( centerBetweenPoints, normal );
 
 					float scale;
 					plane.RayIntersection( cameraDirectionAsRay, out scale );
@@ -441,8 +438,8 @@ namespace ProjectCommon
 			{
 				//orthographic camera
 
-				Vec3 destinationPoint = Vec3.Zero;
-				foreach( Vec3 point in cornerPoints )
+				var destinationPoint = Vec3.Zero;
+				foreach( var point in cornerPoints )
 					destinationPoint += point;
 				destinationPoint /= (float)cornerPoints.Length;
 
@@ -466,11 +463,11 @@ namespace ProjectCommon
 				{
 					if( SceneManager.Instance.IsShadowTechniquePSSM() )
 					{
-						float[] splitDistances = SceneManager.Instance.ShadowDirectionalLightSplitDistances;
+						var splitDistances = SceneManager.Instance.ShadowDirectionalLightSplitDistances;
 
-						float nearSplitDistance = splitDistances[ directionalLightPSSMTextureIndex ];
-						float farSplitDistance = splitDistances[ directionalLightPSSMTextureIndex + 1 ];
-						bool lastTextureIndex = directionalLightPSSMTextureIndex ==
+						var nearSplitDistance = splitDistances[ directionalLightPSSMTextureIndex ];
+						var farSplitDistance = splitDistances[ directionalLightPSSMTextureIndex + 1 ];
+						var lastTextureIndex = directionalLightPSSMTextureIndex ==
 							SceneManager.Instance.ShadowDirectionalLightSplitTextureCount - 1;
 
 						GetDirectionalLightCameraCornerPoints( mainCamera, nearSplitDistance, farSplitDistance,
@@ -483,7 +480,7 @@ namespace ProjectCommon
 					}
 				}
 
-				Vec3 destinationPoint = GetDirectionalLightCameraDestinationPoint( mainCamera, cornerPoints );
+				var destinationPoint = GetDirectionalLightCameraDestinationPoint( mainCamera, cornerPoints );
 
 				lightCameraPosition = destinationPoint - light.Direction * directionalLightExtrusionDistance;
 
@@ -493,9 +490,9 @@ namespace ProjectCommon
 
 				float maxDistance = 0;
 				{
-					foreach( Vec3 point in cornerPoints )
+					foreach( var point in cornerPoints )
 					{
-						float distance = ( point - destinationPoint ).Length();
+						var distance = ( point - destinationPoint ).Length();
 						if( distance > maxDistance )
 							maxDistance = distance;
 					}
@@ -507,14 +504,14 @@ namespace ProjectCommon
 
 				//fix jittering
 				{
-					Quat lightRotation = Quat.FromDirectionZAxisUp( light.Direction );
+					var lightRotation = Quat.FromDirectionZAxisUp( light.Direction );
 
 					//convert world space camera position into light space
-					Vec3 lightSpacePos = lightRotation.GetInverse() * lightCameraPosition;
+					var lightSpacePos = lightRotation.GetInverse() * lightCameraPosition;
 
 					//snap to nearest texel
 					float textureSize = SceneManager.Instance.ShadowDirectionalLightTextureSize;
-					float worldTexelSize = orthoWindowSize / textureSize;
+					var worldTexelSize = orthoWindowSize / textureSize;
 					lightSpacePos.Y -= (float)Math.IEEERemainder( lightSpacePos.Y, worldTexelSize );
 					lightSpacePos.Z -= (float)Math.IEEERemainder( lightSpacePos.Z, worldTexelSize );
 
@@ -535,11 +532,11 @@ namespace ProjectCommon
 			{
 				//Spot light
 
-				Degree fov = new Radian( light.SpotlightOuterAngle * 1.05f ).InDegrees();
+				var fov = new Radian( light.SpotlightOuterAngle * 1.05f ).InDegrees();
 				if( fov > 179 )
 					fov = 179;
 
-				Vec3 up = Vec3.ZAxis;
+				var up = Vec3.ZAxis;
 				if( Math.Abs( Vec3.Dot( up, light.Direction ) ) >= 1.0f )
 					up = Vec3.YAxis;
 
@@ -562,8 +559,8 @@ namespace ProjectCommon
 				//if( pointLightFaceIndex == 3 )
 				//   skipThisShadowmap = true;
 
-				Vec3 dir = Vec3.Zero;
-				Vec3 up = Vec3.Zero;
+				var dir = Vec3.Zero;
+				var up = Vec3.Zero;
 
 				switch( pointLightFaceIndex )
 				{
@@ -591,7 +588,7 @@ namespace ProjectCommon
 			Vec3[] points = null;
 			frustum.ToPoints( ref points );
 
-			ConvexPolyhedron.Face[] faces = new ConvexPolyhedron.Face[ 12 ];
+			var faces = new ConvexPolyhedron.Face[ 12 ];
 
 			faces[ 0 ] = new ConvexPolyhedron.Face( 5, 4, 7 );
 			faces[ 1 ] = new ConvexPolyhedron.Face( 7, 6, 5 );
@@ -613,14 +610,14 @@ namespace ProjectCommon
 
 		static ConvexPolyhedron MakeConvexPolyhedronForPointLight( RenderLight light )
 		{
-			float radius = light.AttenuationFar;
+			var radius = light.AttenuationFar;
 			radius /= MathFunctions.Cos( MathFunctions.PI * 2.0f / 32.0f );
 
 			Vec3[] vertices;
 			int[] indices;
 			GeometryGenerator.GenerateSphere( radius, 8, 8, false, out vertices, out indices );
 
-			for( int n = 0; n < vertices.Length; n++ )
+			for( var n = 0; n < vertices.Length; n++ )
 				vertices[ n ] = light.Position + vertices[ n ];
 
 			return new ConvexPolyhedron( vertices, indices, .0001f );
@@ -634,16 +631,16 @@ namespace ProjectCommon
 			if( outerAngle > new Degree( 179 ).InRadians() )
 				outerAngle = new Degree( 179 ).InRadians();
 
-			List<Vec3> vertices = new List<Vec3>( 10 );
-			List<ConvexPolyhedron.Face> faces = new List<ConvexPolyhedron.Face>( 16 );
+			var vertices = new List<Vec3>( 10 );
+			var faces = new List<ConvexPolyhedron.Face>( 16 );
 
-			Mat3 worldRotation = Quat.FromDirectionZAxisUp( light.Direction ).ToMat3();
+			var worldRotation = Quat.FromDirectionZAxisUp( light.Direction ).ToMat3();
 
 			float sideAngle;
 			{
-				float radius = MathFunctions.Sin( outerAngle / 2 ) * light.AttenuationFar;
+				var radius = MathFunctions.Sin( outerAngle / 2 ) * light.AttenuationFar;
 
-				float l = MathFunctions.Sqrt( light.AttenuationFar * light.AttenuationFar - radius * radius );
+				var l = MathFunctions.Sqrt( light.AttenuationFar * light.AttenuationFar - radius * radius );
 				radius /= MathFunctions.Cos( MathFunctions.PI * 2 / 16 );
 
 				sideAngle = MathFunctions.ATan( radius / l );
@@ -651,12 +648,12 @@ namespace ProjectCommon
 
 			Vec3 farPoint;
 			{
-				Mat3 pointRotation = worldRotation * Mat3.FromRotateByY( outerAngle / 4 );
-				Vec3 direction = pointRotation * Vec3.XAxis;
-				Vec3 point = light.Position + direction * light.AttenuationFar;
+				var pointRotation = worldRotation * Mat3.FromRotateByY( outerAngle / 4 );
+				var direction = pointRotation * Vec3.XAxis;
+				var point = light.Position + direction * light.AttenuationFar;
 
-				Plane plane = Plane.FromPointAndNormal( point, direction );
-				Ray ray = new Ray( light.Position, light.Direction * light.AttenuationFar );
+				var plane = Plane.FromPointAndNormal( point, direction );
+				var ray = new Ray( light.Position, light.Direction * light.AttenuationFar );
 
 				float scale;
 				plane.RayIntersection( ray, out scale );
@@ -666,35 +663,35 @@ namespace ProjectCommon
 			vertices.Add( light.Position );
 			vertices.Add( farPoint );
 
-			for( int nAxisAngle = 0; nAxisAngle < 8; nAxisAngle++ )
+			for( var nAxisAngle = 0; nAxisAngle < 8; nAxisAngle++ )
 			{
-				float axisAngle = ( MathFunctions.PI * 2 ) * ( (float)nAxisAngle / 8 );
+				var axisAngle = ( MathFunctions.PI * 2 ) * ( (float)nAxisAngle / 8 );
 
-				Mat3 worldAxisRotation = worldRotation * Mat3.FromRotateByX( axisAngle );
+				var worldAxisRotation = worldRotation * Mat3.FromRotateByX( axisAngle );
 
 				Plane sidePlane;
 				{
-					Mat3 sideAngleRotation = Mat3.FromRotateByY( sideAngle + MathFunctions.PI / 2 );
-					Mat3 pointRotation = worldAxisRotation * sideAngleRotation;
+					var sideAngleRotation = Mat3.FromRotateByY( sideAngle + MathFunctions.PI / 2 );
+					var pointRotation = worldAxisRotation * sideAngleRotation;
 					sidePlane = Plane.FromPointAndNormal( light.Position, pointRotation * Vec3.XAxis );
 				}
 
 				{
-					Mat3 pointRotation = worldAxisRotation * Mat3.FromRotateByY( outerAngle / 4 );
-					Vec3 direction = pointRotation * Vec3.XAxis;
-					Vec3 point = light.Position + direction * ( light.AttenuationFar * 1.05f );
+					var pointRotation = worldAxisRotation * Mat3.FromRotateByY( outerAngle / 4 );
+					var direction = pointRotation * Vec3.XAxis;
+					var point = light.Position + direction * ( light.AttenuationFar * 1.05f );
 
-					Ray ray = new Ray( farPoint, point - farPoint );
+					var ray = new Ray( farPoint, point - farPoint );
 
 					float scale;
 					sidePlane.RayIntersection( ray, out scale );
-					Vec3 p = ray.GetPointOnRay( scale );
+					var p = ray.GetPointOnRay( scale );
 
 					vertices.Add( p );
 				}
 			}
 
-			for( int n = 0; n < 8; n++ )
+			for( var n = 0; n < 8; n++ )
 			{
 				faces.Add( new ConvexPolyhedron.Face( 0, n + 2, ( n + 1 ) % 8 + 2 ) );
 				faces.Add( new ConvexPolyhedron.Face( 1, ( n + 1 ) % 8 + 2, n + 2 ) );
@@ -725,14 +722,14 @@ namespace ProjectCommon
 		public override void OnSceneManagementGetLightsForCamera( Camera camera,
 			List<RenderingLowLevelMethods.LightItem> outLights )
 		{
-			Frustum frustum = FrustumUtils.GetFrustumByCamera( camera );
+			var frustum = FrustumUtils.GetFrustumByCamera( camera );
 			if( EngineDebugSettings.FrustumTest && camera.AllowFrustumTestMode )
 			{
 				frustum.HalfWidth *= .5f;
 				frustum.HalfHeight *= .5f;
 			}
 
-			ConvexPolyhedron frustumPolyhedron = GetConvexPolyhedronFromFrustum( ref frustum );
+			var frustumPolyhedron = GetConvexPolyhedronFromFrustum( ref frustum );
 
 			ICollection<RenderLight> list;
 			if( SceneManager.Instance.OverrideVisibleObjects != null )
@@ -740,19 +737,19 @@ namespace ProjectCommon
 			else
 				list = SceneManager.Instance.RenderLights;
 
-			foreach( RenderLight light in list )
+			foreach( var light in list )
 			{
 				if( !light.Visible )
 					continue;
 
-				bool allowCastShadows = true;
+				var allowCastShadows = true;
 
 				if( light.Type == RenderLightType.Point || light.Type == RenderLightType.Spot )
 				{
 					if( light.AttenuationFar <= .01f )
 						continue;
 
-					Sphere lightSphere = new Sphere( light.Position, light.AttenuationFar );
+					var lightSphere = new Sphere( light.Position, light.AttenuationFar );
 
 					//fast culling. not cull everything.
 					if( !frustum.IsIntersectsFast( lightSphere ) )
@@ -772,14 +769,14 @@ namespace ProjectCommon
 					//allowCastShadows
 					if( light.CastShadows )
 					{
-						Sphere frustumShadowSphere = new Sphere( camera.DerivedPosition,
+						var frustumShadowSphere = new Sphere( camera.DerivedPosition,
 							SceneManager.Instance.ShadowFarDistance );
 
 						if( frustumShadowSphere.IsIntersectsSphere( lightSphere ) )
 						{
 							if( light.Type == RenderLightType.Spot )
 							{
-								Cone cone = new Cone( light.Position, light.Direction,
+								var cone = new Cone( light.Position, light.Direction,
 									light.SpotlightOuterAngle / 2 );
 
 								if( !cone.IsIntersectsSphere( frustumShadowSphere ) )
@@ -798,7 +795,7 @@ namespace ProjectCommon
 		static Plane[] GetClipPlanesOfConvexHullAroundMainCameraAndLightPosition(
 			Camera mainCamera, RenderLight light )
 		{
-			Frustum mainFrustum = FrustumUtils.GetFrustumByCamera( mainCamera );
+			var mainFrustum = FrustumUtils.GetFrustumByCamera( mainCamera );
 			if( EngineDebugSettings.FrustumTest && mainCamera.AllowFrustumTestMode )
 			{
 				mainFrustum.HalfWidth *= .5f;
@@ -812,13 +809,13 @@ namespace ProjectCommon
 			mainFrustum.ToPoints( ref frustumPoints );
 
 			//create convex hull from all camera corner points and light position.
-			List<Vec3> convexHullVertices = new List<Vec3>();
+			var convexHullVertices = new List<Vec3>();
 			convexHullVertices.Add( mainFrustum.Origin );
-			for( int n = 4; n < 8; n++ )
+			for( var n = 4; n < 8; n++ )
 				convexHullVertices.Add( frustumPoints[ n ] );
 			convexHullVertices.Add( light.Position );
 
-			Plane[] hullPlanes = ConvexPolyhedron.GetConvexPolyhedronPlanesFromVertices(
+			var hullPlanes = ConvexPolyhedron.GetConvexPolyhedronPlanesFromVertices(
 				convexHullVertices, .0001f );
 			return hullPlanes;
 		}
@@ -826,7 +823,7 @@ namespace ProjectCommon
 		static void WalkSpotLightShadowGeneration( Camera mainCamera, RenderLight light,
 			List<SceneNode> outSceneNodes, List<StaticMeshObject> outStaticMeshObjects )
 		{
-			Sphere lightSphere = new Sphere( light.Position, light.AttenuationFar );
+			var lightSphere = new Sphere( light.Position, light.AttenuationFar );
 
 			int[] sceneGraphIndexes;
 			if( SceneManager.Instance.OverrideVisibleObjects != null )
@@ -838,27 +835,27 @@ namespace ProjectCommon
 				Plane[] clipPlanes;
 				{
 					//add spot light clip planes
-					Plane[] array1 = light.SpotLightClipPlanes;
+					var array1 = light.SpotLightClipPlanes;
 					//add main frustum clip planes and light position
-					Plane[] array2 = GetClipPlanesOfConvexHullAroundMainCameraAndLightPosition( mainCamera, light );
+					var array2 = GetClipPlanesOfConvexHullAroundMainCameraAndLightPosition( mainCamera, light );
 
 					clipPlanes = new Plane[ array1.Length + array2.Length ];
 					Array.Copy( array1, 0, clipPlanes, 0, array1.Length );
 					Array.Copy( array2, 0, clipPlanes, array1.Length, array2.Length );
 				}
-				Bounds clipBounds = lightSphere.ToBounds();
+				var clipBounds = lightSphere.ToBounds();
 				sceneGraphIndexes = SceneManager.Instance.SceneGraph.GetObjects( clipPlanes, clipBounds, 0xFFFFFFFF );
 			}
 
-			foreach( int sceneGraphIndex in sceneGraphIndexes )
+			foreach( var sceneGraphIndex in sceneGraphIndexes )
 			{
-				SceneManager.SceneGraphObjectData data = SceneManager.Instance.SceneGraphObjects[ sceneGraphIndex ];
+				var data = SceneManager.Instance.SceneGraphObjects[ sceneGraphIndex ];
 
 				//SceneNode
-				SceneNode sceneNode = data.SceneNode;
+				var sceneNode = data.SceneNode;
 				if( sceneNode != null && sceneNode.Visible && sceneNode.IsContainsObjectWithCastsShadowsEnabled() )
 				{
-					Bounds sceneNodeBounds = sceneNode.GetWorldBounds();
+					var sceneNodeBounds = sceneNode.GetWorldBounds();
 					//clip by sphere
 					if( lightSphere.IsIntersectsBounds( sceneNodeBounds ) )
 					{
@@ -869,7 +866,7 @@ namespace ProjectCommon
 				}
 
 				//StaticMeshObject
-				StaticMeshObject staticMeshObject = data.StaticMeshObject;
+				var staticMeshObject = data.StaticMeshObject;
 				if( staticMeshObject != null && staticMeshObject.Visible && staticMeshObject.CastShadows )
 				{
 					//clip by sphere
@@ -886,13 +883,13 @@ namespace ProjectCommon
 		static Plane[] GetClipPlanesForPointLightShadowGeneration( Camera mainCamera,
 			RenderLight light, Vec3 pointLightFaceDirection )
 		{
-			Plane[] clipPlanes = new Plane[ 5 ];
+			var clipPlanes = new Plane[ 5 ];
 
-			Vec3 direction = pointLightFaceDirection;
+			var direction = pointLightFaceDirection;
 
-			float attenuationRange = light.AttenuationFar;
+			var attenuationRange = light.AttenuationFar;
 
-			Vec3[] points = new Vec3[ 4 ];
+			var points = new Vec3[ 4 ];
 
 			if( direction.Equals( Vec3.XAxis, .01f ) )
 			{
@@ -947,7 +944,7 @@ namespace ProjectCommon
 				Log.Fatal( "MyRenderingLowLevelMethods: GetClipPlanesForPointLightShadowGeneration: Internal error." );
 			}
 
-			for( int n = 0; n < 4; n++ )
+			for( var n = 0; n < 4; n++ )
 			{
 				clipPlanes[ n ] = Plane.FromPoints( light.Position,
 					light.Position + points[ n ], light.Position + points[ ( n + 1 ) % 4 ] );
@@ -960,7 +957,7 @@ namespace ProjectCommon
 			Vec3 pointLightFaceDirection, List<SceneNode> outSceneNodes,
 			List<StaticMeshObject> outStaticMeshObjects )
 		{
-			Sphere lightSphere = new Sphere( light.Position, light.AttenuationFar );
+			var lightSphere = new Sphere( light.Position, light.AttenuationFar );
 
 			if( !pointLightFaceDirection.Equals( Vec3.Zero, .001f ) )
 			{
@@ -976,27 +973,27 @@ namespace ProjectCommon
 					Plane[] clipPlanes;
 					{
 						//add point light clip planes
-						Plane[] array1 = GetClipPlanesForPointLightShadowGeneration( mainCamera, light, pointLightFaceDirection );
+						var array1 = GetClipPlanesForPointLightShadowGeneration( mainCamera, light, pointLightFaceDirection );
 						//add main frustum clip planes and light position
-						Plane[] array2 = GetClipPlanesOfConvexHullAroundMainCameraAndLightPosition( mainCamera, light );
+						var array2 = GetClipPlanesOfConvexHullAroundMainCameraAndLightPosition( mainCamera, light );
 
 						clipPlanes = new Plane[ array1.Length + array2.Length ];
 						Array.Copy( array1, 0, clipPlanes, 0, array1.Length );
 						Array.Copy( array2, 0, clipPlanes, array1.Length, array2.Length );
 					}
-					Bounds clipBounds = lightSphere.ToBounds();
+					var clipBounds = lightSphere.ToBounds();
 					sceneGraphIndexes = SceneManager.Instance.SceneGraph.GetObjects( clipPlanes, clipBounds, 0xFFFFFFFF );
 				}
 
-				foreach( int sceneGraphIndex in sceneGraphIndexes )
+				foreach( var sceneGraphIndex in sceneGraphIndexes )
 				{
-					SceneManager.SceneGraphObjectData data = SceneManager.Instance.SceneGraphObjects[ sceneGraphIndex ];
+					var data = SceneManager.Instance.SceneGraphObjects[ sceneGraphIndex ];
 
 					//SceneNode
-					SceneNode sceneNode = data.SceneNode;
+					var sceneNode = data.SceneNode;
 					if( sceneNode != null && sceneNode.Visible && sceneNode.IsContainsObjectWithCastsShadowsEnabled() )
 					{
-						Bounds sceneNodeBounds = sceneNode.GetWorldBounds();
+						var sceneNodeBounds = sceneNode.GetWorldBounds();
 						//clip by sphere
 						if( lightSphere.IsIntersectsBounds( sceneNodeBounds ) )
 						{
@@ -1007,7 +1004,7 @@ namespace ProjectCommon
 					}
 
 					//StaticMeshObject
-					StaticMeshObject staticMeshObject = data.StaticMeshObject;
+					var staticMeshObject = data.StaticMeshObject;
 					if( staticMeshObject != null && staticMeshObject.Visible && staticMeshObject.CastShadows )
 					{
 						//clip by sphere
@@ -1035,7 +1032,7 @@ namespace ProjectCommon
 					Plane[] clipPlanes;
 					{
 						//add main frustum clip planes and light position
-						Plane[] array1 = GetClipPlanesOfConvexHullAroundMainCameraAndLightPosition( mainCamera, light );
+						var array1 = GetClipPlanesOfConvexHullAroundMainCameraAndLightPosition( mainCamera, light );
 
 						clipPlanes = new Plane[ 6 + array1.Length ];
 
@@ -1049,19 +1046,19 @@ namespace ProjectCommon
 
 						Array.Copy( array1, 0, clipPlanes, 6, array1.Length );
 					}
-					Bounds clipBounds = lightSphere.ToBounds();
+					var clipBounds = lightSphere.ToBounds();
 					sceneGraphIndexes = SceneManager.Instance.SceneGraph.GetObjects( clipPlanes, clipBounds, 0xFFFFFFFF );
 				}
 
-				foreach( int sceneGraphIndex in sceneGraphIndexes )
+				foreach( var sceneGraphIndex in sceneGraphIndexes )
 				{
-					SceneManager.SceneGraphObjectData data = SceneManager.Instance.SceneGraphObjects[ sceneGraphIndex ];
+					var data = SceneManager.Instance.SceneGraphObjects[ sceneGraphIndex ];
 
 					//SceneNode
-					SceneNode sceneNode = data.SceneNode;
+					var sceneNode = data.SceneNode;
 					if( sceneNode != null && sceneNode.Visible && sceneNode.IsContainsObjectWithCastsShadowsEnabled() )
 					{
-						Bounds sceneNodeBounds = sceneNode.GetWorldBounds();
+						var sceneNodeBounds = sceneNode.GetWorldBounds();
 						//clip by sphere
 						if( lightSphere.IsIntersectsBounds( sceneNodeBounds ) )
 						{
@@ -1072,7 +1069,7 @@ namespace ProjectCommon
 					}
 
 					//StaticMeshObject
-					StaticMeshObject staticMeshObject = data.StaticMeshObject;
+					var staticMeshObject = data.StaticMeshObject;
 					if( staticMeshObject != null && staticMeshObject.Visible && staticMeshObject.CastShadows )
 					{
 						//clip by sphere
@@ -1090,7 +1087,7 @@ namespace ProjectCommon
 		static Plane[] GetClipPlanesForDirectionalLightShadowGeneration( Camera mainCamera,
 			RenderLight light, int pssmTextureIndex )
 		{
-			Frustum mainFrustum = FrustumUtils.GetFrustumByCamera( mainCamera );
+			var mainFrustum = FrustumUtils.GetFrustumByCamera( mainCamera );
 			if( EngineDebugSettings.FrustumTest && mainCamera.AllowFrustumTestMode )
 			{
 				mainFrustum.HalfWidth *= .5f;
@@ -1099,10 +1096,10 @@ namespace ProjectCommon
 
 			if( SceneManager.Instance.IsShadowTechniquePSSM() )
 			{
-				float[] splitDistances = SceneManager.Instance.ShadowDirectionalLightSplitDistances;
+				var splitDistances = SceneManager.Instance.ShadowDirectionalLightSplitDistances;
 
-				float nearSplitDistance = splitDistances[ pssmTextureIndex ];
-				float farSplitDistance = splitDistances[ pssmTextureIndex + 1 ];
+				var nearSplitDistance = splitDistances[ pssmTextureIndex ];
+				var farSplitDistance = splitDistances[ pssmTextureIndex + 1 ];
 
 				const float splitPadding = 1;
 
@@ -1126,10 +1123,10 @@ namespace ProjectCommon
 					mainFrustum.MoveFarDistance( SceneManager.Instance.ShadowFarDistance );
 			}
 
-			List<Plane> clipPlanes = new List<Plane>( 64 );
+			var clipPlanes = new List<Plane>( 64 );
 
 			{
-				Quat lightRotation = Quat.FromDirectionZAxisUp( light.Direction );
+				var lightRotation = Quat.FromDirectionZAxisUp( light.Direction );
 
 				Vec3[] frustumPoints = null;
 				mainFrustum.ToPoints( ref frustumPoints );
@@ -1137,34 +1134,34 @@ namespace ProjectCommon
 				Vec3 frustumCenterPoint;
 				{
 					frustumCenterPoint = Vec3.Zero;
-					foreach( Vec3 point in frustumPoints )
+					foreach( var point in frustumPoints )
 						frustumCenterPoint += point;
 					frustumCenterPoint /= frustumPoints.Length;
 				}
 
 				//calculate frustum points projected to 2d from light direction.
-				Vec2[] projectedFrustumPoints = new Vec2[ frustumPoints.Length ];
+				var projectedFrustumPoints = new Vec2[ frustumPoints.Length ];
 				{
 					//Quat invertFrustumAxis = lightCameraFrustum.Rotation.GetInverse();
-					Quat lightRotationInv = lightRotation.GetInverse();
-					Vec3 translate = frustumCenterPoint - light.Direction * 1000;
+					var lightRotationInv = lightRotation.GetInverse();
+					var translate = frustumCenterPoint - light.Direction * 1000;
 
-					for( int n = 0; n < frustumPoints.Length; n++ )
+					for( var n = 0; n < frustumPoints.Length; n++ )
 					{
-						Vec3 point = frustumPoints[ n ] - translate;
-						Vec3 localPoint = lightRotationInv * point;
+						var point = frustumPoints[ n ] - translate;
+						var localPoint = lightRotationInv * point;
 						projectedFrustumPoints[ n ] = new Vec2( localPoint.Y, localPoint.Z );
 					}
 				}
 
-				int[] edges = ConvexPolygon.GetFromPoints( projectedFrustumPoints, .001f );
+				var edges = ConvexPolygon.GetFromPoints( projectedFrustumPoints, .001f );
 
-				for( int n = 0; n < edges.Length; n++ )
+				for( var n = 0; n < edges.Length; n++ )
 				{
-					Vec3 point1 = frustumPoints[ edges[ n ] ];
-					Vec3 point2 = frustumPoints[ edges[ ( n + 1 ) % edges.Length ] ];
+					var point1 = frustumPoints[ edges[ n ] ];
+					var point2 = frustumPoints[ edges[ ( n + 1 ) % edges.Length ] ];
 
-					Plane plane = Plane.FromVectors( light.Direction,
+					var plane = Plane.FromVectors( light.Direction,
 						( point2 - point1 ).GetNormalize(), point1 );
 
 					clipPlanes.Add( plane );
@@ -1173,7 +1170,7 @@ namespace ProjectCommon
 
 			//add main frustum clip planes
 			{
-				foreach( Plane plane in mainFrustum.Planes )
+				foreach( var plane in mainFrustum.Planes )
 				{
 					if( Vec3.Dot( plane.Normal, light.Direction ) < 0 )
 						continue;
@@ -1184,9 +1181,9 @@ namespace ProjectCommon
 
 			//add directionalLightExtrusionDistance clip plane
 			{
-				Quat rot = Quat.FromDirectionZAxisUp( light.Direction );
-				Vec3 p = mainCamera.Position - light.Direction * directionalLightExtrusionDistance;
-				Plane plane = Plane.FromVectors( rot * Vec3.ZAxis, rot * Vec3.YAxis, p );
+				var rot = Quat.FromDirectionZAxisUp( light.Direction );
+				var p = mainCamera.Position - light.Direction * directionalLightExtrusionDistance;
+				var plane = Plane.FromVectors( rot * Vec3.ZAxis, rot * Vec3.YAxis, p );
 				clipPlanes.Add( plane );
 			}
 
@@ -1203,16 +1200,16 @@ namespace ProjectCommon
 			}
 			else
 			{
-				Plane[] clipPlanes = GetClipPlanesForDirectionalLightShadowGeneration( mainCamera, light, pssmTextureIndex );
+				var clipPlanes = GetClipPlanesForDirectionalLightShadowGeneration( mainCamera, light, pssmTextureIndex );
 				sceneGraphIndexes = SceneManager.Instance.SceneGraph.GetObjects( clipPlanes, 0xFFFFFFFF );
 			}
 
-			foreach( int sceneGraphIndex in sceneGraphIndexes )
+			foreach( var sceneGraphIndex in sceneGraphIndexes )
 			{
-				SceneManager.SceneGraphObjectData data = SceneManager.Instance.SceneGraphObjects[ sceneGraphIndex ];
+				var data = SceneManager.Instance.SceneGraphObjects[ sceneGraphIndex ];
 
 				//SceneNode
-				SceneNode sceneNode = data.SceneNode;
+				var sceneNode = data.SceneNode;
 				if( sceneNode != null && sceneNode.Visible && sceneNode.IsContainsObjectWithCastsShadowsEnabled() )
 				{
 					//clip volumes
@@ -1221,7 +1218,7 @@ namespace ProjectCommon
 				}
 
 				//StaticMeshObject
-				StaticMeshObject staticMeshObject = data.StaticMeshObject;
+				var staticMeshObject = data.StaticMeshObject;
 				if( staticMeshObject != null && staticMeshObject.Visible && staticMeshObject.CastShadows )
 				{
 					//clip volumes
@@ -1241,8 +1238,8 @@ namespace ProjectCommon
 			}
 			else
 			{
-				List<int> list = new List<int>( SceneManager.Instance.SceneGraphObjects.Count );
-				foreach( SceneManager.SceneGraphObjectData data in SceneManager.Instance.SceneGraphObjects )
+				var list = new List<int>( SceneManager.Instance.SceneGraphObjects.Count );
+				foreach( var data in SceneManager.Instance.SceneGraphObjects )
 				{
 					if( data.SceneNode != null )
 						list.Add( data.SceneNode.SceneGraphIndex );
@@ -1252,17 +1249,17 @@ namespace ProjectCommon
 				sceneGraphIndexes = list.ToArray();
 			}
 
-			foreach( int sceneGraphIndex in sceneGraphIndexes )
+			foreach( var sceneGraphIndex in sceneGraphIndexes )
 			{
-				SceneManager.SceneGraphObjectData data = SceneManager.Instance.SceneGraphObjects[ sceneGraphIndex ];
+				var data = SceneManager.Instance.SceneGraphObjects[ sceneGraphIndex ];
 
 				//SceneNode
-				SceneNode sceneNode = data.SceneNode;
+				var sceneNode = data.SceneNode;
 				if( sceneNode != null && sceneNode.Visible )
 					outSceneNodes.Add( sceneNode );
 
 				//StaticMeshObject
-				StaticMeshObject staticMeshObject = data.StaticMeshObject;
+				var staticMeshObject = data.StaticMeshObject;
 				if( staticMeshObject != null && staticMeshObject.Visible )
 					outStaticMeshObjects.Add( staticMeshObject );
 			}
@@ -1298,7 +1295,7 @@ namespace ProjectCommon
 		public override void OnSceneManagementGetObjectsForCamera( Camera camera,
 			List<SceneNode> outSceneNodes, List<StaticMeshObject> outStaticMeshObjects )
 		{
-			Frustum frustum = FrustumUtils.GetFrustumByCamera( camera );
+			var frustum = FrustumUtils.GetFrustumByCamera( camera );
 			if( EngineDebugSettings.FrustumTest && camera.AllowFrustumTestMode )
 			{
 				frustum.HalfWidth *= .5f;
@@ -1311,12 +1308,12 @@ namespace ProjectCommon
 			else
 				sceneGraphIndexes = SceneManager.Instance.SceneGraph.GetObjects( frustum, 0xFFFFFFFF );
 
-			foreach( int sceneGraphIndex in sceneGraphIndexes )
+			foreach( var sceneGraphIndex in sceneGraphIndexes )
 			{
-				SceneManager.SceneGraphObjectData data = SceneManager.Instance.SceneGraphObjects[ sceneGraphIndex ];
+				var data = SceneManager.Instance.SceneGraphObjects[ sceneGraphIndex ];
 
 				//SceneNode
-				SceneNode sceneNode = data.SceneNode;
+				var sceneNode = data.SceneNode;
 				if( sceneNode != null && sceneNode.Visible )
 				{
 					//clip volumes
@@ -1325,7 +1322,7 @@ namespace ProjectCommon
 				}
 
 				//StaticMeshObject
-				StaticMeshObject staticMeshObject = data.StaticMeshObject;
+				var staticMeshObject = data.StaticMeshObject;
 				if( staticMeshObject != null && staticMeshObject.Visible )
 				{
 					//clip volumes
@@ -1341,7 +1338,7 @@ namespace ProjectCommon
 			{
 				//check by bounding sphere
 				{
-					Sphere lightSphere = new Sphere( light.Position, light.AttenuationFar );
+					var lightSphere = new Sphere( light.Position, light.AttenuationFar );
 					if( !lightSphere.IsIntersectsBounds( ref bounds ) )
 						return false;
 				}
@@ -1349,10 +1346,10 @@ namespace ProjectCommon
 				//check by spot light clip planes
 				if( light.Type == RenderLightType.Spot )
 				{
-					Vec3 boundsCenter = bounds.GetCenter();
-					Vec3 boundsHalfSize = boundsCenter - bounds.Minimum;
+					var boundsCenter = bounds.GetCenter();
+					var boundsHalfSize = boundsCenter - bounds.Minimum;
 
-					foreach( Plane plane in light.SpotLightClipPlanes )
+					foreach( var plane in light.SpotLightClipPlanes )
 					{
 						if( plane.GetSide( ref boundsCenter, ref boundsHalfSize ) == Plane.Side.Positive )
 							return false;
@@ -1396,9 +1393,9 @@ namespace ProjectCommon
 			if( tempLightArray.Length != affectingLights.Length )
 				tempLightArray = new RenderLight[ affectingLights.Length ];
 
-			int count = 0;
+			var count = 0;
 
-			foreach( RenderLight light in affectingLights )
+			foreach( var light in affectingLights )
 			{
 				if( light.Type == RenderLightType.Point || light.Type == RenderLightType.Spot )
 				{
@@ -1419,9 +1416,9 @@ namespace ProjectCommon
 			if( tempLightArray.Length != affectingLights.Length )
 				tempLightArray = new RenderLight[ affectingLights.Length ];
 
-			int count = 0;
+			var count = 0;
 
-			foreach( RenderLight light in affectingLights )
+			foreach( var light in affectingLights )
 			{
 				//Sphere boundingSphere = new Sphere( sceneNode.Position, 0 );
 				//{
@@ -1465,10 +1462,10 @@ namespace ProjectCommon
 
 		static void UpdateTotalClipVolumes()
 		{
-			List<Box> list = new List<Box>();
-			foreach( Box[] array in clipVolumes )
+			var list = new List<Box>();
+			foreach( var array in clipVolumes )
 			{
-				foreach( Box volume in array )
+				foreach( var volume in array )
 					list.Add( volume );
 			}
 			totalClipVolumes = list.ToArray();
@@ -1476,7 +1473,7 @@ namespace ProjectCommon
 
 		static bool IsTotalClipVolumesContainsBounds( Bounds bounds )
 		{
-			foreach( Box volume in totalClipVolumes )
+			foreach( var volume in totalClipVolumes )
 			{
 				if( volume.IsContainsBounds( bounds ) )
 					return true;
@@ -1486,14 +1483,14 @@ namespace ProjectCommon
 
 		static int[] GetOverrideVisibleObjectsSceneGraphIndexes()
 		{
-			SceneNode[] sceneNodes = SceneManager.Instance.OverrideVisibleObjects.SceneNodes;
-			StaticMeshObject[] staticMeshObjects = SceneManager.Instance.OverrideVisibleObjects.StaticMeshObjects;
+			var sceneNodes = SceneManager.Instance.OverrideVisibleObjects.SceneNodes;
+			var staticMeshObjects = SceneManager.Instance.OverrideVisibleObjects.StaticMeshObjects;
 
-			int[] sceneGraphIndexes = new int[ sceneNodes.Length + staticMeshObjects.Length ];
-			int index = 0;
-			for( int n = 0; n < sceneNodes.Length; n++, index++ )
+			var sceneGraphIndexes = new int[ sceneNodes.Length + staticMeshObjects.Length ];
+			var index = 0;
+			for( var n = 0; n < sceneNodes.Length; n++, index++ )
 				sceneGraphIndexes[ index ] = sceneNodes[ n ].SceneGraphIndex;
-			for( int n = 0; n < staticMeshObjects.Length; n++, index++ )
+			for( var n = 0; n < staticMeshObjects.Length; n++, index++ )
 				sceneGraphIndexes[ index ] = staticMeshObjects[ n ].SceneGraphIndex;
 			return sceneGraphIndexes;
 		}

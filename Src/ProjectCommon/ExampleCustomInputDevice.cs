@@ -1,7 +1,3 @@
-// Copyright (C) NeoAxis Group Ltd. This is part of NeoAxis 3D Engine SDK.
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Engine;
 using Engine.MathEx;
 
@@ -32,20 +28,20 @@ namespace ProjectCommon
 		internal bool Init()
 		{
 			//buttons
-			Button[] buttons = new Button[ 2 ];
+			var buttons = new Button[ 2 ];
 			buttons[ 0 ] = new Button( JoystickButtons.Button1, 0 );
 			buttons[ 1 ] = new Button( JoystickButtons.Button2, 1 );
 
 			//axes
-			Axis[] axes = new Axis[ 1 ];
+			var axes = new Axis[ 1 ];
 			axes[ 0 ] = new JoystickInputDevice.Axis( JoystickAxes.X, new Range( -1, 1 ), false );
 
 			//povs
-			POV[] povs = new POV[ 0 ];
+			var povs = new POV[ 0 ];
 			//povs[ 0 ] = new JoystickInputDevice.POV( JoystickPOVs.POV1 );
 
 			//sliders
-			Slider[] sliders = new Slider[ 0 ];
+			var sliders = new Slider[ 0 ];
 			//sliders[ 0 ] = new Slider( JoystickSliders.Slider1 );
 
 			//forceFeedbackController
@@ -71,7 +67,7 @@ namespace ProjectCommon
 		{
 			//button1
 			{
-				bool pressed = EngineApp.Instance.IsKeyPressed( EKeys.H );
+				var pressed = EngineApp.Instance.IsKeyPressed( EKeys.H );
 				if( Buttons[ 0 ].Pressed != pressed )
 				{
 					if( pressed )
@@ -90,7 +86,7 @@ namespace ProjectCommon
 
 			//button2
 			{
-				bool pressed = EngineApp.Instance.IsKeyPressed( EKeys.J );
+				var pressed = EngineApp.Instance.IsKeyPressed( EKeys.J );
 				if( Buttons[ 1 ].Pressed != pressed )
 				{
 					if( pressed )
@@ -109,7 +105,7 @@ namespace ProjectCommon
 
 			//axis X
 			{
-				float value = MathFunctions.Sin( EngineApp.Instance.Time * 2.0f );
+				var value = MathFunctions.Sin( EngineApp.Instance.Time * 2.0f );
 
 				Axes[ 0 ].Value = value;
 
@@ -121,7 +117,7 @@ namespace ProjectCommon
 			{
 				//this event will be caused in the EngineApp.OnCustomInputDeviceEvent()
 				//and in the all gui controls EControl.OnCustomInputDeviceEvent().
-				ExampleCustomInputDeviceSpecialEvent customEvent =
+				var customEvent =
 					new ExampleCustomInputDeviceSpecialEvent( this );
 				InputDeviceManager.Instance.SendEvent( customEvent );
 			}
@@ -135,7 +131,7 @@ namespace ProjectCommon
 			if( InputDeviceManager.Instance == null )
 				return;
 
-			ExampleCustomInputDevice device = new ExampleCustomInputDevice( "ExampleCustomDevice" );
+			var device = new ExampleCustomInputDevice( "ExampleCustomDevice" );
 
 			if( !device.Init() )
 				return;

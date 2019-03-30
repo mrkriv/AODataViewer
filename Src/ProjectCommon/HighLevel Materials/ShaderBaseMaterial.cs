@@ -5,7 +5,6 @@ using System.Text;
 using System.Drawing.Design;
 using System.ComponentModel;
 using System.IO;
-using System.Diagnostics;
 using System.Reflection;
 using Engine;
 using Engine.Renderer;
@@ -13,7 +12,6 @@ using Engine.MathEx;
 using Engine.MapSystem;
 using Engine.FileSystem;
 using Engine.Utils;
-using Engine.EntitySystem;
 
 namespace ProjectCommon
 {
@@ -78,7 +76,7 @@ namespace ProjectCommon
 		//Translucency
 		ColorValue translucencyColor = new ColorValue( 0, 0, 0 );
 		float translucencyPower = 1;
-		bool translucencyDynamic = false;
+		bool translucencyDynamic;
 		float translucencyClearness = 4f;
 		MapItem translucencyMap;
 
@@ -196,9 +194,9 @@ namespace ProjectCommon
 			{
 				if( value.GetType() == typeof( string ) )
 				{
-					PropertyInfo property = typeof( ShaderBaseMaterial ).GetProperty(
+					var property = typeof( ShaderBaseMaterial ).GetProperty(
 						context.PropertyDescriptor.Name );
-					MapItem map = (MapItem)property.GetValue( context.Instance, null );
+					var map = (MapItem)property.GetValue( context.Instance, null );
 					map.Texture = (string)value;
 					return map;
 				}
@@ -214,9 +212,9 @@ namespace ProjectCommon
 			public override object EditValue( ITypeDescriptorContext context,
 				IServiceProvider provider, object value )
 			{
-				MapItem map = (MapItem)value;
+				var map = (MapItem)value;
 
-				string path = map.Texture;
+				var path = map.Texture;
 				if( ResourceUtils.DoUITypeEditorEditValueDelegate( "Texture", ref path, null, true ) )
 				{
 					if( path == null )
@@ -224,11 +222,11 @@ namespace ProjectCommon
 
 					//create new MapItem and copy properties.
 					//it is need for true property grid updating.
-					Type type = map.GetType();
-					ConstructorInfo constructor = type.GetConstructor(
+					var type = map.GetType();
+					var constructor = type.GetConstructor(
 						BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
-						null, new Type[] { typeof( ShaderBaseMaterial ) }, null );
-					MapItem newMap = (MapItem)constructor.Invoke( new object[] { map.owner } );
+						null, new[] { typeof( ShaderBaseMaterial ) }, null );
+					var newMap = (MapItem)constructor.Invoke( new object[] { map.owner } );
 					newMap.OnClone( map );
 
 					newMap.Texture = path;
@@ -329,7 +327,7 @@ namespace ProjectCommon
 				if( block.IsAttributeExist( "clamp" ) )
 					clamp = bool.Parse( block.GetAttribute( "clamp" ) );
 
-				TextBlock transformBlock = block.FindChild( "transform" );
+				var transformBlock = block.FindChild( "transform" );
 				if( transformBlock != null )
 					transform.Load( transformBlock );
 			}
@@ -347,7 +345,7 @@ namespace ProjectCommon
 
 				if( transform.IsDataExists() )
 				{
-					TextBlock transformBlock = block.AddChild( "transform" );
+					var transformBlock = block.AddChild( "transform" );
 					transform.Save( transformBlock );
 				}
 			}
@@ -460,7 +458,7 @@ namespace ProjectCommon
 
 					scroll = value;
 
-					MapItem map = owner;
+					var map = owner;
 					map.owner.UpdateMapTransformGpuParameters( map );
 
 					if( map.owner.fixedPipelineInitialized )
@@ -483,7 +481,7 @@ namespace ProjectCommon
 
 					scale = value;
 
-					MapItem map = owner;
+					var map = owner;
 					map.owner.UpdateMapTransformGpuParameters( map );
 
 					if( map.owner.fixedPipelineInitialized )
@@ -506,7 +504,7 @@ namespace ProjectCommon
 
 					rotate = value;
 
-					MapItem map = owner;
+					var map = owner;
 					map.owner.UpdateMapTransformGpuParameters( map );
 
 					if( map.owner.fixedPipelineInitialized )
@@ -530,32 +528,32 @@ namespace ProjectCommon
 
 			public override string ToString()
 			{
-				string text = "";
+				var text = "";
 				if( scroll != Vec2.Zero )
-					text += string.Format( "Scroll: {0}", scroll );
+					text += $"Scroll: {scroll}";
 				if( scale != new Vec2( 1, 1 ) )
 				{
 					if( text != "" )
 						text += ", ";
-					text += string.Format( "Scale: {0}", scale );
+					text += $"Scale: {scale}";
 				}
 				if( rotate != 0 )
 				{
 					if( text != "" )
 						text += ", ";
-					text += string.Format( "Rotate: {0}", rotate );
+					text += $"Rotate: {rotate}";
 				}
 				if( dynamicParameters )
 				{
 					if( text != "" )
 						text += ", ";
-					text += string.Format( "Dynamic Parameters: {0}", dynamicParameters.ToString() );
+					text += $"Dynamic Parameters: {dynamicParameters.ToString()}";
 				}
 				if( animation.IsDataExists() )
 				{
 					if( text != "" )
 						text += ", ";
-					text += string.Format( "Animation: {0}", animation.ToString() );
+					text += $"Animation: {animation.ToString()}";
 				}
 				return text;
 			}
@@ -571,7 +569,7 @@ namespace ProjectCommon
 				if( block.IsAttributeExist( "dynamicParameters" ) )
 					dynamicParameters = bool.Parse( block.GetAttribute( "dynamicParameters" ) );
 
-				TextBlock animationBlock = block.FindChild( "animation" );
+				var animationBlock = block.FindChild( "animation" );
 				if( animationBlock != null )
 					animation.Load( animationBlock );
 			}
@@ -589,7 +587,7 @@ namespace ProjectCommon
 
 				if( animation.IsDataExists() )
 				{
-					TextBlock animationBlock = block.AddChild( "animation" );
+					var animationBlock = block.AddChild( "animation" );
 					animation.Save( animationBlock );
 				}
 			}
@@ -640,7 +638,7 @@ namespace ProjectCommon
 
 					scrollSpeed = value;
 
-					MapItem map = owner.owner;
+					var map = owner.owner;
 					map.owner.InitializeAndUpdateMapTransformGpuParameters( map );
 
 					if( map.owner.fixedPipelineInitialized )
@@ -674,7 +672,7 @@ namespace ProjectCommon
 
 					rotateSpeed = value;
 
-					MapItem map = owner.owner;
+					var map = owner.owner;
 					map.owner.InitializeAndUpdateMapTransformGpuParameters( map );
 
 					if( map.owner.fixedPipelineInitialized )
@@ -684,14 +682,14 @@ namespace ProjectCommon
 
 			public override string ToString()
 			{
-				string text = "";
+				var text = "";
 				if( scrollSpeed != Vec2.Zero )
-					text += string.Format( "Scroll: {0}", scrollSpeed );
+					text += $"Scroll: {scrollSpeed}";
 				if( rotateSpeed != 0 )
 				{
 					if( text != "" )
 						text += ", ";
-					text += string.Format( "Rotate: {0}", rotateSpeed );
+					text += $"Rotate: {rotateSpeed}";
 				}
 				return text;
 			}
@@ -739,11 +737,11 @@ namespace ProjectCommon
 
 		public static void FinishInitializationOfEmptyMaterials()
 		{
-			List<HighLevelMaterial> materials = new List<HighLevelMaterial>(
+			var materials = new List<HighLevelMaterial>(
 				HighLevelMaterialManager.Instance.Materials );
-			foreach( HighLevelMaterial material in materials )
+			foreach( var material in materials )
 			{
-				ShaderBaseMaterial shaderBaseMaterial = material as ShaderBaseMaterial;
+				var shaderBaseMaterial = material as ShaderBaseMaterial;
 				if( shaderBaseMaterial != null )
 				{
 					if( shaderBaseMaterial.emptyMaterialInitialized )
@@ -1349,7 +1347,7 @@ namespace ProjectCommon
 		{
 			base.OnClone( sourceMaterial );
 
-			ShaderBaseMaterial source = (ShaderBaseMaterial)sourceMaterial;
+			var source = (ShaderBaseMaterial)sourceMaterial;
 
 			//General
 			blending = source.blending;
@@ -1489,7 +1487,7 @@ namespace ProjectCommon
 				if( block.IsAttributeExist( "diffuseScale" ) )
 				{
 					diffuseColor = ColorValue.Parse( block.GetAttribute( "diffuseScale" ) );
-					float power = Math.Max( Math.Max( diffuseColor.Red, diffuseColor.Green ),
+					var power = Math.Max( Math.Max( diffuseColor.Red, diffuseColor.Green ),
 						diffuseColor.Blue );
 					if( power > 1 )
 					{
@@ -1511,19 +1509,19 @@ namespace ProjectCommon
 				if( block.IsAttributeExist( "diffuseVertexColor" ) )
 					diffuseVertexColor = bool.Parse( block.GetAttribute( "diffuseVertexColor" ) );
 
-				TextBlock diffuse1MapBlock = block.FindChild( "diffuse1Map" );
+				var diffuse1MapBlock = block.FindChild( "diffuse1Map" );
 				if( diffuse1MapBlock != null )
 					diffuse1Map.Load( diffuse1MapBlock );
 
-				TextBlock diffuse2MapBlock = block.FindChild( "diffuse2Map" );
+				var diffuse2MapBlock = block.FindChild( "diffuse2Map" );
 				if( diffuse2MapBlock != null )
 					diffuse2Map.Load( diffuse2MapBlock );
 
-				TextBlock diffuse3MapBlock = block.FindChild( "diffuse3Map" );
+				var diffuse3MapBlock = block.FindChild( "diffuse3Map" );
 				if( diffuse3MapBlock != null )
 					diffuse3Map.Load( diffuse3MapBlock );
 
-				TextBlock diffuse4MapBlock = block.FindChild( "diffuse4Map" );
+				var diffuse4MapBlock = block.FindChild( "diffuse4Map" );
 				if( diffuse4MapBlock != null )
 					diffuse4Map.Load( diffuse4MapBlock );
 
@@ -1537,7 +1535,7 @@ namespace ProjectCommon
 				if( block.IsAttributeExist( "reflectionScale" ) )
 				{
 					reflectionColor = ColorValue.Parse( block.GetAttribute( "reflectionScale" ) );
-					float power = Math.Max( Math.Max( reflectionColor.Red, reflectionColor.Green ),
+					var power = Math.Max( Math.Max( reflectionColor.Red, reflectionColor.Green ),
 						Math.Max( reflectionColor.Blue, reflectionColor.Alpha ) );
 					if( power > 1 )
 					{
@@ -1554,7 +1552,7 @@ namespace ProjectCommon
 				if( block.IsAttributeExist( "reflectionScaleDynamic" ) )
 					reflectionScaleDynamic = bool.Parse( block.GetAttribute( "reflectionScaleDynamic" ) );
 
-				TextBlock reflectionMapBlock = block.FindChild( "reflectionMap" );
+				var reflectionMapBlock = block.FindChild( "reflectionMap" );
 				if( reflectionMapBlock != null )
 					reflectionMap.Load( reflectionMapBlock );
 
@@ -1571,7 +1569,7 @@ namespace ProjectCommon
 				if( block.IsAttributeExist( "emissionScale" ) )
 				{
 					emissionColor = ColorValue.Parse( block.GetAttribute( "emissionScale" ) );
-					float power = Math.Max( Math.Max( emissionColor.Red, emissionColor.Green ),
+					var power = Math.Max( Math.Max( emissionColor.Red, emissionColor.Green ),
 						Math.Max( emissionColor.Blue, emissionColor.Alpha ) );
 					if( power > 1 )
 					{
@@ -1588,7 +1586,7 @@ namespace ProjectCommon
 				if( block.IsAttributeExist( "emissionScaleDynamic" ) )
 					emissionScaleDynamic = bool.Parse( block.GetAttribute( "emissionScaleDynamic" ) );
 
-				TextBlock emissionMapBlock = block.FindChild( "emissionMap" );
+				var emissionMapBlock = block.FindChild( "emissionMap" );
 				if( emissionMapBlock != null )
 					emissionMap.Load( emissionMapBlock );
 
@@ -1602,7 +1600,7 @@ namespace ProjectCommon
 				if( block.IsAttributeExist( "specularScale" ) )
 				{
 					specularColor = ColorValue.Parse( block.GetAttribute( "specularScale" ) );
-					float power = Math.Max( Math.Max( specularColor.Red, specularColor.Green ),
+					var power = Math.Max( Math.Max( specularColor.Red, specularColor.Green ),
 						Math.Max( specularColor.Blue, specularColor.Alpha ) );
 					if( power > 1 )
 					{
@@ -1619,7 +1617,7 @@ namespace ProjectCommon
 				if( block.IsAttributeExist( "specularScaleDynamic" ) )
 					specularScaleDynamic = bool.Parse( block.GetAttribute( "specularScaleDynamic" ) );
 
-				TextBlock specularMapBlock = block.FindChild( "specularMap" );
+				var specularMapBlock = block.FindChild( "specularMap" );
 				if( specularMapBlock != null )
 					specularMap.Load( specularMapBlock );
 
@@ -1641,7 +1639,7 @@ namespace ProjectCommon
 				if( block.IsAttributeExist( "translucencyDynamic" ) )
 					translucencyDynamic = bool.Parse( block.GetAttribute( "translucencyDynamic" ) );
 
-				TextBlock translucencyMapBlock = block.FindChild( "translucencyMap" );
+				var translucencyMapBlock = block.FindChild( "translucencyMap" );
 				if( translucencyMapBlock != null )
 					translucencyMap.Load( translucencyMapBlock );
 
@@ -1651,11 +1649,11 @@ namespace ProjectCommon
 
 			//Height
 			{
-				TextBlock normalMapBlock = block.FindChild( "normalMap" );
+				var normalMapBlock = block.FindChild( "normalMap" );
 				if( normalMapBlock != null )
 					normalMap.Load( normalMapBlock );
 
-				TextBlock heightMapBlock = block.FindChild( "heightMap" );
+				var heightMapBlock = block.FindChild( "heightMap" );
 				if( heightMapBlock != null )
 					heightMap.Load( heightMapBlock );
 
@@ -1757,25 +1755,25 @@ namespace ProjectCommon
 
 				if( diffuse1Map.IsDataExists() )
 				{
-					TextBlock diffuse1MapBlock = block.AddChild( "diffuse1Map" );
+					var diffuse1MapBlock = block.AddChild( "diffuse1Map" );
 					diffuse1Map.Save( diffuse1MapBlock );
 				}
 
 				if( diffuse2Map.IsDataExists() )
 				{
-					TextBlock diffuse2MapBlock = block.AddChild( "diffuse2Map" );
+					var diffuse2MapBlock = block.AddChild( "diffuse2Map" );
 					diffuse2Map.Save( diffuse2MapBlock );
 				}
 
 				if( diffuse3Map.IsDataExists() )
 				{
-					TextBlock diffuse3MapBlock = block.AddChild( "diffuse3Map" );
+					var diffuse3MapBlock = block.AddChild( "diffuse3Map" );
 					diffuse3Map.Save( diffuse3MapBlock );
 				}
 
 				if( diffuse4Map.IsDataExists() )
 				{
-					TextBlock diffuse4MapBlock = block.AddChild( "diffuse4Map" );
+					var diffuse4MapBlock = block.AddChild( "diffuse4Map" );
 					diffuse4Map.Save( diffuse4MapBlock );
 				}
 			}
@@ -1792,7 +1790,7 @@ namespace ProjectCommon
 
 				if( reflectionMap.IsDataExists() )
 				{
-					TextBlock reflectionMapBlock = block.AddChild( "reflectionMap" );
+					var reflectionMapBlock = block.AddChild( "reflectionMap" );
 					reflectionMap.Save( reflectionMapBlock );
 				}
 
@@ -1812,7 +1810,7 @@ namespace ProjectCommon
 
 				if( emissionMap.IsDataExists() )
 				{
-					TextBlock emissionMapBlock = block.AddChild( "emissionMap" );
+					var emissionMapBlock = block.AddChild( "emissionMap" );
 					emissionMap.Save( emissionMapBlock );
 				}
 			}
@@ -1829,7 +1827,7 @@ namespace ProjectCommon
 
 				if( specularMap.IsDataExists() )
 				{
-					TextBlock specularMapBlock = block.AddChild( "specularMap" );
+					var specularMapBlock = block.AddChild( "specularMap" );
 					specularMap.Save( specularMapBlock );
 				}
 
@@ -1849,7 +1847,7 @@ namespace ProjectCommon
 
 				if( translucencyMap.IsDataExists() )
 				{
-					TextBlock translucencyMapBlock = block.AddChild( "translucencyMap" );
+					var translucencyMapBlock = block.AddChild( "translucencyMap" );
 					translucencyMap.Save( translucencyMapBlock );
 				}
 
@@ -1861,7 +1859,7 @@ namespace ProjectCommon
 			{
 				if( normalMap.IsDataExists() )
 				{
-					TextBlock normalMapBlock = block.AddChild( "normalMap" );
+					var normalMapBlock = block.AddChild( "normalMap" );
 					normalMap.Save( normalMapBlock );
 				}
 
@@ -1870,7 +1868,7 @@ namespace ProjectCommon
 
 				if( heightMap.IsDataExists() )
 				{
-					TextBlock heightMapBlock = block.AddChild( "heightMap" );
+					var heightMapBlock = block.AddChild( "heightMap" );
 					heightMap.Save( heightMapBlock );
 				}
 
@@ -1884,7 +1882,7 @@ namespace ProjectCommon
 
 		void SetProgramAutoConstants_Main_Vertex( GpuProgramParameters parameters, int lightCount )
 		{
-			bool shadowMap = SceneManager.Instance.IsShadowTechniqueShadowmapBased() && ReceiveShadows &&
+			var shadowMap = SceneManager.Instance.IsShadowTechniqueShadowmapBased() && ReceiveShadows &&
 				lightCount != 0;
 
 			parameters.SetNamedAutoConstant( "worldMatrix",
@@ -1945,7 +1943,7 @@ namespace ProjectCommon
 
 		void SetProgramAutoConstants_Main_Fragment( GpuProgramParameters parameters, int lightCount )
 		{
-			bool shadowMap = SceneManager.Instance.IsShadowTechniqueShadowmapBased() && ReceiveShadows &&
+			var shadowMap = SceneManager.Instance.IsShadowTechniqueShadowmapBased() && ReceiveShadows &&
 				lightCount != 0;
 
 			parameters.SetNamedAutoConstant( "farClipDistance",
@@ -2024,7 +2022,7 @@ namespace ProjectCommon
 			//clip planes
 			if( RenderSystem.Instance.IsOpenGL() )
 			{
-				for( int n = 0; n < 6; n++ )
+				for( var n = 0; n < 6; n++ )
 				{
 					parameters.SetNamedAutoConstant( "clipPlane" + n.ToString(),
 						GpuProgramParameters.AutoConstantType.ClipPlane, n );
@@ -2133,7 +2131,7 @@ namespace ProjectCommon
 
 		bool CreateDefaultTechnique( out bool shadersIsNotSupported )
 		{
-			bool loadTextures = true;
+			var loadTextures = true;
 			if( EngineApp.Instance.ApplicationType == EngineApp.ApplicationTypes.ShaderCacheCompiler )
 				loadTextures = false;
 
@@ -2164,30 +2162,28 @@ namespace ProjectCommon
 			{
 				if( !GpuProgramManager.Instance.IsSyntaxSupported( fragmentSyntax ) )
 				{
-					defaultTechniqueErrorString = string.Format(
-						"The fragment shaders ({0}) are not supported.", fragmentSyntax );
+					defaultTechniqueErrorString = $"The fragment shaders ({fragmentSyntax}) are not supported.";
 					shadersIsNotSupported = true;
 					return false;
 				}
 
 				if( !GpuProgramManager.Instance.IsSyntaxSupported( vertexSyntax ) )
 				{
-					defaultTechniqueErrorString = string.Format(
-						"The vertex shaders ({0}) are not supported.", vertexSyntax );
+					defaultTechniqueErrorString = $"The vertex shaders ({vertexSyntax}) are not supported.";
 					shadersIsNotSupported = true;
 					return false;
 				}
 			}
 
-			int maxSamplerCount = 16;
+			var maxSamplerCount = 16;
 			int maxTexCoordCount;
 			if( RenderSystem.Instance.IsDirect3D() || RenderSystem.Instance.IsOpenGL() )
 				maxTexCoordCount = 10;
 			else
 				maxTexCoordCount = 8;
 
-			bool supportAtiHardwareShadows = false;
-			bool supportNvidiaHardwareShadows = false;
+			var supportAtiHardwareShadows = false;
+			var supportNvidiaHardwareShadows = false;
 			{
 				if( ( RenderSystem.Instance.IsDirect3D() || RenderSystem.Instance.IsOpenGL() ) &&
 					SceneManager.Instance.IsShadowTechniqueShadowmapBased() && RenderSystem.Instance.HasShaderModel3() &&
@@ -2203,7 +2199,7 @@ namespace ProjectCommon
 
 			BaseMaterial.ReceiveShadows = receiveShadows;
 
-			bool doubleSidedTwoPassMode = false;
+			var doubleSidedTwoPassMode = false;
 			if( doubleSided )
 			{
 				if( RenderSystem.Instance.IsOpenGL() && !RenderSystem.Instance.HasShaderModel3() )
@@ -2215,7 +2211,7 @@ namespace ProjectCommon
 			//create techniques
 			foreach( MaterialSchemes materialScheme in Enum.GetValues( typeof( MaterialSchemes ) ) )
 			{
-				Technique technique = BaseMaterial.CreateTechnique();
+				var technique = BaseMaterial.CreateTechnique();
 				technique.SchemeName = materialScheme.ToString();
 
 				//for Shader Model 2, for stencil shadows, for not opaque blending.
@@ -2231,11 +2227,11 @@ namespace ProjectCommon
 				//pass 3: point light
 				//pass 4: spot light
 
-				bool mergeAmbientAndDirectionalLightPasses = RenderSystem.Instance.HasShaderModel3() &&
+				var mergeAmbientAndDirectionalLightPasses = RenderSystem.Instance.HasShaderModel3() &&
 					blending == MaterialBlendingTypes.Opaque &&
 					!SceneManager.Instance.IsShadowTechniqueStencilBased();
 
-				bool needAmbientPass = ambientLighting || emissionColor != new ColorValue( 0, 0, 0 ) ||
+				var needAmbientPass = ambientLighting || emissionColor != new ColorValue( 0, 0, 0 ) ||
 					emissionScaleDynamic || blending == MaterialBlendingTypes.Opaque;
 
 				int passCount;
@@ -2248,14 +2244,14 @@ namespace ProjectCommon
 				else
 					passCount = 1;
 
-				for( int nPass = 0; nPass < passCount; nPass++ )
+				for( var nPass = 0; nPass < passCount; nPass++ )
 				{
-					for( int doubleSidedTwoPassModeCounter = 0;
+					for( var doubleSidedTwoPassModeCounter = 0;
 						doubleSidedTwoPassModeCounter < ( doubleSidedTwoPassMode ? 2 : 1 );
 						doubleSidedTwoPassModeCounter++ )
 					{
 						//create pass
-						Pass pass = technique.CreatePass();
+						var pass = technique.CreatePass();
 						Pass shadowCasterPass = null;
 
 						pass.DepthWrite = depthWrite;
@@ -2264,7 +2260,7 @@ namespace ProjectCommon
 						bool ambientPass;
 						bool lightPass;
 
-						RenderLightType lightType = RenderLightType.Directional;
+						var lightType = RenderLightType.Directional;
 
 						if( projectiveTexturing )
 							SubscribePassToRenderObjectPassEvent( pass );
@@ -2370,9 +2366,9 @@ namespace ProjectCommon
 							lightPass = false;
 						}
 
-						int lightCount = lightPass ? 1 : 0;
+						var lightCount = lightPass ? 1 : 0;
 
-						bool needLightmap = lightPass && lightType == RenderLightType.Directional &&
+						var needLightmap = lightPass && lightType == RenderLightType.Directional &&
 							LightmapTexCoordIndex != -1;
 
 						//create shadow caster material
@@ -2380,12 +2376,12 @@ namespace ProjectCommon
 							SceneManager.Instance.IsShadowTechniqueShadowmapBased() &&
 							OnIsNeedSpecialShadowCasterMaterial() )
 						{
-							Material shadowCasterMaterial = MaterialManager.Instance.Create(
+							var shadowCasterMaterial = MaterialManager.Instance.Create(
 								MaterialManager.Instance.GetUniqueName( BaseMaterial.Name + "_ShadowCaster" ) );
 
 							BaseMaterial.SetShadowTextureCasterMaterial( lightType, shadowCasterMaterial );
 
-							Technique shadowCasterTechnique = shadowCasterMaterial.CreateTechnique();
+							var shadowCasterTechnique = shadowCasterMaterial.CreateTechnique();
 							shadowCasterPass = shadowCasterTechnique.CreatePass();
 							shadowCasterPass.SetFogOverride( FogMode.None, new ColorValue( 0, 0, 0 ), 0, 0, 0 );
 						}
@@ -2453,9 +2449,9 @@ namespace ProjectCommon
 
 						/////////////////////////////////////
 						//generate general compile arguments and create texture unit states
-						StringBuilder generalArguments = new StringBuilder( 256 );
-						int generalSamplerCount = 0;
-						int generalTexCoordCount = 4;
+						var generalArguments = new StringBuilder( 256 );
+						var generalSamplerCount = 0;
+						var generalTexCoordCount = 4;
 						{
 							if( RenderSystem.Instance.IsDirect3D() )
 								generalArguments.Append( " -DDIRECT3D" );
@@ -2507,7 +2503,7 @@ namespace ProjectCommon
 							if( RenderSystem.Instance.HasShaderModel3() &&
 								RenderSystem.Instance.Capabilities.HardwareInstancing )
 							{
-								bool reflectionDynamicCubemap = false;
+								var reflectionDynamicCubemap = false;
 								if( ( ReflectionColor != new ColorValue( 0, 0, 0 ) && ReflectionPower != 0 ) ||
 									reflectionScaleDynamic )
 								{
@@ -2527,7 +2523,7 @@ namespace ProjectCommon
 							}
 
 							//Fog
-							FogMode fogMode = SceneManager.Instance.GetFogMode();
+							var fogMode = SceneManager.Instance.GetFogMode();
 							if( allowFog && fogMode != FogMode.None )
 							{
 								generalArguments.Append( " -DFOG_ENABLED" );
@@ -2549,8 +2545,8 @@ namespace ProjectCommon
 							}
 
 							//TexCoord23
-							bool useTexCoord23 = false;
-							foreach( MapItem map in GetAllMaps() )
+							var useTexCoord23 = false;
+							foreach( var map in GetAllMaps() )
 							{
 								if( !string.IsNullOrEmpty( map.Texture ) &&
 									( map.TexCoord == TexCoordIndexes.TexCoord2 || map.TexCoord == TexCoordIndexes.TexCoord3 ) )
@@ -2585,7 +2581,7 @@ namespace ProjectCommon
 								}
 								else
 								{
-									ColorValue scale = DiffuseColor *
+									var scale = DiffuseColor *
 										new ColorValue( DiffusePower, DiffusePower, DiffusePower, 1 );
 									generalArguments.AppendFormat( " -DDIFFUSE_SCALE=half4({0},{1},{2},{3})",
 										scale.Red, scale.Green, scale.Blue, scale.Alpha );
@@ -2599,7 +2595,7 @@ namespace ProjectCommon
 									generalTexCoordCount++;
 								}
 
-								for( int mapIndex = 1; mapIndex <= 4; mapIndex++ )
+								for( var mapIndex = 1; mapIndex <= 4; mapIndex++ )
 								{
 									MapItem map = null;
 									switch( mapIndex )
@@ -2625,10 +2621,10 @@ namespace ProjectCommon
 										{
 											generalArguments.AppendFormat( " -DDIFFUSE{0}_MAP_TEXCOORD=", mapIndex );
 											GenerateTexCoordString( generalArguments, (int)map.TexCoord, map.Transform,
-												string.Format( "diffuse{0}MapTransform", mapIndex ) );
+												$"diffuse{mapIndex}MapTransform");
 										}
 
-										TextureUnitState state = pass.CreateTextureUnitState(
+										var state = pass.CreateTextureUnitState(
 											loadTextures ? map.GetTextureFullPath() : "" );
 										if( map.Clamp )
 											state.SetTextureAddressingMode( TextureAddressingMode.Clamp );
@@ -2636,7 +2632,7 @@ namespace ProjectCommon
 										//shadow caster material
 										if( shadowCasterPass != null )
 										{
-											TextureUnitState casterState = shadowCasterPass.CreateTextureUnitState(
+											var casterState = shadowCasterPass.CreateTextureUnitState(
 												loadTextures ? map.GetTextureFullPath() : "" );
 											if( map.Clamp )
 												casterState.SetTextureAddressingMode( TextureAddressingMode.Clamp );
@@ -2674,7 +2670,7 @@ namespace ProjectCommon
 									}
 									else
 									{
-										ColorValue scale = ReflectionColor * ReflectionPower;
+										var scale = ReflectionColor * ReflectionPower;
 										generalArguments.AppendFormat( " -DREFLECTION_SCALE=half3({0},{1},{2})",
 											scale.Red, scale.Green, scale.Blue );
 									}
@@ -2690,7 +2686,7 @@ namespace ProjectCommon
 										GenerateTexCoordString( generalArguments, (int)reflectionMap.TexCoord,
 											reflectionMap.Transform, "reflectionMapTransform" );
 
-										TextureUnitState state = pass.CreateTextureUnitState(
+										var state = pass.CreateTextureUnitState(
 											loadTextures ? reflectionMap.GetTextureFullPath() : "" );
 										if( reflectionMap.Clamp )
 											state.SetTextureAddressingMode( TextureAddressingMode.Clamp );
@@ -2700,7 +2696,7 @@ namespace ProjectCommon
 										generalSamplerCount );
 									generalSamplerCount++;
 
-									TextureUnitState textureState = pass.CreateTextureUnitState();
+									var textureState = pass.CreateTextureUnitState();
 									textureState.SetTextureAddressingMode( TextureAddressingMode.Clamp );
 									if( !string.IsNullOrEmpty( ReflectionSpecificCubemap ) )
 									{
@@ -2736,7 +2732,7 @@ namespace ProjectCommon
 									}
 									else
 									{
-										ColorValue scale = EmissionColor * EmissionPower;
+										var scale = EmissionColor * EmissionPower;
 										generalArguments.AppendFormat( " -DEMISSION_SCALE=half3({0},{1},{2})",
 											scale.Red, scale.Green, scale.Blue );
 									}
@@ -2752,7 +2748,7 @@ namespace ProjectCommon
 										GenerateTexCoordString( generalArguments, (int)emissionMap.TexCoord,
 											emissionMap.Transform, "emissionMapTransform" );
 
-										TextureUnitState state = pass.CreateTextureUnitState(
+										var state = pass.CreateTextureUnitState(
 											loadTextures ? emissionMap.GetTextureFullPath() : "" );
 										if( emissionMap.Clamp )
 											state.SetTextureAddressingMode( TextureAddressingMode.Clamp );
@@ -2776,7 +2772,7 @@ namespace ProjectCommon
 										}
 										else
 										{
-											ColorValue scale = SpecularColor * SpecularPower;
+											var scale = SpecularColor * SpecularPower;
 											generalArguments.AppendFormat( " -DSPECULAR_SCALE=half3({0},{1},{2})",
 												scale.Red, scale.Green, scale.Blue );
 										}
@@ -2792,7 +2788,7 @@ namespace ProjectCommon
 											GenerateTexCoordString( generalArguments, (int)specularMap.TexCoord,
 												specularMap.Transform, "specularMapTransform" );
 
-											TextureUnitState state = pass.CreateTextureUnitState(
+											var state = pass.CreateTextureUnitState(
 												loadTextures ? specularMap.GetTextureFullPath() : "" );
 											if( specularMap.Clamp )
 												state.SetTextureAddressingMode( TextureAddressingMode.Clamp );
@@ -2817,7 +2813,7 @@ namespace ProjectCommon
 										}
 										else
 										{
-											ColorValue scale = TranslucencyColor * TranslucencyPower;
+											var scale = TranslucencyColor * TranslucencyPower;
 											generalArguments.AppendFormat( " -DTRANSLUCENCY_SCALE_AND_CLEARNESS=half3({0},{1},{2},{3})",
 												scale.Red, scale.Green, scale.Blue, TranslucencyClearness );
 										}
@@ -2833,7 +2829,7 @@ namespace ProjectCommon
 											GenerateTexCoordString( generalArguments, (int)translucencyMap.TexCoord,
 												translucencyMap.Transform, "translucencyMapTransform" );
 
-											TextureUnitState state = pass.CreateTextureUnitState(
+											var state = pass.CreateTextureUnitState(
 												loadTextures ? translucencyMap.GetTextureFullPath() : "" );
 											if( translucencyMap.Clamp )
 												state.SetTextureAddressingMode( TextureAddressingMode.Clamp );
@@ -2866,7 +2862,7 @@ namespace ProjectCommon
 									GenerateTexCoordString( generalArguments, (int)normalMap.TexCoord,
 										normalMap.Transform, "normalMapTransform" );
 
-									TextureUnitState state = pass.CreateTextureUnitState(
+									var state = pass.CreateTextureUnitState(
 										loadTextures ? normalMap.GetTextureFullPath() : "" );
 									if( normalMap.Clamp )
 										state.SetTextureAddressingMode( TextureAddressingMode.Clamp );
@@ -2896,13 +2892,13 @@ namespace ProjectCommon
 											GenerateTexCoordString( generalArguments, (int)heightMap.TexCoord,
 												heightMap.Transform, "heightMapTransform" );
 
-											TextureUnitState state = pass.CreateTextureUnitState(
+											var state = pass.CreateTextureUnitState(
 												loadTextures ? heightMap.GetTextureFullPath() : "" );
 											if( heightMap.Clamp )
 												state.SetTextureAddressingMode( TextureAddressingMode.Clamp );
 										}
 
-										DisplacementTechniques dTechnique = displacementTechnique;
+										var dTechnique = displacementTechnique;
 										//no ParallaxOcclusionMapping support in OpenGL
 										if( ( RenderSystem.Instance.IsOpenGL() || RenderSystem.Instance.IsOpenGLES() ) &&
 											dTechnique == DisplacementTechniques.ParallaxOcclusionMapping )
@@ -2923,7 +2919,7 @@ namespace ProjectCommon
 									if( SceneManager.Instance.IsShadowTechniqueShadowmapBased() &&
 										ReceiveShadows )
 									{
-										bool pssm = SceneManager.Instance.IsShadowTechniquePSSM() &&
+										var pssm = SceneManager.Instance.IsShadowTechniquePSSM() &&
 											lightType == RenderLightType.Directional;
 
 										generalArguments.Append( " -DSHADOW_MAP" );
@@ -2955,8 +2951,8 @@ namespace ProjectCommon
 										if( pssm )
 											generalArguments.Append( " -DSHADOW_PSSM" );
 
-										int shadowMapCount = pssm ? 3 : 1;
-										for( int n = 0; n < shadowMapCount; n++ )
+										var shadowMapCount = pssm ? 3 : 1;
+										for( var n = 0; n < shadowMapCount; n++ )
 										{
 											generalArguments.AppendFormat( " -DSHADOW_MAP{0}_REGISTER=s{1}",
 												n, generalSamplerCount );
@@ -2966,7 +2962,7 @@ namespace ProjectCommon
 												n, generalTexCoordCount );
 											generalTexCoordCount++;
 
-											TextureUnitState state = pass.CreateTextureUnitState( "" );
+											var state = pass.CreateTextureUnitState( "" );
 											state.ContentType = TextureUnitState.ContentTypes.Shadow;
 											state.SetTextureAddressingMode( TextureAddressingMode.Clamp );
 											state.SetTextureFiltering( FilterOptions.Point,
@@ -3006,7 +3002,7 @@ namespace ProjectCommon
 								generalArguments.AppendFormat( " -DLIGHTMAP_TEXCOORD=texCoord{0}",
 									LightmapTexCoordIndex );
 
-								TextureUnitState state = pass.CreateTextureUnitState( "" );
+								var state = pass.CreateTextureUnitState( "" );
 								state.ContentType = TextureUnitState.ContentTypes.Lightmap;
 							}
 
@@ -3021,7 +3017,7 @@ namespace ProjectCommon
 									generalArguments.AppendFormat( " -DDEPTH_MAP_REGISTER=s{0}", generalSamplerCount );
 									generalSamplerCount++;
 
-									TextureUnitState state = pass.CreateTextureUnitState( "" );
+									var state = pass.CreateTextureUnitState( "" );
 									state.ContentType = TextureUnitState.ContentTypes.AdditionalMRT;
 									state.AdditionalMRTIndex = 0;
 									state.SetTextureAddressingMode( TextureAddressingMode.Clamp );
@@ -3034,31 +3030,30 @@ namespace ProjectCommon
 						//check maximum sampler count
 						if( generalSamplerCount > maxSamplerCount )
 						{
-							defaultTechniqueErrorString = string.Format(
-								"The limit of amount of textures is exceeded. Need: {0}, Maximum: {1}. ({2})",
-								generalSamplerCount, maxSamplerCount, FileName );
+							defaultTechniqueErrorString =
+								$"The limit of amount of textures is exceeded. Need: {generalSamplerCount}, Maximum: {maxSamplerCount}. ({FileName})";
 							return false;
 						}
 
 						//check maximum texture coordinates count
 						if( generalTexCoordCount > maxTexCoordCount )
 						{
-							defaultTechniqueErrorString = string.Format(
-								"The limit of amount of texture coordinates is exceeded. Need: {0}, " +
-								"Maximum: {1}. ({2})", generalTexCoordCount, maxTexCoordCount, FileName );
+							defaultTechniqueErrorString =
+								$"The limit of amount of texture coordinates is exceeded. Need: {generalTexCoordCount}, " +
+								$"Maximum: {maxTexCoordCount}. ({FileName})";
 							return false;
 						}
 
 						/////////////////////////////////////
 						//generate replace strings for program compiling
-						List<KeyValuePair<string, string>> replaceStrings =
+						var replaceStrings =
 							new List<KeyValuePair<string, string>>();
 						{
 							//extension file includes
-							string extensionFileName = OnGetExtensionFileName();
+							var extensionFileName = OnGetExtensionFileName();
 							if( extensionFileName != null )
 							{
-								string replaceText = string.Format( "#include \"Base/Shaders/{0}\"", extensionFileName );
+								var replaceText = $"#include \"Base/Shaders/{extensionFileName}\"";
 								replaceStrings.Add( new KeyValuePair<string, string>(
 									"_INCLUDE_EXTENSION_FILE", replaceText ) );
 							}
@@ -3078,7 +3073,7 @@ namespace ProjectCommon
 						if( ambientPass && !lightPass )
 						{
 							//vertex program
-							GpuProgram vertexProgram = GpuProgramCacheManager.Instance.AddProgram(
+							var vertexProgram = GpuProgramCacheManager.Instance.AddProgram(
 								"ShaderBase_Vertex_", GpuProgramType.Vertex, sourceFileMain,
 								"main_vp", vertexSyntax, generalArguments.ToString(), replaceStrings,
 								out defaultTechniqueErrorString );
@@ -3090,7 +3085,7 @@ namespace ProjectCommon
 							pass.VertexProgramName = vertexProgram.Name;
 
 							//fragment program
-							GpuProgram fragmentProgram = GpuProgramCacheManager.Instance.AddProgram(
+							var fragmentProgram = GpuProgramCacheManager.Instance.AddProgram(
 								"ShaderBase_Fragment_", GpuProgramType.Fragment, sourceFileMain,
 								"main_fp", fragmentSyntax, generalArguments.ToString(), replaceStrings,
 								out defaultTechniqueErrorString );
@@ -3105,11 +3100,11 @@ namespace ProjectCommon
 						//generate program for light passes
 						if( lightPass )
 						{
-							StringBuilder arguments = new StringBuilder( generalArguments.Length + 100 );
+							var arguments = new StringBuilder( generalArguments.Length + 100 );
 							arguments.Append( generalArguments.ToString() );
-							int texCoordCount = generalTexCoordCount;
+							var texCoordCount = generalTexCoordCount;
 
-							for( int nLight = 0; nLight < lightCount; nLight++ )
+							for( var nLight = 0; nLight < lightCount; nLight++ )
 							{
 								arguments.AppendFormat(
 									" -DOBJECT_LIGHT_DIRECTION_AND_ATTENUATION_{0}_TEXCOORD=TEXCOORD{1}",
@@ -3120,14 +3115,14 @@ namespace ProjectCommon
 							//check maximum texture coordinates count
 							if( texCoordCount > maxTexCoordCount )
 							{
-								defaultTechniqueErrorString = string.Format(
-									"The limit of amount of texture coordinates is exceeded. Need: {0}, " +
-									"Maximum: {1}. ({2})", texCoordCount, maxTexCoordCount, FileName );
+								defaultTechniqueErrorString =
+									$"The limit of amount of texture coordinates is exceeded. Need: {texCoordCount}, " +
+									$"Maximum: {maxTexCoordCount}. ({FileName})";
 								return false;
 							}
 
 							//vertex program
-							GpuProgram vertexProgram = GpuProgramCacheManager.Instance.AddProgram(
+							var vertexProgram = GpuProgramCacheManager.Instance.AddProgram(
 								"ShaderBase_Vertex_", GpuProgramType.Vertex, sourceFileMain,
 								"main_vp", vertexSyntax, arguments.ToString(), replaceStrings,
 								out defaultTechniqueErrorString );
@@ -3139,7 +3134,7 @@ namespace ProjectCommon
 							pass.VertexProgramName = vertexProgram.Name;
 
 							//fragment program
-							GpuProgram fragmentProgram = GpuProgramCacheManager.Instance.AddProgram(
+							var fragmentProgram = GpuProgramCacheManager.Instance.AddProgram(
 								"ShaderBase_Fragment_", GpuProgramType.Fragment, sourceFileMain,
 								"main_fp", fragmentSyntax, arguments.ToString(), replaceStrings,
 								out defaultTechniqueErrorString );
@@ -3154,7 +3149,7 @@ namespace ProjectCommon
 						//shadow caster material
 						if( shadowCasterPass != null )
 						{
-							StringBuilder arguments = new StringBuilder( generalArguments.Length + 40 );
+							var arguments = new StringBuilder( generalArguments.Length + 40 );
 							arguments.Append( generalArguments.ToString() );
 
 							if( !RenderSystem.Instance.IsOpenGLES() )//for OpenGL ES is already defined before.
@@ -3167,7 +3162,7 @@ namespace ProjectCommon
 							}
 
 							//vertex program
-							GpuProgram vertexProgram = GpuProgramCacheManager.Instance.AddProgram(
+							var vertexProgram = GpuProgramCacheManager.Instance.AddProgram(
 								"ShaderBase_ShadowCaster_Vertex_", GpuProgramType.Vertex, sourceFileShadowCaster,
 								"shadowCaster_vp", vertexSyntax, arguments.ToString(),
 								replaceStrings, out defaultTechniqueErrorString );
@@ -3179,7 +3174,7 @@ namespace ProjectCommon
 							shadowCasterPass.VertexProgramName = vertexProgram.Name;
 
 							//fragment program
-							GpuProgram fragmentProgram = GpuProgramCacheManager.Instance.AddProgram(
+							var fragmentProgram = GpuProgramCacheManager.Instance.AddProgram(
 								"ShaderBase_ShadowCaster_Fragment_", GpuProgramType.Fragment, sourceFileShadowCaster,
 								"shadowCaster_fp", fragmentSyntax, arguments.ToString(),
 								replaceStrings, out defaultTechniqueErrorString );
@@ -3214,21 +3209,21 @@ namespace ProjectCommon
 
 		void UpdateMapTransformForFixedPipeline( MapItem map )
 		{
-			List<TextureUnitState> states = map.textureUnitStatesForFixedPipeline;
+			var states = map.textureUnitStatesForFixedPipeline;
 			if( states == null )
 				return;
 
-			foreach( TextureUnitState state in states )
+			foreach( var state in states )
 			{
-				TransformItem transform = map.Transform;
-				AnimationItem animation = transform.Animation;
+				var transform = map.Transform;
+				var animation = transform.Animation;
 
 				state.TextureScroll = transform.Scroll;
 				state.TextureRotate = transform.Rotate * ( MathFunctions.PI * 2 );
 
 				if( transform.Scale != new Vec2( 1, 1 ) )
 				{
-					Vec2 s = Vec2.Zero;
+					var s = Vec2.Zero;
 					if( transform.Scale.X != 0 )
 						s.X = 1.0f / transform.Scale.X;
 					if( transform.Scale.Y != 0 )
@@ -3246,7 +3241,7 @@ namespace ProjectCommon
 
 		void FixedPipelineAddDiffuseMapsToPass( Pass pass )
 		{
-			for( int mapIndex = 1; mapIndex <= 4; mapIndex++ )
+			for( var mapIndex = 1; mapIndex <= 4; mapIndex++ )
 			{
 				MapItem map = null;
 				switch( mapIndex )
@@ -3259,7 +3254,7 @@ namespace ProjectCommon
 
 				if( !string.IsNullOrEmpty( map.Texture ) )
 				{
-					TextureUnitState state = pass.CreateTextureUnitState(
+					var state = pass.CreateTextureUnitState(
 						map.GetTextureFullPath(), (int)map.TexCoord );
 					if( map.Clamp )
 						state.SetTextureAddressingMode( TextureAddressingMode.Clamp );
@@ -3273,7 +3268,7 @@ namespace ProjectCommon
 
 					if( mapIndex > 1 && mapIndex < 5 )
 					{
-						DiffuseMapItem.MapBlendingTypes mapBlending = ( (DiffuseMapItem)map ).Blending;
+						var mapBlending = ( (DiffuseMapItem)map ).Blending;
 						switch( mapBlending )
 						{
 						case DiffuseMapItem.MapBlendingTypes.Add:
@@ -3293,7 +3288,7 @@ namespace ProjectCommon
 
 		void CreateFixedPipelineTechnique()
 		{
-			ColorValue diffuseScale = DiffuseColor *
+			var diffuseScale = DiffuseColor *
 				new ColorValue( DiffusePower, DiffusePower, DiffusePower, 1 );
 
 			//ReceiveShadows
@@ -3308,7 +3303,7 @@ namespace ProjectCommon
 				}
 			}
 
-			Technique tecnhique = BaseMaterial.CreateTechnique();
+			var tecnhique = BaseMaterial.CreateTechnique();
 
 
 			if( SceneManager.Instance.IsShadowTechniqueStencilBased() )
@@ -3318,7 +3313,7 @@ namespace ProjectCommon
 				//ambient pass
 				if( blending == MaterialBlendingTypes.Opaque )
 				{
-					Pass pass = tecnhique.CreatePass();
+					var pass = tecnhique.CreatePass();
 					pass.NormalizeNormals = true;
 
 					pass.Ambient = diffuseScale;
@@ -3343,7 +3338,7 @@ namespace ProjectCommon
 				}
 
 				{
-					Pass pass = tecnhique.CreatePass();
+					var pass = tecnhique.CreatePass();
 					pass.NormalizeNormals = true;
 
 					pass.Ambient = new ColorValue( 0, 0, 0 );
@@ -3392,7 +3387,7 @@ namespace ProjectCommon
 			{
 				//stencil shadows are disabled
 
-				Pass pass = tecnhique.CreatePass();
+				var pass = tecnhique.CreatePass();
 				pass.NormalizeNormals = true;
 
 				pass.Ambient = diffuseScale;
@@ -3437,7 +3432,7 @@ namespace ProjectCommon
 			if( ( emissionColor != new ColorValue( 0, 0, 0 ) && emissionPower != 0 ) ||
 				emissionScaleDynamic )
 			{
-				Pass pass = tecnhique.CreatePass();
+				var pass = tecnhique.CreatePass();
 				pass.NormalizeNormals = true;
 
 				pass.Ambient = new ColorValue( 0, 0, 0 );
@@ -3461,7 +3456,7 @@ namespace ProjectCommon
 
 				if( !string.IsNullOrEmpty( EmissionMap.Texture ) )
 				{
-					TextureUnitState state = pass.CreateTextureUnitState( EmissionMap.GetTextureFullPath() );
+					var state = pass.CreateTextureUnitState( EmissionMap.GetTextureFullPath() );
 					if( EmissionMap.Clamp )
 						state.SetTextureAddressingMode( TextureAddressingMode.Clamp );
 
@@ -3481,12 +3476,12 @@ namespace ProjectCommon
 
 		void CreateEmptyMaterial()
 		{
-			Technique tecnhique = BaseMaterial.CreateTechnique();
-			Pass pass = tecnhique.CreatePass();
+			var tecnhique = BaseMaterial.CreateTechnique();
+			var pass = tecnhique.CreatePass();
 
 			if( RenderSystem.Instance.HasShaderModel3() )
 			{
-				string sourceFile = "Base\\Shaders\\ShaderBase_empty.cg_hlsl";
+				var sourceFile = "Base\\Shaders\\ShaderBase_empty.cg_hlsl";
 
 				string vertexSyntax;
 				string fragmentSyntax;
@@ -3511,7 +3506,7 @@ namespace ProjectCommon
 				string error;
 
 				//vertex program
-				GpuProgram vertexProgram = GpuProgramCacheManager.Instance.AddProgram(
+				var vertexProgram = GpuProgramCacheManager.Instance.AddProgram(
 					"ShaderBaseEmpty_Vertex_", GpuProgramType.Vertex, sourceFile,
 					"main_vp", vertexSyntax, "", out error );
 				if( vertexProgram == null )
@@ -3521,7 +3516,7 @@ namespace ProjectCommon
 				pass.VertexProgramName = vertexProgram.Name;
 
 				//fragment program
-				GpuProgram fragmentProgram = GpuProgramCacheManager.Instance.AddProgram(
+				var fragmentProgram = GpuProgramCacheManager.Instance.AddProgram(
 					"ShaderBaseEmpty_Fragment_", GpuProgramType.Fragment, sourceFile,
 					"main_fp", fragmentSyntax, "", out error );
 				if( fragmentProgram == null )
@@ -3546,11 +3541,11 @@ namespace ProjectCommon
 			}
 
 			//destroy shadow caster material
-			for( int n = 0; n < 3; n++ )
+			for( var n = 0; n < 3; n++ )
 			{
-				RenderLightType lightType = (RenderLightType)n;
+				var lightType = (RenderLightType)n;
 
-				Material shadowCasterMaterial = BaseMaterial.GetShadowTextureCasterMaterial( lightType );
+				var shadowCasterMaterial = BaseMaterial.GetShadowTextureCasterMaterial( lightType );
 				if( shadowCasterMaterial != null )
 				{
 					BaseMaterial.SetShadowTextureCasterMaterial( lightType, null );
@@ -3560,7 +3555,7 @@ namespace ProjectCommon
 
 			if( subscribedPassesForRenderObjectPass != null )
 			{
-				foreach( Pass pass in subscribedPassesForRenderObjectPass )
+				foreach( var pass in subscribedPassesForRenderObjectPass )
 					pass.RenderObjectPass -= Pass_RenderObjectPass;
 				subscribedPassesForRenderObjectPass.Clear();
 			}
@@ -3589,7 +3584,7 @@ namespace ProjectCommon
 			defaultTechniqueErrorString = null;
 
 			bool shadersIsNotSupported;
-			bool success = CreateDefaultTechnique( out shadersIsNotSupported );
+			var success = CreateDefaultTechnique( out shadersIsNotSupported );
 
 			if( !success )
 			{
@@ -3648,8 +3643,8 @@ namespace ProjectCommon
 		{
 			string parameterAsString = null;
 
-			int materialCount = needForShadowCasterMaterial ? 4 : 1;
-			for( int nMaterial = 0; nMaterial < materialCount; nMaterial++ )
+			var materialCount = needForShadowCasterMaterial ? 4 : 1;
+			for( var nMaterial = 0; nMaterial < materialCount; nMaterial++ )
 			{
 				Material material = null;
 
@@ -3672,12 +3667,12 @@ namespace ProjectCommon
 				if( material == null )
 					continue;
 
-				foreach( Technique technique in material.Techniques )
+				foreach( var technique in material.Techniques )
 				{
-					foreach( Pass pass in technique.Passes )
+					foreach( var pass in technique.Passes )
 					{
-						GpuProgramParameters vertexParameters = pass.VertexProgramParameters;
-						GpuProgramParameters fragmentParameters = pass.FragmentProgramParameters;
+						var vertexParameters = pass.VertexProgramParameters;
+						var fragmentParameters = pass.FragmentProgramParameters;
 
 						if( vertexParameters != null || fragmentParameters != null )
 						{
@@ -3721,7 +3716,7 @@ namespace ProjectCommon
 		{
 			if( IsDynamicDiffuseScale() )
 			{
-				ColorValue scale = DiffuseColor *
+				var scale = DiffuseColor *
 					new ColorValue( DiffusePower, DiffusePower, DiffusePower, 1 );
 				SetCustomGpuParameter( GpuParameters.dynamicDiffuseScale, scale.ToVec4(), false, true, true );
 			}
@@ -3768,7 +3763,7 @@ namespace ProjectCommon
 		{
 			if( IsDynamicSpecularScaleAndShininess() )
 			{
-				ColorValue scale = specularColor * specularPower;
+				var scale = specularColor * specularPower;
 				SetCustomGpuParameter( GpuParameters.dynamicSpecularScaleAndShininess,
 					new Vec4( scale.Red, scale.Green, scale.Blue, specularShininess ), false, true, false );
 			}
@@ -3783,7 +3778,7 @@ namespace ProjectCommon
 		{
 			if( IsDynamicTranslucencyScaleAndClearness() )
 			{
-				ColorValue scale = translucencyColor * translucencyPower;
+				var scale = translucencyColor * translucencyPower;
 				SetCustomGpuParameter( GpuParameters.translucencyScaleAndClearness,
 					new Vec4( scale.Red, scale.Green, scale.Blue, translucencyClearness ), false, true, false );
 			}
@@ -3794,7 +3789,7 @@ namespace ProjectCommon
 			if( fadingByDistanceRange == Range.Zero )
 				return;
 
-			Range range = fadingByDistanceRange;
+			var range = fadingByDistanceRange;
 			if( range.Maximum < range.Minimum + .01f )
 				range.Maximum = range.Minimum + .01f;
 			SetCustomGpuParameter( GpuParameters.fadingByDistanceRange,
@@ -3839,8 +3834,8 @@ namespace ProjectCommon
 				if( !mapsWithAnimations.Contains( map ) )
 					mapsWithAnimations.Add( map );
 
-				foreach( Technique technique in BaseMaterial.Techniques )
-					foreach( Pass pass in technique.Passes )
+				foreach( var technique in BaseMaterial.Techniques )
+					foreach( var pass in technique.Passes )
 						SubscribePassToRenderObjectPassEvent( pass );
 			}
 
@@ -3863,24 +3858,24 @@ namespace ProjectCommon
 
 		void UpdateMapTransformGpuParameters( MapItem map )
 		{
-			TransformItem transform = map.Transform;
+			var transform = map.Transform;
 
 			if( !transform.IsDataExists() )
 				return;
 
 			//calculate scroll and rotate
-			Vec2 scroll = transform.Scroll;
-			Vec2 scale = transform.Scale;
-			float rotate = transform.Rotate;
+			var scroll = transform.Scroll;
+			var scale = transform.Scale;
+			var rotate = transform.Rotate;
 
-			AnimationItem animation = transform.Animation;
+			var animation = transform.Animation;
 			if( animation.IsDataExists() )
 			{
-				float time = GetMapTransformAnimationTime();
+				var time = GetMapTransformAnimationTime();
 
-				Vec2 animationScroll = animation.ScrollSpeed * time;
+				var animationScroll = animation.ScrollSpeed * time;
 
-				Vec2 round = animation.ScrollRound;
+				var round = animation.ScrollRound;
 				if( round.X != 0 )
 				{
 					animationScroll.X =
@@ -3924,7 +3919,7 @@ namespace ProjectCommon
 			//find gpu parameters
 			GpuParameters mulGpuParameter;
 			GpuParameters addGpuParameter;
-			bool needForShadowCasterMaterial = false;
+			var needForShadowCasterMaterial = false;
 			{
 				if( map == diffuse1Map )
 				{
@@ -4000,9 +3995,9 @@ namespace ProjectCommon
 			//update cubemap reflection textures
 			if( cubemapEventUnitStates != null )
 			{
-				for( int n = 0; n < cubemapEventUnitStates.Count; n++ )
+				for( var n = 0; n < cubemapEventUnitStates.Count; n++ )
 				{
-					Pair<Pass, TextureUnitState> item = cubemapEventUnitStates[ n ];
+					var item = cubemapEventUnitStates[ n ];
 					if( item.First == pass )
 						UpdateReflectionCubemap( item.Second, objectWorldPosition );
 				}
@@ -4011,19 +4006,19 @@ namespace ProjectCommon
 			//update maps transform with animations
 			if( mapsWithAnimations != null )
 			{
-				for( int n = 0; n < mapsWithAnimations.Count; n++ )
+				for( var n = 0; n < mapsWithAnimations.Count; n++ )
 					UpdateMapTransformGpuParameters( mapsWithAnimations[ n ] );
 			}
 
 			//set the matrix for projective texturing
 			if( projectiveTexturing )
 			{
-				Mat4 clipSpaceToImageSpaceMatrix = new Mat4(
+				var clipSpaceToImageSpaceMatrix = new Mat4(
 					0.5f, 0, 0, 0,
 					0, -0.5f, 0, 0,
 					0, 0, 1, 0,
 					0.5f, 0.5f, 0, 1 );
-				Mat4 matrix = clipSpaceToImageSpaceMatrix * projectiveTexturingFrustum.GetProjectionMatrix() *
+				var matrix = clipSpaceToImageSpaceMatrix * projectiveTexturingFrustum.GetProjectionMatrix() *
 					projectiveTexturingFrustum.GetViewMatrix();
 				matrix.Transpose();
 				SetCustomGpuParameter( GpuParameters.texViewProjImageMatrix0, matrix.Item0, true, false, false );
@@ -4035,12 +4030,12 @@ namespace ProjectCommon
 
 		void UpdateReflectionCubemap( TextureUnitState textureUnitState, Vec3 objectWorldPosition )
 		{
-			string textureName = "";
+			var textureName = "";
 
 			//get cubemap from CubemapZone's
 			if( Map.Instance != null )
 			{
-				CubemapZone zone = CubemapZone.GetZoneForPoint( objectWorldPosition, true );
+				var zone = CubemapZone.GetZoneForPoint( objectWorldPosition, true );
 				if( zone != null )
 					textureName = zone.GetTextureName();
 			}
@@ -4075,15 +4070,15 @@ namespace ProjectCommon
 
 			if( !IsDefaultTechniqueCreated() )
 			{
-				ColorValue color = new ColorValue( 1, 0, 0 );
+				var color = new ColorValue( 1, 0, 0 );
 
 				if( lines.Count != 0 )
 					lines.Add( new Pair<string, ColorValue>( "", color ) );
 				lines.Add( new Pair<string, ColorValue>( "The fallback fixed pipeline technique is used.", color ) );
 
-				string[] errorStrings = defaultTechniqueErrorString.Split( new char[] { '\n' },
+				var errorStrings = defaultTechniqueErrorString.Split( new[] { '\n' },
 					StringSplitOptions.RemoveEmptyEntries );
-				foreach( string errorString in errorStrings )
+				foreach( var errorString in errorStrings )
 				{
 					//skip warnings
 					if( !errorString.Contains( ": warning X" ) )
@@ -4096,9 +4091,8 @@ namespace ProjectCommon
 		{
 			if( !string.IsNullOrEmpty( textureName ) )
 			{
-				Texture texture = TextureManager.Instance.Load( ConvertToFullPath( textureName ), textureType );
-				if( texture != null )
-					texture.Touch();
+				var texture = TextureManager.Instance.Load( ConvertToFullPath( textureName ), textureType );
+				texture?.Touch();
 			}
 		}
 
@@ -4136,13 +4130,13 @@ namespace ProjectCommon
 
 		public MapItem[] GetAllMaps()
 		{
-			return new MapItem[] { diffuse1Map, diffuse2Map, diffuse3Map, diffuse4Map, reflectionMap, emissionMap, specularMap, 
+			return new[] { diffuse1Map, diffuse2Map, diffuse3Map, diffuse4Map, reflectionMap, emissionMap, specularMap, 
 				translucencyMap, normalMap, heightMap };
 		}
 
 		public override bool IsSupportsStaticBatching()
 		{
-			bool reflectionDynamicCubemap = false;
+			var reflectionDynamicCubemap = false;
 			if( ( ReflectionColor != new ColorValue( 0, 0, 0 ) && ReflectionPower != 0 ) || reflectionScaleDynamic )
 			{
 				if( string.IsNullOrEmpty( ReflectionSpecificCubemap ) )

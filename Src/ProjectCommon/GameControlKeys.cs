@@ -1,9 +1,4 @@
-// Copyright (C) NeoAxis Group Ltd. This is part of NeoAxis 3D Engine SDK.
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Engine;
-using Engine.EntitySystem;
 
 namespace ProjectCommon
 {

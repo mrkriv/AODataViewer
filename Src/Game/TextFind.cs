@@ -1,22 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
-using System.Threading;
-using Engine;
-using Engine.EntitySystem;
-using Engine.Renderer;
-using Engine.MapSystem;
 using Engine.MathEx;
-using Engine.Utils;
 using Engine.UISystem;
 
 namespace Game
 {
     class TextFind : Window
     {
-        List<Data.File> Index;
-        BackgroundWorker bw;
+        private List<Data.File> _index;
+        private readonly BackgroundWorker _bw;
+        private readonly float _pgBaseScaleW;
 
         public TextFind()
             : base("TextFind")
@@ -24,36 +18,38 @@ namespace Game
             ((Button)window.Controls["start"]).Click += Start_Click;
             ((Button)window.Controls["stop"]).Click += Stop_Click;
             ((ListBox)window.Controls["list"]).ItemMouseDoubleClick += TextFind_MouseDoubleClick;
-            bw = new BackgroundWorker();
+            _bw = new BackgroundWorker();
 
-            bw.WorkerReportsProgress = true;
-            bw.WorkerSupportsCancellation = true;
+            _bw.WorkerReportsProgress = true;
+            _bw.WorkerSupportsCancellation = true;
 
-            bw.RunWorkerCompleted += bw_RunWorkerCompleted;
-            bw.ProgressChanged += bw_ProgressChanged;
-            bw.DoWork += Find;
+            _bw.RunWorkerCompleted += bw_RunWorkerCompleted;
+            _bw.ProgressChanged += bw_ProgressChanged;
+            _bw.DoWork += Find;
+
+            _pgBaseScaleW = window.Controls["bar"].Size.Value.X;
         }
 
         void TextFind_MouseDoubleClick(object sender, ListBox.ItemMouseEventArgs e)
         {
-            ListBox lb = ((ListBox)window.Controls["list"]);
+            var lb = ((ListBox)window.Controls["list"]);
             if (lb.SelectedIndex != -1)
-                new LocView(Index[lb.SelectedIndex]);
+                new LocView(_index[lb.SelectedIndex]);
         }
 
         void bw_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            float p = e.ProgressPercentage / PakView.data.Files.Count * 100;
-            window.Controls["count"].Text = string.Format("{0}/{1} ({2}%)", e.ProgressPercentage, PakView.data.Files.Count, p);
-            window.Controls["bar_s"].Size = new ScaleValue(ScaleType.ScaleByResolution, new Vec2(window.Controls["bar"].Size.Value.X * p, window.Controls["bar"].Size.Value.Y));
+            float p = e.ProgressPercentage / PakView.Data.Files.Count * 100;
+            window.Controls["count"].Text = $"{e.ProgressPercentage}/{PakView.Data.Files.Count} ({p}%)";
+            window.Controls["bar_s"].Size = new ScaleValue(ScaleType.Parent, new Vec2(_pgBaseScaleW * p, window.Controls["bar"].Size.Value.Y));
                 
             if(e.UserState != null)
             {
                 ((ListBox)window.Controls["list"]).Items.Add(((Data.File)e.UserState).Name);
-                Index.Add((Data.File)e.UserState);
+                _index.Add((Data.File)e.UserState);
 
                 if (((CheckBox)window.Controls["isOnlyFind"]).Checked)
-                    bw.CancelAsync();
+                    _bw.CancelAsync();
             }
         }
 
@@ -68,53 +64,61 @@ namespace Game
             window.Controls["stop"].Enable = true;
             window.Controls["start"].Enable = false;
 
-            Index = new List<Data.File>();
+            _index = new List<Data.File>();
             ((ListBox)window.Controls["list"]).Items.Clear();
 
-            bw.RunWorkerAsync(new object[] { window.Controls["text"].Text, window.Controls["mask"].Text, PakView.data.Files });
+            _bw.RunWorkerAsync(new object[] { window.Controls["text"].Text, window.Controls["mask"].Text, PakView.Data.Files });
         }
 
         void Stop_Click(Button sender)
         {
             window.Controls["stop"].Enable = false;
             window.Controls["start"].Enable = true;
-            bw.CancelAsync();
+            _bw.CancelAsync();
         }
 
         void Find(object sender, DoWorkEventArgs e)
         {
-            BackgroundWorker bw = sender as BackgroundWorker;
+            var bw = sender as BackgroundWorker;
+            var obj = e.Argument as object[];
+            
+            if (bw == null || obj == null)
+                return;
 
-            object[] obj = e.Argument as object[];
-            string text = obj[0] as string;
-            string mask = obj[1] as string;
-            List<Data.File> files = obj[2] as List<Data.File>;
+            var text = obj[0] as string;
+            var mask = obj[1] as string;
+            var files = obj[2] as List<Data.File>;
 
-            int i = 0;
-            int p_l = -1;
+            if (text == null || mask == null || files == null)
+                return;
+            
+            var progressReported = -1;
 
-            foreach (Data.File file in files)
+            for (var i = 0; i < files.Count; i++)
             {
+                var file = files[i];
                 try
                 {
-                    int p = i / files.Count * 100;
-                    if (p != p_l)
-                        bw.ReportProgress(i);
+                    if (bw.CancellationPending)
+                        return;
 
-                    if (file.Name.IndexOf(mask) != -1)
+                    var progress = i / (files.Count * 100);
+                    if (progress != progressReported)
                     {
-                        if (bw.CancellationPending)
-                            return;
+                        bw.ReportProgress(i);
+                        progressReported = progress;
+                    }
 
-                        string t = Encoding.Unicode.GetString(file.Data.ToArray());
-                        if (t.IndexOf(text) != -1)
+                    if (file.Name.Contains(mask))
+                    {
+                        var t = Encoding.Unicode.GetString(file.Data.ToArray());
+                        if (t.Contains(text))
                             bw.ReportProgress(i, file);
                     }
                 }
-                catch { }
-                finally
+                catch
                 {
-                    i++;
+                    // ignored
                 }
             }
         }
@@ -122,8 +126,7 @@ namespace Game
         protected override void OnDetach()
         {
             base.OnDetach();
-            if (bw != null)
-                bw.CancelAsync();
+            _bw?.CancelAsync();
         }
     }
 }

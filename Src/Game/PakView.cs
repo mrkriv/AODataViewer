@@ -1,70 +1,66 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.IO;
+﻿using System.Collections.Generic;
 using Engine;
-using Engine.FileSystem;
 using Engine.UISystem;
-using Engine.EntitySystem;
-using Engine.MapSystem;
-using Engine.MathEx;
-using Engine.Renderer;
-using Engine.Renderer.ModelImporting;
-using Engine.SoundSystem;
-using ProjectCommon;
-using ProjectEntities;
-using ICSharpCode.SharpZipLib.Checksums;
-using ICSharpCode.SharpZipLib.Zip;
 
 namespace Game
 {
     public class PakView : Window
     {
-        string path;
-        public List<Data.File> Files;
-        public static Data data;
+        private string _path;
+        private List<Data.File> _files;
+        public static Data Data;
 
         public string Path
         {
-            get { return path; }
-            private set
+            get => _path;
+            set
             {
-                path = value.Trim('/');
-                window.Controls["text_path"].Text = path;
-                Files = new List<Data.File>();
-                List<string> items = new List<string>();
-                IconListBox c = window.Controls["list"] as IconListBox;
+                _path = value.Trim('/');
+                window.Controls["text_path"].Text = _path;
+                _files = new List<Data.File>();
+                var items = new List<string>();
+                var c = window.Controls["list"] as IconListBox;
                 c.Items.Clear();
 
-                if (path != "")
-                    c.Items.Add(new string[] { "<-", "back" });
+                if (_path != "")
+                    c.Items.Add(new[] {"<-", "back"});
 
-                foreach (Data.File f in data.Files)
+                var mask = window.Controls["mask"].Text;
+                var useMask = ((CheckBox) window.Controls["find"]).Checked && !string.IsNullOrEmpty(mask);
+
+                foreach (var f in Data.Files)
                 {
-                    string name = f.Name.Trim('/');
+                    var name = f.Name;
 
-                    if (((CheckBox)window.Controls["find"]).Checked && window.Controls["mask"].Text != "" && name.IndexOf(window.Controls["mask"].Text) == -1)
+                    if (!name.StartsWith(_path))
                         continue;
 
-                    if (!name.StartsWith(path))
+                    if (useMask && !name.Contains(mask))
                         continue;
 
-                    name = name.Substring(path.Length);
+                    _files.Add(f);
+                }
+
+                _files.Sort((a, b) => a.Name.CompareTo(b.Name));
+
+                foreach (var f in _files)
+                {
+                    var name = f.Name.Trim('/');
+
+                    name = name.Substring(_path.Length);
                     name = name.TrimStart('/');
                     name = name.Split('/')[0];
 
-                    if (!items.Contains(name))
-                    {
+                    if (items.Contains(name))
+                        continue;
 
-                        string[] s = new string[] { name, "dir" };
+                    var s = new[] {name, "dir"};
 
-                        if (name.IndexOf(".") != -1)
-                            s[1] = GetType(name);
+                    if (name.Contains("."))
+                        s[1] = GetType(name);
 
-                        items.Add(name);
-                        c.Items.Add(s);
-                        Files.Add(f);
-                    }
+                    items.Add(name);
+                    c.Items.Add(s);
                 }
             }
         }
@@ -90,17 +86,17 @@ namespace Game
         public PakView(string path)
             : base("PakView")
         {
-            data = new Data(path);
-            ((IconListBox)window.Controls["list"]).ItemMouseDoubleClick += ListClick;
-            ((IconListBox)window.Controls["list"]).SelectedIndexChange += SelectedIndexChange;
-            ((Button)window.Controls["edit"]).Click += EditFile;
-            ((Button)window.Controls["more"]).Click += MoreSwitch;
-            ((Button)window.Controls["specal\\save"]).Click += Specal_save;
-            ((Button)window.Controls["specal\\ungzip"]).Click += Specal_ungzip;
+            Data = new Data(path);
+            //((IconListBox)window.Controls["list"]).MouseDown += ListClick;
+            ((IconListBox) window.Controls["list"]).SelectedIndexChange += SelectedIndexChange;
+            ((Button) window.Controls["edit"]).Click += EditFile;
+            ((Button) window.Controls["more"]).Click += MoreSwitch;
+            ((Button) window.Controls["specal\\save"]).Click += Specal_save;
+            ((Button) window.Controls["specal\\ungzip"]).Click += Specal_ungzip;
             window.Controls["mask"].TextChange += Find;
             window.Controls["Progress"].Visible = false;
             window.Controls["specal"].Visible = false;
-            ((CheckBox)window.Controls["find"]).CheckedChange += Find_CheckedChange;
+            ((CheckBox) window.Controls["find"]).CheckedChange += Find_CheckedChange;
 
             Path = "";
         }
@@ -121,9 +117,9 @@ namespace Game
         {
             try
             {
-                IconListBox lb = window.Controls["list"] as IconListBox;
-                string file = ((string[])lb.SelectedItem)[0];
-                Data.File f = Files[lb.SelectedIndex - 1];
+                var lb = window.Controls["list"] as IconListBox;
+                var file = ((string[]) lb.SelectedItem)[0];
+                var f = _files[lb.SelectedIndex - 1];
                 f.ReadData(ungzip);
                 new SaveFileDialog(file, f.Data.ToArray());
                 f.ClearCache();
@@ -146,7 +142,7 @@ namespace Game
 
         void Find(Control sender)
         {
-            if (((CheckBox)window.Controls["find"]).Checked)
+            if (((CheckBox) window.Controls["find"]).Checked)
                 Path = Path;
         }
 
@@ -155,33 +151,38 @@ namespace Game
             window.Controls["specal"].Visible = false;
             if (IsFile())
             {
-                IconListBox lb = window.Controls["list"] as IconListBox;
-                ((Button)window.Controls["edit"]).Enable = true;
-                ((Button)window.Controls["more"]).Enable = true;
-                window.Controls["info"].Text = Files[lb.SelectedIndex - 1].Pak;
+                var lb = window.Controls["list"] as IconListBox;
+                ((Button) window.Controls["edit"]).Enable = true;
+                ((Button) window.Controls["more"]).Enable = true;
+                window.Controls["info"].Text = _files[lb.SelectedIndex - 1].Pak;
             }
             else
             {
-                ((Button)window.Controls["edit"]).Enable = false;
-                ((Button)window.Controls["more"]).Enable = false;
+                ((Button) window.Controls["edit"]).Enable = false;
+                ((Button) window.Controls["more"]).Enable = false;
                 window.Controls["info"].Text = "Виртуальный файл";
             }
+
+            ListClick(sender, EMouseButtons.Left);
         }
 
         bool IsFile()
         {
-            IconListBox lb = window.Controls["list"] as IconListBox;
+            var lb = window.Controls["list"] as IconListBox;
             if (lb.SelectedItem != null)
             {
-                string item = ((string[])lb.SelectedItem)[0];
+                var item = ((string[]) lb.SelectedItem)[0];
                 return item.IndexOf(".") != -1;
             }
+
             return false;
         }
 
-        void ListClick(object sender, IconListBox.ItemMouseEventArgs e)
+        void ListClick(object sender, EMouseButtons btn)
         {
-            string item = ((string[])((IconListBox)sender).SelectedItem)[0];
+            var selectItem = ((IconListBox) sender).SelectedItem;
+
+            var item = ((string[]) selectItem)?[0];
 
             if (item == null)
                 return;
@@ -195,8 +196,8 @@ namespace Game
             }
             else
             {
-                if (path.IndexOf('/') != -1)
-                    Path = path.Remove(path.LastIndexOf('/'));
+                if (_path.IndexOf('/') != -1)
+                    Path = _path.Remove(_path.LastIndexOf('/'));
                 else
                     Path = "";
             }
@@ -206,23 +207,24 @@ namespace Game
         {
             /*try
             {*/
-            IconListBox lb = window.Controls["list"] as IconListBox;
-            string file = ((string[])lb.SelectedItem)[0];
+            var lb = window.Controls["list"] as IconListBox;
+            var file = ((string[]) lb.SelectedItem)[0];
             switch (GetType(file))
             {
                 case "texture":
-                    new TextureView(Files[lb.SelectedIndex - 1]);
+                    new TextureView(_files[lb.SelectedIndex - 1]);
                     break;
                 case "texture_hi":
-                    new TextureView(Files[lb.SelectedIndex - 1]);
+                    new TextureView(_files[lb.SelectedIndex - 1]);
                     break;
                 case "loc":
-                    new LocView(Files[lb.SelectedIndex - 1]);
+                    new LocView(_files[lb.SelectedIndex - 1]);
                     break;
                 case "model":
-                    new V3dWindow(Files[lb.SelectedIndex - 1]);
+                    new ModelViewWindow(_files[lb.SelectedIndex - 1]);
                     break;
             }
+
             /*}
             catch
             {

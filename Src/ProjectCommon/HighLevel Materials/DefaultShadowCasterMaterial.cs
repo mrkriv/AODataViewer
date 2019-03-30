@@ -1,12 +1,8 @@
-// Copyright (C) NeoAxis Group Ltd. This is part of NeoAxis 3D Engine SDK.
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 using Engine;
 using Engine.Renderer;
 using Engine.MathEx;
-using Engine.Utils;
 
 namespace ProjectCommon
 {
@@ -41,7 +37,7 @@ namespace ProjectCommon
 		{
 			base.OnClone( sourceMaterial );
 
-			DefaultShadowCasterMaterial source = (DefaultShadowCasterMaterial)sourceMaterial;
+			var source = (DefaultShadowCasterMaterial)sourceMaterial;
 			LightType = source.LightType;
 			AtiHardwareShadows = source.AtiHardwareShadows;
 			NvidiaHardwareShadows = source.NvidiaHardwareShadows;
@@ -76,7 +72,7 @@ namespace ProjectCommon
 			if( !base.OnInitBaseMaterial() )
 				return false;
 
-			string sourceFile = "Base\\Shaders\\DefaultShadowCaster.cg_hlsl";
+			var sourceFile = "Base\\Shaders\\DefaultShadowCaster.cg_hlsl";
 
 			string vertexSyntax;
 			string fragmentSyntax;
@@ -98,14 +94,14 @@ namespace ProjectCommon
 				}
 			}
 
-			Technique technique = BaseMaterial.CreateTechnique();
+			var technique = BaseMaterial.CreateTechnique();
 
-			Pass pass = technique.CreatePass();
+			var pass = technique.CreatePass();
 
 			pass.SetFogOverride( FogMode.None, new ColorValue( 0, 0, 0 ), 0, 0, 0 );
 
 			//generate general compile arguments
-			StringBuilder arguments = new StringBuilder( 256 );
+			var arguments = new StringBuilder( 256 );
 			{
 				if( RenderSystem.Instance.IsDirect3D() )
 					arguments.Append( " -DDIRECT3D" );
@@ -138,7 +134,7 @@ namespace ProjectCommon
 				string error;
 
 				//vertex program
-				GpuProgram vertexProgram = GpuProgramCacheManager.Instance.AddProgram(
+				var vertexProgram = GpuProgramCacheManager.Instance.AddProgram(
 					"DefaultShadowCaster_Vertex_", GpuProgramType.Vertex, sourceFile,
 					"main_vp", vertexSyntax, arguments.ToString(), out error );
 				if( vertexProgram == null )
@@ -151,7 +147,7 @@ namespace ProjectCommon
 				pass.VertexProgramName = vertexProgram.Name;
 
 				//fragment program
-				GpuProgram fragmentProgram = GpuProgramCacheManager.Instance.AddProgram(
+				var fragmentProgram = GpuProgramCacheManager.Instance.AddProgram(
 					"DefaultShadowCaster_Fragment_", GpuProgramType.Fragment, sourceFile,
 					"main_fp", fragmentSyntax, arguments.ToString(), out error );
 				if( fragmentProgram == null )

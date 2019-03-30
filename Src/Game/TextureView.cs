@@ -1,27 +1,15 @@
-﻿using Engine;
-using Engine.MathEx;
+﻿using Engine.MathEx;
 using Engine.Renderer;
 using Engine.UISystem;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using ICSharpCode.SharpZipLib.Checksums;
-using ICSharpCode.SharpZipLib.Zip;
-using Microsoft.Win32;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO.Compression;
-using System.Xml;
 
 namespace Game
 {
     class TextureView : Window
     {
         List<byte> buffer;
-        bool isInit = false;
+        bool isInit;
         static TextureView instance;
         bool first = true;
         Data.File File;
@@ -52,7 +40,7 @@ namespace Game
                 ((ComboBox)instance.window.Controls["h"]).Items.Clear();
                 ((ComboBox)instance.window.Controls["type"]).Items.Clear();
 
-                for (int i = 4; i <= 12; i++)
+                for (var i = 4; i <= 12; i++)
                 {
                     ((ComboBox)instance.window.Controls["w"]).Items.Add((int)Math.Pow(2, i));
                     ((ComboBox)instance.window.Controls["h"]).Items.Add((int)Math.Pow(2, i));
@@ -73,8 +61,7 @@ namespace Game
                 instance.first = false;
             }
 
-            if (File != null)
-                File.ClearCache();
+            File?.ClearCache();
             File = file;
             File.ReadData(true);
 
@@ -83,7 +70,7 @@ namespace Game
 
             while (true)
             {
-                int size = Width * Height;
+                var size = Width * Height;
                 if (type == 1)
                     size /= 2;
 
@@ -113,12 +100,12 @@ namespace Game
 
         public void Export(Button sender)
         {
-            new SaveFileDialog(File.GetOnlyName(), buffer.ToArray(), new string[] { "dds" });
+            new SaveFileDialog(File.GetOnlyName(), buffer.ToArray(), new[] { "dds" });
         }
 
         int GetPowerOfTwo(int x)
         {
-            int y = 0;
+            var y = 0;
 
             while (x % 2 == 0)
             {
@@ -172,9 +159,8 @@ namespace Game
         {
             base.OnDetach();
 
-            if (File != null)
-                File.ClearCache();
-            
+            File?.ClearCache();
+
             if (this == instance)
                 instance = null;
         }
@@ -183,9 +169,9 @@ namespace Game
         {
             buffer = new List<byte>();
 
-            window.Controls["img\\info"].Text = string.Format("{0}x{1} DTX{2}", Width, Height, type);
+            window.Controls["img\\info"].Text = $"{Width}x{Height} DTX{type}";
 
-            int size = Width * Height;
+            var size = Width * Height;
             if (type == 1)
                 size /= 2;
 
@@ -200,19 +186,19 @@ namespace Game
             buffer.AddRange(BitConverter.GetBytes(Height));
             buffer.AddRange(BitConverter.GetBytes(size));
 
-            for (int i = 0; i < 52; i++)
+            for (var i = 0; i < 52; i++)
                 buffer.Add(0x00);
 
             buffer.AddRange(new byte[] { 0x20, 0x00, 0x00, 0x00 });
             buffer.AddRange(new byte[] { 0x04, 0x00, 0x00, 0x00, 0x44, 0x58, 0x54 });
             buffer.Add((byte)(0x30 + (int)type));
 
-            for (int i = 0; i < 20; i++)
+            for (var i = 0; i < 20; i++)
                 buffer.Add(0x00);
 
             buffer.AddRange(new byte[] { 0x00, 0x10, 0x00, 0x00 });
 
-            for (int i = 0; i < 16; i++)
+            for (var i = 0; i < 16; i++)
                 buffer.Add(0x00);
 
             buffer.AddRange(Data.GetRange(Data.Count - size, size));

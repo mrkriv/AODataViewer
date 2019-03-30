@@ -1,155 +1,156 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Text;
 using Engine;
-using Engine.EntitySystem;
 using Engine.Renderer;
-using Engine.MapSystem;
 using Engine.MathEx;
 using Engine.Utils;
 using Engine.UISystem;
+using RVertex = Engine.Renderer.DynamicMeshManager.Vertex;
 
 namespace Game
 {
-    public class V3dWindow : Window
+    public class ModelViewWindow : Window
     {
-        static V3dWindow instance;
-        MapingWinow mapWindow;
-        List<byte> vertex;
-        List<byte> face;
-        List<byte> skelet;
-        List<Vertex> Vertexs;
-        List<Face> Faces;
-        Data.File File;
-        SceneBox viewport;
-        SceneBox.SceneBoxMesh obj;
-        VertexType declaration;
-        Mesh mesh;
-        int vertex_size;
-        int face_size;
-        int skelet_size;
-        float zoom;
-        SphereDir dir;
-        private bool ViewportIsRotation = false;
-        private Vec2 ViewportMouseOffest;
-        private Vec2 PointMouseOffset;
-        private bool PointIsMove = false;
-        ushort[] indicesToMemory;
-        Engine.Renderer.DynamicMeshManager.Vertex[] verticesToMemory;
+        private static ModelViewWindow _instance;
+        private MapingWinow _mapWindow;
+        private List<byte> _vertex;
+        private List<byte> _face;
+        private List<byte> _skelet;
+        private List<Vertex> _vertexs;
+        private List<Face> _faces;
+        private Data.File _file;
+        private SceneBox _viewport;
+        private SceneBox.SceneBoxMesh _obj;
+        private VertexType _vertexType;
+        private Mesh _mesh;
+        private int _vertexSize;
+        private int _faceSize;
+        private int _skeletSize;
+        private float _zoom;
+        private SphereDir _dir;
+        private bool _viewportIsRotation;
+        private Vec2 _viewportMouseOffest;
+        private Vec2 _pointMouseOffset;
+        private bool _pointIsMove;
+        private ushort[] _indicesToMemory;
+        private RVertex[] _verticesToMemory;
 
-        public static V3dWindow Instance
+        public static ModelViewWindow Instance
         {
-            get { return V3dWindow.instance; }
+            get { return _instance; }
         }
 
-        public V3dWindow(Data.File file)
-            : base("3dWindow")
+        public ModelViewWindow(Data.File file) : base("3dWindow")
         {
-            if (instance != null)
-                instance.Close();
-
-            instance = this;
+            _instance?.Close();
+            _instance = this;
 
             Init(file);
         }
 
         public void Init(Data.File file)
         {
-            if (File != null)
-                File.ClearCache();
-            File = file;
-            File.ReadData(true);
+            _file?.ClearCache();
+            _file = file;
+            _file.ReadData(true);
 
             window.Text = file.GetOnlyName();
-            viewport = (SceneBox)window.Controls["viewport"];
+            _viewport = (SceneBox) window.Controls["viewport"];
 
-            ((IntCounter)window.Controls["tab\\format\\size"]).Focus();
-            ((IntCounter)window.Controls["tab\\lod\\pos"]).ValueChange += LodPosition_ValueChange;
-            ((Button)window.Controls["tab\\format\\render"]).Click += OnUpdate;
-            ((Button)window.Controls["manipul\\top"]).Click += MoveTop;
-            ((Button)window.Controls["manipul\\reset"]).Click += MoveReset;
-            ((Button)window.Controls["manipul\\down"]).Click += MoveDown;
-            ((Button)window.Controls["maping"]).Click += Maping_Click;
-            ((Button)window.Controls["tab\\export\\export"]).Click += ExportClick;
+            ((IntCounter) window.Controls["tab\\format\\size"]).Focus();
+            ((IntCounter) window.Controls["tab\\lod\\pos"]).ValueChange += LodPosition_ValueChange;
+            ((Button) window.Controls["tab\\format\\render"]).Click += OnUpdate;
+            ((Button) window.Controls["manipul\\top"]).Click += MoveTop;
+            ((Button) window.Controls["manipul\\reset"]).Click += MoveReset;
+            ((Button) window.Controls["manipul\\down"]).Click += MoveDown;
+            ((Button) window.Controls["maping"]).Click += Maping_Click;
+            ((Button) window.Controls["tab\\export\\export"]).Click += ExportClick;
             window.Controls["tab\\lod\\point"].MouseDown += PointMouseDown;
             window.Controls["tab\\lod\\point"].MouseMove += PointMouseMove;
             window.Controls["tab\\lod\\point"].MouseUp += PointMouseUp;
-            viewport.MouseLeave += viewport_MouseLeave;
-            viewport.MouseUp += viewport_MouseUp;
-            viewport.MouseDown += viewport_MouseDown;
-            viewport.MouseMove += viewport_MouseMove;
-            viewport.MouseWheel += viewport_MouseWheel;
+            _viewport.MouseLeave += viewport_MouseLeave;
+            _viewport.MouseUp += viewport_MouseUp;
+            _viewport.MouseDown += viewport_MouseDown;
+            _viewport.MouseMove += viewport_MouseMove;
+            _viewport.MouseWheel += viewport_MouseWheel;
 
-            vertex_size = BitConverter.ToInt32(File.Data.GetRange(4, 4).ToArray(), 0);
-            face_size = BitConverter.ToInt32(File.Data.GetRange(12 + vertex_size, 4).ToArray(), 0);
-            skelet_size = BitConverter.ToInt32(File.Data.GetRange(20 + face_size + vertex_size, 4).ToArray(), 0);
+            _vertexSize = BitConverter.ToInt32(_file.Data.GetRange(4, 4).ToArray(), 0);
+            _faceSize = BitConverter.ToInt32(_file.Data.GetRange(12 + _vertexSize, 4).ToArray(), 0);
+            _skeletSize = BitConverter.ToInt32(_file.Data.GetRange(20 + _faceSize + _vertexSize, 4).ToArray(), 0);
 
-            vertex = File.Data.GetRange(8, vertex_size);
-            face = File.Data.GetRange(16 + vertex_size, face_size);
+            _vertex = _file.Data.GetRange(8, _vertexSize);
+            _face = _file.Data.GetRange(16 + _vertexSize, _faceSize);
 
             AutoFormat();
 
-            obj = viewport.FindObjectByName("model") as SceneBox.SceneBoxMesh;
-            if (obj != null)
+            _obj = _viewport.FindObjectByName("model") as SceneBox.SceneBoxMesh;
+            if (_obj != null)
             {
-                string meshName = MeshManager.Instance.GetUniqueName("_viewport_temp");
+                var meshName = MeshManager.Instance.GetUniqueName("_viewport_temp");
 
-                mesh = MeshManager.Instance.CreateManual(meshName);
+                _mesh = MeshManager.Instance.CreateManual(meshName);
 
-                SubMesh subMesh = mesh.CreateSubMesh();
+                var subMesh = _mesh.CreateSubMesh();
                 subMesh.UseSharedVertices = false;
 
-                VertexDeclaration dec = subMesh.VertexData.VertexDeclaration;
+                var dec = subMesh.VertexData.VertexDeclaration;
                 dec.AddElement(0, 0, VertexElementType.Float3, VertexElementSemantic.Position);
                 dec.AddElement(0, 12, VertexElementType.Float3, VertexElementSemantic.Normal);
                 dec.AddElement(0, 24, VertexElementType.Float2, VertexElementSemantic.TextureCoordinates, 0);
 
-                HardwareBuffer.Usage usage = HardwareBuffer.Usage.DynamicWriteOnly;
-                HardwareVertexBuffer vertexBuffer = HardwareBufferManager.Instance.CreateVertexBuffer(Marshal.SizeOf(typeof(Engine.Renderer.DynamicMeshManager.Vertex)), vertex_size, usage);
+                var usage = HardwareBuffer.Usage.DynamicWriteOnly;
+                var vertexBuffer = HardwareBufferManager.Instance.CreateVertexBuffer(
+                    Marshal.SizeOf(typeof(RVertex)), _vertexSize, usage);
+                
                 subMesh.VertexData.VertexBufferBinding.SetBinding(0, vertexBuffer, true);
-                subMesh.VertexData.VertexCount = vertex_size;
+                subMesh.VertexData.VertexCount = _vertexSize;
 
-                HardwareIndexBuffer indexBuffer = HardwareBufferManager.Instance.CreateIndexBuffer(HardwareIndexBuffer.IndexType._16Bit, face_size, usage);
+                var indexBuffer =
+                    HardwareBufferManager.Instance.CreateIndexBuffer(HardwareIndexBuffer.IndexType._16Bit, _faceSize,
+                        usage);
+                
                 subMesh.IndexData.SetIndexBuffer(indexBuffer, true);
-                subMesh.IndexData.IndexCount = face_size;
+                subMesh.IndexData.IndexCount = _faceSize;
 
-                obj.MeshName = meshName;
-                obj.OverrideMaterial = "Blank";
+                _obj.MeshName = meshName;
+                _obj.OverrideMaterial = "Blank";
             }
 
-            zoom = 3;
-            dir = new SphereDir();
-            viewport.CameraPosition = dir.GetVector() * zoom;
+            _dir = new SphereDir();
+            _zoom = 3;
+            _viewport.CameraPosition = _dir.GetVector() * _zoom;
+
+            OnUpdate(null);
         }
 
-        void Maping_Click(Button sender)
+        private void Maping_Click(Button sender)
         {
-            if (mapWindow == null)
-                mapWindow = new MapingWinow();
+            if (_mapWindow == null)
+                _mapWindow = new MapingWinow();
             else
-                mapWindow.Focus();
+                _mapWindow.Focus();
         }
 
         protected override void OnRender()
         {
-            if (viewport.Camera == null)
+            if (_viewport.Camera == null)
                 return;
 
-            DebugGeometry dg = viewport.Camera.DebugGeometry;
+            var dg = _viewport.Camera.DebugGeometry;
 
-            if (((CheckBox)window.Controls["btn\\grid"]).Checked)
+            if (((CheckBox) window.Controls["btn\\grid"]).Checked)
             {
-                int size = 5;
+                var size = 5;
                 dg.Color = new ColorValue(1, 1, 1);
-                for (int i = -size; i <= size; i++)
+                for (var i = -size; i <= size; i++)
                 {
                     dg.AddLine(new Vec3(i, -size, 0), new Vec3(i, size, 0));
                     dg.AddLine(new Vec3(-size, i, 0), new Vec3(size, i, 0));
                 }
             }
 
-            if (((CheckBox)window.Controls["btn\\gizmo"]).Checked)
+            if (((CheckBox) window.Controls["btn\\gizmo"]).Checked)
             {
                 dg.Color = new ColorValue(1, 0, 0);
                 dg.AddLine(Vec3.Zero, Vec3.XAxis);
@@ -159,206 +160,202 @@ namespace Game
                 dg.AddLine(Vec3.Zero, Vec3.ZAxis);
             }
 
-            if (((CheckBox)window.Controls["btn\\vertex"]).Checked && Vertexs != null)
+            if (((CheckBox) window.Controls["btn\\vertex"]).Checked && _vertexs != null)
             {
-                foreach (Vertex v in Vertexs)
-                    dg.AddSphere(new Sphere(new Vec3(v.x, v.y, v.z)+obj.Position, .005f), 16);
+                foreach (var v in _vertexs)
+                    dg.AddSphere(new Sphere(new Vec3(v.x, v.y, v.z) + _obj.Position, .005f), 16);
             }
 
-            if (viewport.Viewport != null)
-                viewport.Viewport.BackgroundColor = new ColorValue(.247f, .42f, 1);
+            if (_viewport.Viewport != null)
+                _viewport.Viewport.BackgroundColor = new ColorValue(.247f, .42f, 1);
         }
 
-        void viewport_MouseMove(Control sender)
+        private void viewport_MouseMove(Control sender)
         {
-            if (ViewportIsRotation)
-            {
-                Vec2 pos = viewport.MousePosition;
-                Vec2 delta = pos - ViewportMouseOffest;
-                float multer = 2.5f;
+            if (!_viewportIsRotation)
+                return;
 
-                dir.Horizontal -= delta.X * multer;
-                dir.Vertical += delta.Y * multer;
-                float num = 1.560796f;
-                if ((double)dir.Vertical > (double)num)
-                    dir.Vertical = num;
-                if ((double)dir.Vertical < -(double)num)
-                    dir.Vertical = -num;
+            const float pi2 = (float) Math.PI / 2;
+            const float multer = 2.5f;
 
-                viewport.CameraPosition = dir.GetVector() * zoom;
-                ViewportMouseOffest = pos;
-            }
+            var pos = _viewport.MousePosition;
+            var delta = pos - _viewportMouseOffest;
+
+            _dir.Horizontal -= delta.X * multer;
+            _dir.Vertical += delta.Y * multer;
+
+
+            if (_dir.Vertical > (double) pi2)
+                _dir.Vertical = pi2;
+            if (_dir.Vertical < -(double) pi2)
+                _dir.Vertical = -pi2;
+
+            _viewport.CameraPosition = _dir.GetVector() * _zoom;
+            _viewportMouseOffest = pos;
         }
 
-        void viewport_MouseDown(Control sender, EMouseButtons button)
+        private void viewport_MouseDown(Control sender, EMouseButtons button)
         {
             if (button == EMouseButtons.Left)
             {
-                ViewportMouseOffest = viewport.MousePosition;
-                ViewportIsRotation = true;
+                _viewportMouseOffest = _viewport.MousePosition;
+                _viewportIsRotation = true;
             }
         }
 
-        void viewport_MouseUp(Control sender, EMouseButtons button)
+        private void viewport_MouseUp(Control sender, EMouseButtons button)
         {
             if (button == EMouseButtons.Left)
-            {
-                ViewportIsRotation = false;
-            }
+                _viewportIsRotation = false;
         }
 
-        void viewport_MouseLeave(Control sender)
+        private void viewport_MouseLeave(Control sender)
         {
-            ViewportIsRotation = false;
+            _viewportIsRotation = false;
         }
 
-        void viewport_MouseWheel(Control sender, int delta)
+        private void viewport_MouseWheel(Control sender, int delta)
         {
-            zoom += zoom * 0.002f * delta;
-            if (zoom < 0.1f)
-                zoom = 0.1f;
+            _zoom += _zoom * 0.002f * delta;
+            if (_zoom < 0.1f)
+                _zoom = 0.1f;
 
-            viewport.CameraPosition = dir.GetVector() * zoom;
+            _viewport.CameraPosition = _dir.GetVector() * _zoom;
         }
 
-        void PointMouseUp(Control sender, EMouseButtons button)
+        private void PointMouseUp(Control sender, EMouseButtons button)
         {
             if (button == EMouseButtons.Left)
-                PointIsMove = false;
+                _pointIsMove = false;
         }
 
-        bool flag1 = false;
-        void UpdateFaceOfLodLevel(int x)
+        private bool _updateFaceOfLodLevelFlag;
+
+        private void UpdateFaceOfLodLevel(int x)
         {
-            flag1 = true;
-            GraphLine2D p = window.Controls["tab\\lod\\view"] as GraphLine2D;
-            Control c = window.Controls["tab\\lod\\point"];
-            ((IntCounter)window.Controls["tab\\lod\\pos"]).Value = x;
+            _updateFaceOfLodLevelFlag = true;
+            var p = window.Controls["tab\\lod\\view"] as GraphLine2D;
+            var c = window.Controls["tab\\lod\\point"];
+            ((IntCounter) window.Controls["tab\\lod\\pos"]).Value = x;
             p.Zone0 = x / 100.0f;
             c.Position = new ScaleValue(ScaleType.Parent, new Vec2(x / 100.0f, c.Position.Value.Y));
 
-            flag1 = false;
+            _updateFaceOfLodLevelFlag = false;
             _BuildFace();
             _CalculateNormal();
             _WriteToMemoryF();
         }
 
-        void PointMouseMove(Control sender)
+        private void PointMouseMove(Control sender)
         {
-            if (PointIsMove)
+            if (_pointIsMove)
             {
-                GraphLine2D p = window.Controls["tab\\lod\\view"] as GraphLine2D;
+                var p = window.Controls["tab\\lod\\view"] as GraphLine2D;
 
-                float f = 1 / (p.Size.Value.X / sender.Size.Value.X);
-                float x = p.MousePosition.X + PointMouseOffset.X * f - f / 2;
+                var f = 1 / (p.Size.Value.X / sender.Size.Value.X);
+                var x = p.MousePosition.X + _pointMouseOffset.X * f - f / 2;
 
                 if (x > 1)
                     x = 1;
                 else if (x < 0.01f)
                     x = 0.01f;
 
-                UpdateFaceOfLodLevel((int)(x * 100));
+                UpdateFaceOfLodLevel((int) (x * 100));
             }
         }
 
-        void LodPosition_ValueChange(IntCounter control, int value)
+        private void LodPosition_ValueChange(IntCounter control, int value)
         {
-            if (flag1)
+            if (_updateFaceOfLodLevelFlag)
                 return;
 
             UpdateFaceOfLodLevel(value);
         }
 
-        void PointMouseDown(Control sender, EMouseButtons button)
+        private void PointMouseDown(Control sender, EMouseButtons button)
         {
             if (button == EMouseButtons.Left)
             {
-                PointMouseOffset = sender.MousePosition;
-                PointIsMove = true;
+                _pointMouseOffset = sender.MousePosition;
+                _pointIsMove = true;
             }
         }
 
-        void DeclarationToGUI()
+        private void DeclarationToGui()
         {
-            ((IntCounter)window.Controls["tab\\format\\size"]).Value = declaration.Size;
-            ((IntCounter)window.Controls["tab\\format\\pos"]).Value = declaration.position;
-            ((IntCounter)window.Controls["tab\\format\\uv"]).Value = declaration.texcoord0;
-            ((IntCounter)window.Controls["tab\\format\\unknown"]).Value = declaration.unknown;
-            ((IntCounter)window.Controls["tab\\format\\unknown_size"]).Value = declaration.Size - declaration.unknown;
+            ((IntCounter) window.Controls["tab\\format\\size"]).Value = _vertexType.Size;
+            ((IntCounter) window.Controls["tab\\format\\pos"]).Value = _vertexType.position;
+            ((IntCounter) window.Controls["tab\\format\\uv"]).Value = _vertexType.texcoord0;
+            ((IntCounter) window.Controls["tab\\format\\unknown"]).Value = _vertexType.unknown;
+            ((IntCounter) window.Controls["tab\\format\\unknown_size"]).Value = _vertexType.Size - _vertexType.unknown;
         }
 
-        void DeclarationInGUI()
+        private void DeclarationInGui()
         {
-            declaration.Size = ((IntCounter)window.Controls["tab\\format\\size"]).Value;
-            declaration.position = ((IntCounter)window.Controls["tab\\format\\pos"]).Value;
-            declaration.texcoord0 = ((IntCounter)window.Controls["tab\\format\\uv"]).Value;
-            declaration.unknown = ((IntCounter)window.Controls["tab\\format\\unknown"]).Value;
+            _vertexType.Size = ((IntCounter) window.Controls["tab\\format\\size"]).Value;
+            _vertexType.position = ((IntCounter) window.Controls["tab\\format\\pos"]).Value;
+            _vertexType.texcoord0 = ((IntCounter) window.Controls["tab\\format\\uv"]).Value;
+            _vertexType.unknown = ((IntCounter) window.Controls["tab\\format\\unknown"]).Value;
         }
 
-        void AutoFormat()
+        private void AutoFormat()
         {
-            declaration = new VertexType();
-            List<int> sized = new List<int>();
+            _vertexType = new VertexType();
+            var sized = new List<int>();
 
-            if (vertex_size % 24 == 0)
+            if (_vertexSize % 24 == 0)
                 sized.Add(24);
-            if (vertex_size % 28 == 0)
+            if (_vertexSize % 28 == 0)
                 sized.Add(28);
-            if (vertex_size % 32 == 0)
+            if (_vertexSize % 32 == 0)
                 sized.Add(32);
-            if (vertex_size % 36 == 0)
+            if (_vertexSize % 36 == 0)
                 sized.Add(36);
-
-            if (sized.Count != 0)
-                declaration.Size = sized[0];
             
-            if (sized.Count > 1)
+            foreach (var i in sized)
             {
-                foreach (int i in sized)
+                if (IsValidVertexData(i))
                 {
-                    if (IsValidVertexData(i))
-                    {
-                        declaration.Size = i;
-                        break;
-                    }
+                    _vertexType.Size = i;
+                    break;
                 }
             }
 
-            DeclarationToGUI();
+            DeclarationToGui();
         }
 
-        bool IsValidVertexData(int size)
+        private bool IsValidVertexData(int size)
         {
-            if ((vertex[5 * size - 3] == (byte)255) &&
-                (vertex[5 * size - 2] == (byte)255) &&
-                (vertex[5 * size - 1] == (byte)255))
+            if ((_vertex[5 * size - 3] == 255) &&
+                (_vertex[5 * size - 2] == 255) &&
+                (_vertex[5 * size - 1] == 255))
                 return true;
 
-            if ((vertex[7 * size - 3] == (byte)255) &&
-                (vertex[7 * size - 2] == (byte)255) &&
-                (vertex[7 * size - 1] == (byte)255))
+            if ((_vertex[7 * size - 3] == 255) &&
+                (_vertex[7 * size - 2] == 255) &&
+                (_vertex[7 * size - 1] == 255))
                 return true;
 
             return false;
         }
 
-        void ExportClick(Button sender)
+        private void ExportClick(Button sender)
         {
-            string perfis = "bin";
-            List<byte> buffer = new List<byte>();
+            var perfis = ".fbx";
+            var buffer = new List<byte>();
 
-            switch (((ComboBox)window.Controls["export\\format"]).SelectedItem as string)
+            /*switch (((ComboBox) window.Controls["export\\format"]).SelectedItem as string)
             {
                 case "obj":
                     perfis = "bin";
 
                     break;
-            }
-
-            new SaveFileDialog(File.GetOnlyName(), buffer.ToArray(), perfis);
+            }*/
+            
+            new SaveFileDialog(_file.GetOnlyName(), buffer.ToArray(), perfis);
         }
 
-        void Render()
+        private void Render()
         {
             _BuildVertex();
 
@@ -370,32 +367,32 @@ namespace Game
             _WriteToMemoryF();
         }
 
-        void ReadFace()
+        private void ReadFace()
         {
-            List<int> buffer = new List<int>();
-            Faces = Face.Read(face);
+            var buffer = new List<int>();
+            _faces = Face.Read(_face);
 
-            foreach (Face f in Faces)
+            foreach (var f in _faces)
                 buffer.Add(f.ToInt32());
 
-            ((GraphLine2D)window.Controls["tab\\lod\\view"]).SetData(buffer);
+            ((GraphLine2D) window.Controls["tab\\lod\\view"]).SetData(buffer);
         }
 
-        void _BuildFace()
+        private void _BuildFace()
         {
-            if (mesh == null)
+            if (_mesh == null)
                 return;
 
-            int end = (int)(Faces.Count / 100 * ((IntCounter)window.Controls["tab\\lod\\pos"]).Value * 3);
+            var end = _faces.Count / 100 * ((IntCounter) window.Controls["tab\\lod\\pos"]).Value * 3;
 
-            indicesToMemory = new ushort[face_size / 2];
-            int offest = 0;
+            _indicesToMemory = new ushort[_faceSize / 2];
+            var offest = 0;
 
-            foreach (Face f in Faces)
+            foreach (var f in _faces)
             {
-                indicesToMemory[offest] = (ushort)(f.a - 1);
-                indicesToMemory[offest + 1] = (ushort)(f.b - 1);
-                indicesToMemory[offest + 2] = (ushort)(f.c - 1);
+                _indicesToMemory[offest] = (ushort) (f.a - 1);
+                _indicesToMemory[offest + 1] = (ushort) (f.b - 1);
+                _indicesToMemory[offest + 2] = (ushort) (f.c - 1);
                 offest += 3;
 
                 if (offest >= end)
@@ -403,19 +400,20 @@ namespace Game
             }
         }
 
-        void _BuildVertex()
+        private void _BuildVertex()
         {
-            if (mesh == null)
+            if (_mesh == null)
                 return;
 
-            Bounds b = new Bounds();
-            Vertexs = Vertex.Read(vertex, declaration);
-            verticesToMemory = new Engine.Renderer.DynamicMeshManager.Vertex[vertex_size / declaration.Size];
-            int offest = 0;
+            var b = new Bounds();
+            _vertexs = Vertex.Read(_vertex, _vertexType);
+            _verticesToMemory = new RVertex[_vertexSize / _vertexType.Size];
+            var offest = 0;
 
-            foreach (Vertex v in Vertexs)
+            foreach (var v in _vertexs)
             {
-                verticesToMemory[offest] = new DynamicMeshManager.Vertex(new Vec3(v.x, v.y, v.z), Vec3.Zero, new Vec2(v.u, v.v));
+                _verticesToMemory[offest] =
+                    new RVertex(new Vec3(v.x, v.y, v.z), Vec3.Zero, new Vec2(v.u, v.v));
 
                 if (v.x > b.Maximum.X)
                     b.Maximum = new Vec3(v.x, b.Maximum.Y, b.Maximum.Z);
@@ -433,74 +431,82 @@ namespace Game
                 offest++;
             }
 
-            mesh.SetBoundsAndRadius(b, b.GetRadius());
+            _mesh.SetBoundsAndRadius(b, b.GetRadius());
+
+            _zoom = b.GetRadius();
+            _viewport.CameraPosition = _dir.GetVector() * _zoom;
+            
             MoveReset(null);
         }
 
-        unsafe void _CalculateNormal()
+        private unsafe void _CalculateNormal()
         {
-            fixed (Engine.Renderer.DynamicMeshManager.Vertex* VerticesToMemory = verticesToMemory)
+            fixed (RVertex* verticesToMemory = _verticesToMemory)
             {
-                int triangleCount = indicesToMemory.Length / 3;
-                for (int n = 0; n < triangleCount; n++)
+                var triangleCount = _indicesToMemory.Length / 3;
+                for (var n = 0; n < triangleCount; n++)
                 {
-                    int index0 = indicesToMemory[n * 3 + 0];
-                    int index1 = indicesToMemory[n * 3 + 1];
-                    int index2 = indicesToMemory[n * 3 + 2];
+                    int index0 = _indicesToMemory[n * 3 + 0];
+                    int index1 = _indicesToMemory[n * 3 + 1];
+                    int index2 = _indicesToMemory[n * 3 + 2];
 
-                    Vec3 pos0 = VerticesToMemory[index0].position;
-                    Vec3 pos1 = VerticesToMemory[index1].position;
-                    Vec3 pos2 = VerticesToMemory[index2].position;
+                    var pos0 = verticesToMemory[index0].position;
+                    var pos1 = verticesToMemory[index1].position;
+                    var pos2 = verticesToMemory[index2].position;
 
-                    Vec3 normal = Vec3.Cross(pos1 - pos0, pos2 - pos0);
+                    var normal = Vec3.Cross(pos1 - pos0, pos2 - pos0);
                     normal.Normalize();
 
-                    VerticesToMemory[index0].normal += normal;
-                    VerticesToMemory[index1].normal += normal;
-                    VerticesToMemory[index2].normal += normal;
+                    verticesToMemory[index0].normal += normal;
+                    verticesToMemory[index1].normal += normal;
+                    verticesToMemory[index2].normal += normal;
                 }
 
-                for (int n = 0; n < verticesToMemory.Length; n++)
-                    VerticesToMemory[n].normal = VerticesToMemory[n].normal.GetNormalize();
+                for (var n = 0; n < _verticesToMemory.Length; n++)
+                    verticesToMemory[n].normal = verticesToMemory[n].normal.GetNormalize();
             }
         }
 
-        unsafe void _WriteToMemoryV()
+        private unsafe void _WriteToMemoryV()
         {
-            HardwareVertexBuffer vertexBuffer = mesh.SubMeshes[0].VertexData.VertexBufferBinding.GetBuffer(0);
-            IntPtr buffer = vertexBuffer.Lock(HardwareBuffer.LockOptions.Discard);
-            fixed (Engine.Renderer.DynamicMeshManager.Vertex* pVertices = verticesToMemory)
-                NativeUtils.CopyMemory(buffer, (IntPtr)pVertices, verticesToMemory.Length * sizeof(Engine.Renderer.DynamicMeshManager.Vertex));
+            var vertexBuffer = _mesh.SubMeshes[0].VertexData.VertexBufferBinding.GetBuffer(0);
+            var buffer = vertexBuffer.Lock(HardwareBuffer.LockOptions.Discard);
+
+            fixed (RVertex* pVertices = _verticesToMemory)
+                NativeUtils.CopyMemory(buffer, (IntPtr) pVertices, _verticesToMemory.Length * sizeof(RVertex));
+
             vertexBuffer.Unlock();
         }
 
-        unsafe void _WriteToMemoryF()
+        private unsafe void _WriteToMemoryF()
         {
-            HardwareIndexBuffer indexBuffer = mesh.SubMeshes[0].IndexData.IndexBuffer;
-            IntPtr buffer = indexBuffer.Lock(HardwareBuffer.LockOptions.Discard);
-            fixed (ushort* pIndices = indicesToMemory)
-                NativeUtils.CopyMemory(buffer, (IntPtr)pIndices, indicesToMemory.Length * sizeof(ushort));
+            var indexBuffer = _mesh.SubMeshes[0].IndexData.IndexBuffer;
+            var buffer = indexBuffer.Lock(HardwareBuffer.LockOptions.Discard);
+
+            fixed (ushort* pIndices = _indicesToMemory)
+                NativeUtils.CopyMemory(buffer, (IntPtr) pIndices, _indicesToMemory.Length * sizeof(ushort));
+
             indexBuffer.Unlock();
         }
 
-        void MoveTop(object flag)
+        private void MoveTop(object flag)
         {
-            obj.Position += Vec3.ZAxis * .1f;
+            _obj.Position += Vec3.ZAxis * .1f;
         }
 
-        void MoveReset(object flag)
+        private void MoveReset(object flag)
         {
-            obj.Position = new Vec3(obj.Position.X, obj.Position.Y, -1 * mesh.Bounds.GetSize().Z / 2);
+            _obj.Position = new Vec3(_obj.Position.X, _obj.Position.Y, -1 * _mesh.Bounds.GetSize().Z / 2);
         }
 
-        void MoveDown(object flag)
+        private void MoveDown(object flag)
         {
-            obj.Position -= Vec3.ZAxis * .1f;
+            _obj.Position -= Vec3.ZAxis * .1f;
         }
 
-        void OnUpdate(object flag)
+        private void OnUpdate(object flag)
         {
-            DeclarationInGUI();
+            DeclarationInGui();
             Render();
         }
 
@@ -508,11 +514,10 @@ namespace Game
         {
             base.OnDetach();
 
-            if (File != null)
-                File.ClearCache();
+            _file?.ClearCache();
 
-            if (this == instance)
-                instance = null;
+            if (this == _instance)
+                _instance = null;
         }
     }
 }
