@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Engine;
 using Engine.Renderer;
 using Engine.MathEx;
+using Engine.Renderer.ModelImporting;
 using Engine.Utils;
 using Engine.UISystem;
 using FBXModelImport;
@@ -78,6 +80,10 @@ namespace Game
             _viewport.MouseWheel += viewport_MouseWheel;
 
             _vertexSize = BitConverter.ToInt32(_file.Data.GetRange(4, 4).ToArray(), 0);
+            
+            if(_file.Data.Count <= _vertexSize + 12)
+                return;
+
             _faceSize = BitConverter.ToInt32(_file.Data.GetRange(12 + _vertexSize, 4).ToArray(), 0);
             _skeletSize = BitConverter.ToInt32(_file.Data.GetRange(20 + _faceSize + _vertexSize, 4).ToArray(), 0);
 
@@ -362,7 +368,24 @@ namespace Game
         private void ExportFbx(string path)
         {
             var loader = new FBXModelImportLoader();
-            loader.Save(_obj.MeshObject.Mesh, path);
+
+            var rotX = ((IntCounter) window.Controls["tab\\export\\rotateX"]).Value;
+            var rotY = ((IntCounter) window.Controls["tab\\export\\rotateY"]).Value;
+            var rotZ = ((IntCounter) window.Controls["tab\\export\\rotateZ"]).Value;
+            var scale = ((IntCounter) window.Controls["tab\\export\\scale"]).Value;
+
+            var mesh = _obj.MeshObject.Mesh;
+            var items = mesh.SubMeshes.Select(subMesh => new ModelImportLoader.SaveGeometryItem
+                {
+                    Name = _obj.MeshObject.Mesh.Name,
+                    IndexData = subMesh.IndexData,
+                    VertexData = subMesh.VertexData,
+                    Rotation = Quat.FromDirectionZAxisUp(new Vec3(rotX, rotY, rotZ)),
+                    Scale = new Vec3(scale, scale, scale),
+                })
+                .ToList();
+
+            loader.Save(items, path);
         }
 
         private void Render()

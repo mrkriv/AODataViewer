@@ -32,6 +32,7 @@ control "GUI\\Window.gui"
 	{
 		position = ScaleByResolution 450 -4.999863
 		verticalAlign = Bottom
+		anchor = Bottom, Right
 		name = edit
 		text = "\x0420\x0435\x0434\x0430\x043a\x0442\x0438\x0440\x043e\x0432\x0430\x0442\x044c"
 		enable = False
@@ -133,6 +134,7 @@ control "GUI\\Window.gui"
 		position = ScaleByResolution 387 -4.999863
 		verticalAlign = Bottom
 		size = ScaleByResolution 67 30
+		anchor = Bottom, Right
 		name = more
 		text = "\x0415\x0449\x0435"
 		enable = False
@@ -143,6 +145,7 @@ control "GUI\\Window.gui"
 		horizontalAlign = Right
 		verticalAlign = Bottom
 		size = ScaleByResolution 197 59.99995
+		anchor = Bottom, Right
 		name = specal
 		backColor = 0 0 0
 		control "GUI\\Controls\\DefaultButton.gui"
