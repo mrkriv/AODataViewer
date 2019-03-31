@@ -100,7 +100,8 @@ namespace Game
 
         public void Export(Button sender)
         {
-            new SaveFileDialog(File.GetOnlyName(), buffer.ToArray(), new[] { "dds" });
+            var saveWindow = new SaveFileDialog(buffer.ToArray());
+            saveWindow.Show(File.GetOnlyName(), new[] {"dds"});
         }
 
         int GetPowerOfTwo(int x)

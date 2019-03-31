@@ -4,16 +4,24 @@ using Engine.UISystem;
 
 namespace Game
 {
+    public delegate void FileSelectDelegate(string path);
+
     public class SaveFileDialog : Window
     {
         [Config("Environment", "SaveDirectory")]
         public static string dir = ".";
 
-        byte[] Data;
+        private event FileSelectDelegate FileSelectEvent;
+        
+        public event FileSelectDelegate OnFileSelect
+        {
+            add => FileSelectEvent += value;
+            remove => FileSelectEvent -= value;
+        }
 
         public string Dir
         {
-            get { return dir; }
+            get => dir;
             private set
             {
                 dir = Path.GetFullPath(value);
@@ -23,8 +31,9 @@ namespace Game
 
                 var c = window.Controls["list"] as IconListBox;
                 c.Items.Clear();
-
+                
                 c.Items.Add(new[] {"<--", "back"});
+                
                 foreach (var d in Directory.GetDirectories(dir))
                     c.Items.Add(new[] {Path.GetFileName(d), "dir"});
 
@@ -33,28 +42,17 @@ namespace Game
             }
         }
 
-        public SaveFileDialog(string file, byte[] data)
-            : base("SaveFileDialog")
+        public SaveFileDialog() : base("SaveFileDialog")
         {
-            Data = data;
-            Init(file, new string[] { });
+            FileSelectEvent = path => { };
         }
 
-        public SaveFileDialog(string file, byte[] data, string format)
-            : base("SaveFileDialog")
+        public SaveFileDialog(byte[] data) : base("SaveFileDialog")
         {
-            Data = data;
-            Init(file, new[] {format});
+            FileSelectEvent = path => File.WriteAllBytes(path, data);
         }
 
-        public SaveFileDialog(string file, byte[] data, string[] format)
-            : base("SaveFileDialog")
-        {
-            Data = data;
-            Init(file, format);
-        }
-
-        void Init(string file, string[] format)
+        public void Show(string fileName, string[] format)
         {
             EngineApp.Instance.Config.RegisterClassParameters(GetType());
 
@@ -62,11 +60,12 @@ namespace Game
             ((IconListBox) window.Controls["list"]).SelectedIndexChange += OpenFileDialog_SelectedIndexChange;
             ((Button) window.Controls["ok"]).Click += Ok;
 
-            window.Controls["file"].Text = file;
-
             foreach (var f in format)
                 ((ComboBox) window.Controls["format"]).Items.Add(f);
 
+            ((ComboBox) window.Controls["format"]).SelectedIndex = 0;
+            
+            window.Controls["file"].Text = fileName;
             Dir = dir;
         }
 
@@ -104,11 +103,16 @@ namespace Game
             var path = dir + "\\" + window.Controls["file"].Text;
 
             if (((ComboBox) window.Controls["format"]).SelectedIndex != -1)
-                path += "." + ((ComboBox) window.Controls["format"]).SelectedItem as string;
-
-            File.WriteAllBytes(path, Data);
+                path += "." + ((ComboBox) window.Controls["format"]).SelectedItem;
+            
+            OnFileSelectEvent(path);
 
             SetShouldDetach();
+        }
+
+        protected virtual void OnFileSelectEvent(string path)
+        {
+            FileSelectEvent?.Invoke(path);
         }
     }
 }

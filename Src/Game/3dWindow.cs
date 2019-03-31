@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
 using Engine;
 using Engine.Renderer;
 using Engine.MathEx;
 using Engine.Utils;
 using Engine.UISystem;
+using FBXModelImport;
 using RVertex = Engine.Renderer.DynamicMeshManager.Vertex;
 
 namespace Game
@@ -341,18 +343,26 @@ namespace Game
 
         private void ExportClick(Button sender)
         {
-            var perfis = ".fbx";
-            var buffer = new List<byte>();
+            var saveWindow = new SaveFileDialog();
+            saveWindow.OnFileSelect += Export;
 
-            /*switch (((ComboBox) window.Controls["export\\format"]).SelectedItem as string)
+            saveWindow.Show(_file.GetOnlyName(), new[] {"fbx"});
+        }
+
+        private void Export(string path)
+        {
+            switch (Path.GetExtension(path))
             {
-                case "obj":
-                    perfis = "bin";
-
+                case ".fbx":
+                    ExportFbx(path);
                     break;
-            }*/
-            
-            new SaveFileDialog(_file.GetOnlyName(), buffer.ToArray(), perfis);
+            }
+        }
+
+        private void ExportFbx(string path)
+        {
+            var loader = new FBXModelImportLoader();
+            loader.Save(_obj.MeshObject.Mesh, path);
         }
 
         private void Render()

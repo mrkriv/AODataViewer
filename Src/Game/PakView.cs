@@ -121,7 +121,10 @@ namespace Game
                 var file = ((string[]) lb.SelectedItem)[0];
                 var f = _files[lb.SelectedIndex - 1];
                 f.ReadData(ungzip);
-                new SaveFileDialog(file, f.Data.ToArray());
+                
+                var saveWindow = new SaveFileDialog(f.Data.ToArray());
+                saveWindow.Show(file, new[] {"dds"});
+                
                 f.ClearCache();
             }
             catch
