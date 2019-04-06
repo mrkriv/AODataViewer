@@ -36,7 +36,7 @@ namespace Game.Windows
 
                 foreach (var name in directories)
                 {
-                    if (!string.IsNullOrEmpty(mask) && root.Directories[name].FindFile(mask).Any())
+                    if (!string.IsNullOrEmpty(mask) && !root.Directories[name].FindFile(mask).Any())
                         continue;
 
                     _fileListControl.Items.Add(name, "dir");
@@ -72,24 +72,6 @@ namespace Game.Windows
             
             Data = new Data(path);
             Path = "";
-        }
-
-        private static string GetType(string name)
-        {
-            if (name.EndsWith(".(Geometry).bin"))
-                return "model";
-            if (name.EndsWith(".(Texture).bin"))
-                return "texture";
-            if (name.EndsWith(".(Texture).hi.bin"))
-                return "texture_hi";
-            if (name.EndsWith(".(CollisionMesh).hi.bin"))
-                return "model_cl";
-            if (name.EndsWith(".(SkeletalAnimation).bin"))
-                return "anim";
-            if (name.EndsWith(".txt"))
-                return "loc";
-
-            return "file";
         }
 
         private void Specal_save(Control sender)
@@ -189,12 +171,10 @@ namespace Game.Windows
             switch (GetType(file.Name))
             {
                 case "texture":
-                    new TextureViewWindow(file);
-                    break;
                 case "texture_hi":
                     new TextureViewWindow(file);
                     break;
-                case "loc":
+                case "txt":
                     new TextViewWindow(file);
                     break;
                 case "model":
@@ -207,6 +187,38 @@ namespace Game.Windows
             {
                 window.Controls["info"].Text = "Ошибка.";
             }*/
+        }
+
+        private static string GetType(string name)
+        {
+            if (name.EndsWith(".(Geometry).bin"))
+                return "model";
+            
+            if (name.EndsWith(".(Texture).bin"))
+                return "texture";
+            
+            if (name.EndsWith(".(Texture).hi.bin"))
+                return "texture_hi";
+            
+            if (name.EndsWith(".(CollisionMesh).hi.bin"))
+                return "model_cl";
+            
+            if (name.EndsWith(".(SkeletalAnimation).bin"))
+                return "anim";
+            
+            if (name.EndsWith(".xdb"))
+                return "xdb";
+            
+            if (name.EndsWith(".lua") || name.EndsWith(".luac"))
+                return "lua";
+            
+            if (name.EndsWith(".xdb"))
+                return "xdb";
+            
+            if (name.EndsWith(".txt"))
+                return "txt";
+
+            return "file";
         }
     }
 }
