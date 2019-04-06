@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -6,7 +7,7 @@ using ICSharpCode.SharpZipLib.Zip;
 
 namespace Game.Structures
 {
-    public class VFile
+    public class VFile : IComparable<VFile>
     {
         private readonly List<byte> _constData;
         private List<byte> _cache;
@@ -92,6 +93,16 @@ namespace Game.Structures
                 _cache.Clear();
                 _cache = null;
             }
+        }
+
+        public int CompareTo(VFile other)
+        {
+            if (ReferenceEquals(this, other))
+                return 0;
+            if (ReferenceEquals(null, other))
+                return 1;
+
+            return string.Compare(Path, other.Path, StringComparison.Ordinal);
         }
     }
 }

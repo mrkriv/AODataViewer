@@ -74,28 +74,6 @@
             of getting the list of visible objects in the camera, getting the list of objects for shadow generation.
             </summary>
         </member>
-        <member name="T:ProjectCommon.GameMusic">
-            <summary>
-            Class for management of music in game.
-            </summary>
-        </member>
-        <member name="P:ProjectCommon.GameMusic.MusicChannelGroup">
-            <summary>
-            Gets the music channel group.
-            </summary>
-        </member>
-        <member name="M:ProjectCommon.GameMusic.MusicPlay(System.String,System.Boolean)">
-            <summary>
-            Play music.
-            </summary>
-            <param name="fileName">The file name.</param>
-            <param name="loop">Looping flag.</param>
-        </member>
-        <member name="M:ProjectCommon.GameMusic.MusicStop">
-            <summary>
-            Stop music.
-            </summary>
-        </member>
         <member name="T:ProjectCommon.ShaderBaseMaterial">
             <summary>
             Base template for shader materials.

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Game.Structures
 {
     public class VDirectory
     {
-        public static char[] PathSeparators = { '\\', '/'};
+        public static char[] PathSeparators = {'\\', '/'};
 
         public string Name { get; }
         public Dictionary<string, VDirectory> Directories { get; }
@@ -58,6 +59,15 @@ namespace Game.Structures
             }
 
             return null;
+        }
+
+        public IEnumerable<VFile> FindFile(string mask)
+        {
+            return Files
+                .Where(x => x.Name.Contains(mask))
+                .Concat(
+                    Directories.Values.SelectMany(x => x.FindFile(mask))
+                );
         }
     }
 }

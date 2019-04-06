@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Engine;
 using Engine.UISystem;
 using Game.Structures;
@@ -27,20 +28,28 @@ namespace Game.Windows
                 if (_path != "")
                     _fileListControl.Items.Add("<-", "back");
 
-                var mask = window.Controls["mask"].Text;
-                var useMask =
-                    ((CheckBox) window.Controls["find"]).Checked && !string.IsNullOrEmpty(mask); //todo:: add scearch
+                var mask = ((CheckBox) window.Controls["find"]).Checked ? window.Controls["mask"].Text : null;
+                var root = Data.RootDirectory.GetDirectory(_path);
 
-                var directory = Data.RootDirectory.GetDirectory(_path);
-                directory.Files.Sort((a, b) => string.Compare(a.Path, b.Path, StringComparison.Ordinal));
+                var directories = root.Directories.Keys.ToList();
+                directories.Sort();
 
-                foreach (var name in directory.Directories.Keys)
+                foreach (var name in directories)
                 {
+                    if (!string.IsNullOrEmpty(mask) && root.Directories[name].FindFile(mask).Any())
+                        continue;
+
                     _fileListControl.Items.Add(name, "dir");
                 }
 
-                foreach (var file in directory.Files)
+                var files = root.Files;
+                files.Sort();
+
+                foreach (var file in files)
                 {
+                    if (!string.IsNullOrEmpty(mask) && !file.Name.Contains(mask))
+                        continue;
+
                     _fileListControl.Items.Add(file.Name, GetType(file.Name), file);
                 }
             }

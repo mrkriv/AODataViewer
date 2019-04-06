@@ -16,9 +16,9 @@ namespace Game.Windows
         public TextFind()
             : base("TextFind")
         {
-            ((Button)window.Controls["start"]).Click += Start_Click;
-            ((Button)window.Controls["stop"]).Click += Stop_Click;
-            ((ListBox)window.Controls["list"]).ItemMouseDoubleClick += TextFind_MouseDoubleClick;
+            ((Button) window.Controls["start"]).Click += Start_Click;
+            ((Button) window.Controls["stop"]).Click += Stop_Click;
+            ((ListBox) window.Controls["list"]).ItemMouseDoubleClick += TextFind_MouseDoubleClick;
             _bw = new BackgroundWorker();
 
             _bw.WorkerReportsProgress = true;
@@ -33,31 +33,38 @@ namespace Game.Windows
 
         void TextFind_MouseDoubleClick(object sender, ListBox.ItemMouseEventArgs e)
         {
-            var lb = ((ListBox)window.Controls["list"]);
+            var lb = ((ListBox) window.Controls["list"]);
             if (lb.SelectedIndex != -1)
                 new TextViewWindow(_index[lb.SelectedIndex]);
         }
 
         void bw_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-           /* float p = e.ProgressPercentage / PakViewWindow.Data.Files.Count * 100;
-            window.Controls["count"].Text = $"{e.ProgressPercentage}/{PakViewWindow.Data.Files.Count} ({p}%)";
-            window.Controls["bar_s"].Size = new ScaleValue(ScaleType.Parent, new Vec2(_pgBaseScaleW * p, window.Controls["bar"].Size.Value.Y));
-            
-            if(e.UserState != null)
-            {
-                ((ListBox)window.Controls["list"]).Items.Add(((VFile)e.UserState).Name);
-                _index.Add((VFile)e.UserState);
+            //float p = e.ProgressPercentage / PakViewWindow.Data.Files.Count * 100;
+            //window.Controls["count"].Text = $"{e.ProgressPercentage}/{PakViewWindow.Data.Files.Count} ({p}%)";
+            // window.Controls["bar_s"].Size = new ScaleValue(ScaleType.Parent, new Vec2(_pgBaseScaleW * p, window.Controls["bar"].Size.Value.Y));
 
-                if (((CheckBox)window.Controls["isOnlyFind"]).Checked)
+            window.Controls["count"].Text = "processing...";
+
+            if (e.UserState != null)
+            {
+                ((ListBox) window.Controls["list"]).Items.Add(((VFile) e.UserState).Name);
+                _index.Add((VFile) e.UserState);
+
+                if (((CheckBox) window.Controls["isOnlyFind"]).Checked)
+                {
+                    window.Controls["count"].Text = "";
                     _bw.CancelAsync();
-            }*/
+                }
+            }
         }
 
         void bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             window.Controls["start"].Enable = true;
             window.Controls["stop"].Enable = false;
+
+            window.Controls["count"].Text = "";
         }
 
         void Start_Click(Button sender)
@@ -87,40 +94,37 @@ namespace Game.Windows
         {
             var bw = sender as BackgroundWorker;
             var obj = e.Argument as object[];
-            
+
             if (bw == null || obj == null)
                 return;
 
             var text = obj[0] as string;
             var mask = obj[1] as string;
-            var files = obj[2] as List<VFile>;
+            var dir = obj[2] as VDirectory;
 
-            if (text == null || mask == null || files == null)
+            if (text == null || mask == null || dir == null)
                 return;
-            
-            var progressReported = -1;
 
-            for (var i = 0; i < files.Count; i++)
+            //var progressReported = -1;
+
+            var files = dir.FindFile(mask);
+            foreach (var file in files)
             {
-                var file = files[i];
                 try
                 {
                     if (bw.CancellationPending)
                         return;
 
-                    var progress = i / (files.Count * 100);
+                    /*var progress = i / (files.Count * 100);
                     if (progress != progressReported)
                     {
                         bw.ReportProgress(i);
                         progressReported = progress;
-                    }
-
-                    if (file.Path.Contains(mask))
-                    {
-                        var t = Encoding.Unicode.GetString(file.Data.ToArray());
-                        if (t.Contains(text))
-                            bw.ReportProgress(i, file);
-                    }
+                    }*/
+                    
+                    var t = Encoding.Unicode.GetString(file.Data.ToArray());
+                    if (t.Contains(text))
+                        bw.ReportProgress(0, file);
                 }
                 catch
                 {
