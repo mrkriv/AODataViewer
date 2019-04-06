@@ -12,13 +12,13 @@ using Engine.Utils;
 using FBXModelImport;
 using Game.Structures;
 using Game.Windows.Dialogs;
+using ProjectCommon.Controls;
 using RVertex = Engine.Renderer.DynamicMeshManager.Vertex;
 
 namespace Game.Windows
 {
     public class ModelViewWindow : Window
     {
-        private static ModelViewWindow _instance;
         private MapingWinow _mapWindow;
         private List<byte> _vertex;
         private List<byte> _face;
@@ -42,15 +42,12 @@ namespace Game.Windows
         private ushort[] _indicesToMemory;
         private RVertex[] _verticesToMemory;
 
-        public static ModelViewWindow Instance
-        {
-            get { return _instance; }
-        }
+        public static ModelViewWindow Instance { get; private set; }
 
         public ModelViewWindow(VFile vFile) : base("3dWindow")
         {
-            _instance?.Close();
-            _instance = this;
+            Instance?.Close();
+            Instance = this;
 
             Init(vFile);
         }
@@ -550,8 +547,8 @@ namespace Game.Windows
 
             _vFile?.ClearCache();
 
-            if (this == _instance)
-                _instance = null;
+            if (this == Instance)
+                Instance = null;
         }
     }
 }

@@ -112,19 +112,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\GraphLine2D.cs" />
+    <Compile Include="Controls\IconListBox.cs" />
+    <Compile Include="Controls\IntCounter.cs" />
     <Compile Include="DynamicMeshManagerImpl.cs" />
     <Compile Include="ExampleCustomInputDevice.cs" />
-    <Compile Include="GraphLine2D.cs" />
-    <Compile Include="IconListBox.cs" />
-    <Compile Include="IntCounter.cs" />
     <Compile Include="EngineConsole.cs" />
-    <Compile Include="GameControlKeys.cs" />
-    <Compile Include="GameControlsManager.cs" />
     <Compile Include="GameEngineInitialization.cs" />
     <Compile Include="HighLevel Materials\DefaultShadowCasterMaterial.cs" />
     <Compile Include="RenderingLowLevelMethodsImpl.cs" />
     <Compile Include="MaterialSchemes.cs" />
-    <Compile Include="GameMusic.cs" />
     <Compile Include="HighLevel Materials\ShaderBaseMaterial.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

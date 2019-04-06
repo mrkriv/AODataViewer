@@ -4,9 +4,6 @@ using Engine.MapSystem;
 
 namespace ProjectEntities
 {
-	/// <summary>
-	/// Defines the <see cref="GameMap"/> entity type.
-	/// </summary>
 	[AllowToCreateTypeBasedOnThisClass( false )]
 	public class GameMapType : MapType
 	{
@@ -14,6 +11,10 @@ namespace ProjectEntities
 
 	public class GameMap : Map
 	{
-		GameMapType _type = null; public new GameMapType Type { get { return _type; } }
+		// ReSharper disable once ArrangeAccessorOwnerBody
+		// ReSharper disable once FieldCanBeMadeReadOnly.Local
+		// ReSharper disable once ArrangeTypeMemberModifiers
+		// ReSharper disable once ConvertToAutoProperty
+		GameMapType _type = null; public new GameMapType Type => _type;
 	}
 }

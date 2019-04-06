@@ -8,16 +8,16 @@ namespace ProjectCommon
 
 	public class ExampleCustomInputDeviceSpecialEvent : InputEvent
 	{
-		public ExampleCustomInputDeviceSpecialEvent( InputDevice device )
-			: base( device )
+		public ExampleCustomInputDeviceSpecialEvent(InputDevice device)
+			: base(device)
 		{
 		}
 	}
 
 	public class ExampleCustomInputDevice : JoystickInputDevice
 	{
-		public ExampleCustomInputDevice( string name )
-			: base( name )
+		public ExampleCustomInputDevice(string name)
+			: base(name)
 		{
 		}
 
@@ -28,27 +28,27 @@ namespace ProjectCommon
 		internal bool Init()
 		{
 			//buttons
-			var buttons = new Button[ 2 ];
-			buttons[ 0 ] = new Button( JoystickButtons.Button1, 0 );
-			buttons[ 1 ] = new Button( JoystickButtons.Button2, 1 );
+			var buttons = new Button[2];
+			buttons[0] = new Button(JoystickButtons.Button1, 0);
+			buttons[1] = new Button(JoystickButtons.Button2, 1);
 
 			//axes
-			var axes = new Axis[ 1 ];
-			axes[ 0 ] = new JoystickInputDevice.Axis( JoystickAxes.X, new Range( -1, 1 ), false );
+			var axes = new Axis[1];
+			axes[0] = new JoystickInputDevice.Axis(JoystickAxes.X, new Range(-1, 1), false);
 
 			//povs
-			var povs = new POV[ 0 ];
+			var povs = new POV[0];
 			//povs[ 0 ] = new JoystickInputDevice.POV( JoystickPOVs.POV1 );
 
 			//sliders
-			var sliders = new Slider[ 0 ];
+			var sliders = new Slider[0];
 			//sliders[ 0 ] = new Slider( JoystickSliders.Slider1 );
 
 			//forceFeedbackController
 			ForceFeedbackController forceFeedbackController = null;
 
 			//initialize data
-			InitDeviceData( buttons, axes, povs, sliders, forceFeedbackController );
+			InitDeviceData(buttons, axes, povs, sliders, forceFeedbackController);
 
 			return true;
 		}
@@ -67,50 +67,52 @@ namespace ProjectCommon
 		{
 			//button1
 			{
-				var pressed = EngineApp.Instance.IsKeyPressed( EKeys.H );
-				if( Buttons[ 0 ].Pressed != pressed )
+				var pressed = EngineApp.Instance.IsKeyPressed(EKeys.H);
+				if (Buttons[0].Pressed != pressed)
 				{
-					if( pressed )
+					if (pressed)
 					{
 						InputDeviceManager.Instance.SendEvent(
-							new JoystickButtonDownEvent( this, Buttons[ 0 ] ) );
+							new JoystickButtonDownEvent(this, Buttons[0]));
 					}
 					else
 					{
 						InputDeviceManager.Instance.SendEvent(
-							new JoystickButtonUpEvent( this, Buttons[ 0 ] ) );
+							new JoystickButtonUpEvent(this, Buttons[0]));
 					}
-					Buttons[ 0 ].Pressed = pressed;
+
+					Buttons[0].Pressed = pressed;
 				}
 			}
 
 			//button2
 			{
-				var pressed = EngineApp.Instance.IsKeyPressed( EKeys.J );
-				if( Buttons[ 1 ].Pressed != pressed )
+				var pressed = EngineApp.Instance.IsKeyPressed(EKeys.J);
+				if (Buttons[1].Pressed != pressed)
 				{
-					if( pressed )
+					if (pressed)
 					{
 						InputDeviceManager.Instance.SendEvent(
-							new JoystickButtonDownEvent( this, Buttons[ 1 ] ) );
+							new JoystickButtonDownEvent(this, Buttons[1]));
 					}
 					else
 					{
 						InputDeviceManager.Instance.SendEvent(
-							new JoystickButtonUpEvent( this, Buttons[ 1 ] ) );
+							new JoystickButtonUpEvent(this, Buttons[1]));
 					}
-					Buttons[ 1 ].Pressed = pressed;
+
+					Buttons[1].Pressed = pressed;
 				}
 			}
 
 			//axis X
 			{
-				var value = MathFunctions.Sin( EngineApp.Instance.Time * 2.0f );
+				var value = MathFunctions.Sin(EngineApp.Instance.Time * 2.0f);
 
-				Axes[ 0 ].Value = value;
+				Axes[0].Value = value;
 
 				InputDeviceManager.Instance.SendEvent(
-					new JoystickAxisChangedEvent( this, Axes[ 0 ] ) );
+					new JoystickAxisChangedEvent(this, Axes[0]));
 			}
 
 			//custom event example
@@ -118,8 +120,8 @@ namespace ProjectCommon
 				//this event will be caused in the EngineApp.OnCustomInputDeviceEvent()
 				//and in the all gui controls EControl.OnCustomInputDeviceEvent().
 				var customEvent =
-					new ExampleCustomInputDeviceSpecialEvent( this );
-				InputDeviceManager.Instance.SendEvent( customEvent );
+					new ExampleCustomInputDeviceSpecialEvent(this);
+				InputDeviceManager.Instance.SendEvent(customEvent);
 			}
 		}
 
@@ -128,15 +130,15 @@ namespace ProjectCommon
 		/// </summary>
 		public static void InitDevice()
 		{
-			if( InputDeviceManager.Instance == null )
+			if (InputDeviceManager.Instance == null)
 				return;
 
-			var device = new ExampleCustomInputDevice( "ExampleCustomDevice" );
+			var device = new ExampleCustomInputDevice("ExampleCustomDevice");
 
-			if( !device.Init() )
+			if (!device.Init())
 				return;
 
-			InputDeviceManager.Instance.RegisterDevice( device );
+			InputDeviceManager.Instance.RegisterDevice(device);
 		}
 	}
 }

@@ -3,6 +3,7 @@ using Engine;
 using Engine.UISystem;
 using Game.Structures;
 using Game.Windows.Dialogs;
+using ProjectCommon.Controls;
 
 namespace Game.Windows
 {
@@ -11,6 +12,8 @@ namespace Game.Windows
         private string _path;
         public static Data Data;
 
+        private readonly IconListBox _fileListControl;
+        
         public string Path
         {
             get => _path;
@@ -19,11 +22,10 @@ namespace Game.Windows
                 _path = value.Trim('/');
                 window.Controls["text_path"].Text = _path;
 
-                var c = window.Controls["list"] as IconListBox;
-                c.Items.Clear();
+                _fileListControl.Items.Clear();
 
                 if (_path != "")
-                    c.Items.Add("<-", "back");
+                    _fileListControl.Items.Add("<-", "back");
 
                 var mask = window.Controls["mask"].Text;
                 var useMask =
@@ -34,17 +36,36 @@ namespace Game.Windows
 
                 foreach (var name in directory.Directories.Keys)
                 {
-                    c.Items.Add(name, "dir");
+                    _fileListControl.Items.Add(name, "dir");
                 }
 
                 foreach (var file in directory.Files)
                 {
-                    c.Items.Add(file.Name, GetType(file.Name), file);
+                    _fileListControl.Items.Add(file.Name, GetType(file.Name), file);
                 }
             }
         }
 
-        string GetType(string name)
+        public PakViewWindow(string path) : base("PakView")
+        {
+            ((Button) window.Controls["edit"]).Click += EditFile;
+            ((Button) window.Controls["more"]).Click += MoreSwitch;
+            ((Button) window.Controls["specal\\save"]).Click += Specal_save;
+            ((CheckBox) window.Controls["find"]).CheckedChange += Find_CheckedChange;
+            
+            window.Controls["mask"].TextChange += Find;
+            window.Controls["Progress"].Visible = false;
+            window.Controls["specal"].Visible = false;
+
+            _fileListControl = (IconListBox) window.Controls["list"];
+            _fileListControl.SelectedIndexChange += SelectedIndexChange;
+            //_fileListControl.MouseDown += ListClick;
+            
+            Data = new Data(path);
+            Path = "";
+        }
+
+        private static string GetType(string name)
         {
             if (name.EndsWith(".(Geometry).bin"))
                 return "model";
@@ -62,24 +83,7 @@ namespace Game.Windows
             return "file";
         }
 
-        public PakViewWindow(string path)
-            : base("PakView")
-        {
-            Data = new Data(path);
-            //((IconListBox)window.Controls["list"]).MouseDown += ListClick;
-            ((IconListBox) window.Controls["list"]).SelectedIndexChange += SelectedIndexChange;
-            ((Button) window.Controls["edit"]).Click += EditFile;
-            ((Button) window.Controls["more"]).Click += MoreSwitch;
-            ((Button) window.Controls["specal\\save"]).Click += Specal_save;
-            window.Controls["mask"].TextChange += Find;
-            window.Controls["Progress"].Visible = false;
-            window.Controls["specal"].Visible = false;
-            ((CheckBox) window.Controls["find"]).CheckedChange += Find_CheckedChange;
-
-            Path = "";
-        }
-
-        void Specal_save(Control sender)
+        private void Specal_save(Control sender)
         {
             try
             {
@@ -97,29 +101,28 @@ namespace Game.Windows
             window.Controls["specal"].Visible = false;
         }
 
-        VFile GetSelectFile()
+        private VFile GetSelectFile()
         {
-            var lb = window.Controls["list"] as IconListBox;
-            return (VFile) lb.SelectedItem.Data;
+            return (VFile) _fileListControl.SelectedItem.Data;
         }
 
-        void Find_CheckedChange(CheckBox sender)
+        private void Find_CheckedChange(CheckBox sender)
         {
             Path = Path;
         }
 
-        void MoreSwitch(Control sender)
+        private void MoreSwitch(Control sender)
         {
             window.Controls["specal"].Visible = !window.Controls["specal"].Visible;
         }
 
-        void Find(Control sender)
+        private void Find(Control sender)
         {
             if (((CheckBox) window.Controls["find"]).Checked)
                 Path = Path;
         }
 
-        void SelectedIndexChange(IconListBox sender)
+        private void SelectedIndexChange(IconListBox sender)
         {
             window.Controls["specal"].Visible = false;
             if (IsFile())
@@ -138,13 +141,12 @@ namespace Game.Windows
             ListClick(sender, EMouseButtons.Left);
         }
 
-        bool IsFile()
+        private bool IsFile()
         {
-            var lb = window.Controls["list"] as IconListBox;
-            return lb?.SelectedItem?.Data != null;
+            return _fileListControl.SelectedItem?.Data != null;
         }
 
-        void ListClick(object sender, EMouseButtons btn)
+        private void ListClick(object sender, EMouseButtons btn)
         {
             var selectItem = ((IconListBox) sender).SelectedItem;
 
@@ -169,7 +171,7 @@ namespace Game.Windows
             }
         }
 
-        void EditFile(Button sender = null)
+        private void EditFile(Button sender = null)
         {
             /*try
             {*/

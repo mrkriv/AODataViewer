@@ -193,7 +193,7 @@ namespace Game.Windows
 
             buffer.AddRange(new byte[] { 0x20, 0x00, 0x00, 0x00 });
             buffer.AddRange(new byte[] { 0x04, 0x00, 0x00, 0x00, 0x44, 0x58, 0x54 });
-            buffer.Add((byte)(0x30 + (int)type));
+            buffer.Add((byte)(0x30 + type));
 
             for (var i = 0; i < 20; i++)
                 buffer.Add(0x00);

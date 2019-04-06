@@ -887,7 +887,7 @@ namespace ProjectCommon
 						}
 						else
 						{
-							var c = ( (float)v / (float)vSegments );
+							var c = ( v / (float)vSegments );
 							var angle = -( c * 2 - 1 ) * MathFunctions.PI / 2;
 							var hRadius = MathFunctions.Cos( angle );
 							var h = MathFunctions.Sin( angle );
@@ -1192,9 +1192,9 @@ namespace ProjectCommon
 							var top = v <= vSegments / 2;
 							float c;
 							if( top )
-								c = ( (float)v / (float)( vSegments - 1 ) );
+								c = ( v / (float)( vSegments - 1 ) );
 							else
-								c = ( (float)( v - 1 ) / (float)( vSegments - 1 ) );
+								c = ( (v - 1) / (float)( vSegments - 1 ) );
 							var angle = -( c * 2 - 1 ) * MathFunctions.PI / 2;
 							var hRadius = MathFunctions.Cos( angle ) * radius;
 							var h = MathFunctions.Sin( angle ) * radius + ( top ? length * .5f : -length * .5f );
@@ -1876,15 +1876,9 @@ namespace ProjectCommon
 				this.owner = owner;
 			}
 
-			public override string MaterialName
-			{
-				get { return materialName; }
-			}
+			public override string MaterialName => materialName;
 
-			public override MaterialParameters Parameters
-			{
-				get { return parameters; }
-			}
+			public override MaterialParameters Parameters => parameters;
 
 			public static bool IsExact( MaterialDataImpl material1, MaterialDataImpl material2 )
 			{
@@ -2647,7 +2641,7 @@ namespace ProjectCommon
 
 		public override bool ShowScene
 		{
-			get { return showScene; }
+			get => showScene;
 			set
 			{
 				if( showScene == value )

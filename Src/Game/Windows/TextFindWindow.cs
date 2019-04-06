@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
+using Engine.MathEx;
 using Engine.UISystem;
 using Game.Structures;
 
@@ -39,10 +40,10 @@ namespace Game.Windows
 
         void bw_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-           /* float p = e.ProgressPercentage / PakView.Data.Files.Count * 100;
-            window.Controls["count"].Text = $"{e.ProgressPercentage}/{PakView.Data.Files.Count} ({p}%)";
+           /* float p = e.ProgressPercentage / PakViewWindow.Data.Files.Count * 100;
+            window.Controls["count"].Text = $"{e.ProgressPercentage}/{PakViewWindow.Data.Files.Count} ({p}%)";
             window.Controls["bar_s"].Size = new ScaleValue(ScaleType.Parent, new Vec2(_pgBaseScaleW * p, window.Controls["bar"].Size.Value.Y));
-                
+            
             if(e.UserState != null)
             {
                 ((ListBox)window.Controls["list"]).Items.Add(((VFile)e.UserState).Name);
@@ -65,9 +66,14 @@ namespace Game.Windows
             window.Controls["start"].Enable = false;
 
             _index = new List<VFile>();
-            ((ListBox)window.Controls["list"]).Items.Clear();
+            ((ListBox) window.Controls["list"]).Items.Clear();
 
-           // _bw.RunWorkerAsync(new object[] { window.Controls["text"].Text, window.Controls["mask"].Text, PakView.Data.Files });
+            _bw.RunWorkerAsync(new object[]
+            {
+                window.Controls["text"].Text,
+                window.Controls["mask"].Text,
+                PakViewWindow.Data.RootDirectory
+            });
         }
 
         void Stop_Click(Button sender)

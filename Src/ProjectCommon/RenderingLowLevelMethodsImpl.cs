@@ -247,13 +247,13 @@ namespace ProjectCommon
 								{
 									//Depth24 texture format
 									shadowLightBiasDirectionalLight[ index ] =
-										new Vec2( .0001f + .00005f * (float)index, factors[ index ] );
+										new Vec2( .0001f + .00005f * index, factors[ index ] );
 								}
 								else
 								{
 									//Float32 texture format
 									shadowLightBiasDirectionalLight[ index ] =
-										new Vec2( .0001f + .00005f * (float)index, factors[ index ] );
+										new Vec2( .0001f + .00005f * index, factors[ index ] );
 								}
 							}
 						}

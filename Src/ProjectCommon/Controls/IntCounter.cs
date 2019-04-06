@@ -1,19 +1,19 @@
 ﻿using System.ComponentModel;
 using System.Drawing;
+using Engine.UISystem;
 
-namespace Engine.UISystem
+namespace ProjectCommon.Controls
 {
     public class IntCounter : Control
     {
-        private EditBox editLine;
-        private Button plus;
-        private Button minus;
-        private int step = 1;
-        private int min;
-        private int max;
-        private Button.ClickDelegate plusClick;
-        private Button.ClickDelegate minusClick;
-        private Control.DefaultEventDelegate editBoxText;
+        private EditBox _editLine;
+        private Button _plus;
+        private Button _minus;
+        private int _min;
+        private int _max;
+        private Button.ClickDelegate _plusClick;
+        private Button.ClickDelegate _minusClick;
+        private DefaultEventDelegate _editBoxText;
         public delegate void ValueChangeDelegate(IntCounter control, int value);
         public event ValueChangeDelegate ValueChange;
         
@@ -21,27 +21,27 @@ namespace Engine.UISystem
         [Serialize]
         public EditBox EditLine
         {
-            get { return editLine; }
+            get => _editLine;
             set
             {
-                if (editLine != null)
+                if (_editLine != null)
                 {
-                    editLine.TextChange -= editBoxText;
-                    editLine.MouseWheel -= OnMouseWheel;
-                    Controls.Remove(editLine);
+                    _editLine.TextChange -= _editBoxText;
+                    _editLine.MouseWheel -= OnMouseWheel;
+                    Controls.Remove(_editLine);
                 }
 
-                editLine = value;
-                if (editLine == null)
+                _editLine = value;
+                if (_editLine == null)
                     return;
 
-                if (editLine.Parent == null)
-                    Controls.Add(editLine);
+                if (_editLine.Parent == null)
+                    Controls.Add(_editLine);
 
-                editBoxText = new DefaultEventDelegate(OnTextChange);
-                editLine.Text = "0";
-                editLine.TextChange += editBoxText;
-                editLine.MouseWheel += OnMouseWheel;
+                _editBoxText = new DefaultEventDelegate(OnTextChange);
+                _editLine.Text = "0";
+                _editLine.TextChange += _editBoxText;
+                _editLine.MouseWheel += OnMouseWheel;
                 Update();
             }
         }
@@ -50,24 +50,24 @@ namespace Engine.UISystem
         [Serialize]
         public Button Plus
         {
-            get { return plus; }
+            get => _plus;
             set
             {
-                if (plus != null)
+                if (_plus != null)
                 {
-                    plus.Click -= plusClick;
-                    Controls.Remove(plus);
+                    _plus.Click -= _plusClick;
+                    Controls.Remove(_plus);
                 }
 
-                plus = value;
-                if (plus == null)
+                _plus = value;
+                if (_plus == null)
                     return;
 
-                if (plus.Parent == null)
-                    Controls.Add(plus);
+                if (_plus.Parent == null)
+                    Controls.Add(_plus);
 
-                plusClick = new Button.ClickDelegate(OnPlus);
-                plus.Click += plusClick;
+                _plusClick = new Button.ClickDelegate(OnPlus);
+                _plus.Click += _plusClick;
                 Update();
             }
         }
@@ -76,24 +76,24 @@ namespace Engine.UISystem
         [Serialize]
         public Button Minus
         {
-            get { return minus; }
+            get => _minus;
             set
             {
-                if (minus != null)
+                if (_minus != null)
                 {
-                    minus.Click -= minusClick;
-                    Controls.Remove(minus);
+                    _minus.Click -= _minusClick;
+                    Controls.Remove(_minus);
                 }
 
-                minus = value;
-                if (minus == null)
+                _minus = value;
+                if (_minus == null)
                     return;
 
-                if (minus.Parent == null)
-                    Controls.Add(minus);
+                if (_minus.Parent == null)
+                    Controls.Add(_minus);
 
-                minusClick = new Button.ClickDelegate(OnMinus);
-                minus.Click += minusClick;
+                _minusClick = new Button.ClickDelegate(OnMinus);
+                _minus.Click += _minusClick;
                 Update();
             }
         }
@@ -107,7 +107,7 @@ namespace Engine.UISystem
             {
                 try
                 {
-                    return int.Parse(editLine.Text);
+                    return int.Parse(_editLine.Text);
                 }
                 catch
                 {
@@ -116,25 +116,25 @@ namespace Engine.UISystem
             }
             set
             {
-                if (editLine != null)
+                if (_editLine != null)
                 {
                     Plus.Enable = true;
                     Minus.Enable = true;
-                    if (max != 0 && value > max)
+                    if (_max != 0 && value > _max)
                     {
-                        value = max;
+                        value = _max;
                         Plus.Enable = false;
                     }
-                    else if (min != 0 && value < min)
+                    else if (_min != 0 && value < _min)
                     {
-                        value = min;
+                        value = _min;
                         Minus.Enable = false;
                     }
 
                     if (value == 0)
-                        editLine.Text = "0";
+                        _editLine.Text = "0";
                     else
-                        editLine.Text = value.ToString();
+                        _editLine.Text = value.ToString();
                 }
             }
         }
@@ -142,23 +142,19 @@ namespace Engine.UISystem
         [Category("Counter")]
         [DefaultValue(1)]
         [Serialize]
-        public int Step
-        {
-            get { return step; }
-            set { step = value; }
-        }
+        public int Step { get; set; } = 1;
 
         [Category("Counter")]
         [DefaultValue(0)]
         [Serialize]
         public int Min
         {
-            get { return min; }
+            get => _min;
             set
             {
-                min = value;
-                if (min > max)
-                    min = max - 1;
+                _min = value;
+                if (_min > _max)
+                    _min = _max - 1;
             }
         }
 
@@ -167,22 +163,22 @@ namespace Engine.UISystem
         [Serialize]
         public int Max
         {
-            get { return max; }
+            get => _max;
             set
             {
-                max = value;
-                if (max < min)
-                    max = min + 1;
+                _max = value;
+                if (_max < _min)
+                    _max = _min + 1;
             }
         }
 
-        protected override Control.StandardChildSlotItem[] OnGetStandardChildSlots()
+        protected override StandardChildSlotItem[] OnGetStandardChildSlots()
         {
-            return new Control.StandardChildSlotItem[3]
+            return new StandardChildSlotItem[3]
               {
-                new Control.StandardChildSlotItem("EditLine", (Control)EditLine),
-                new Control.StandardChildSlotItem("Plus", (Control)Plus),
-                new Control.StandardChildSlotItem("Minus", (Control)Minus)
+                new StandardChildSlotItem("EditLine", EditLine),
+                new StandardChildSlotItem("Plus", Plus),
+                new StandardChildSlotItem("Minus", Minus)
               };
         }
 
@@ -211,7 +207,7 @@ namespace Engine.UISystem
             var numbers = "-0123456789";
             var str = "";
 
-            foreach (var c in editLine.Text)
+            foreach (var c in _editLine.Text)
             {
                 foreach (var n in numbers)
                 {
@@ -226,7 +222,7 @@ namespace Engine.UISystem
             if (str == "")
                 str = "0";
 
-            editLine.Text = str;
+            _editLine.Text = str;
             OnValueChange();
         }
 
@@ -238,18 +234,18 @@ namespace Engine.UISystem
         public void OnMinus(Button sender = null)
         {
             Plus.Enable = true;
-            Value -= step;
+            Value -= Step;
 
-            if (Value - step < min)
+            if (Value - Step < _min)
                 Minus.Enable = false;
         }
 
         void OnPlus(Button sender = null)
         {
             Minus.Enable = true;
-            Value += step;
+            Value += Step;
 
-            if (max != 0 && Value + step > max)
+            if (_max != 0 && Value + Step > _max)
                 Plus.Enable = false;
         }
 

@@ -13,17 +13,13 @@ namespace Game.Windows
     public class MainMenuWindow : Control
     {
         Control window;
-        static MainMenuWindow instance;
 
-        public static MainMenuWindow Instance
-        {
-            get { return instance; }
-        }
+        public static MainMenuWindow Instance { get; private set; }
 
         protected override void OnAttach()
         {
             base.OnAttach();
-            instance = this;
+            Instance = this;
             EngineApp.Instance.Config.RegisterClassParameters(GetType());
 
             window = ControlDeclarationManager.Instance.CreateControl("Gui\\Main.gui");
@@ -63,7 +59,7 @@ namespace Game.Windows
         protected override void OnDetach()
         {
             base.OnDetach();
-            instance = null;
+            Instance = null;
         }
 
         protected override void OnRenderUI(GuiRenderer renderer)

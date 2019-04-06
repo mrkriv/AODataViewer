@@ -8,17 +8,17 @@ namespace ProjectEntities
 
 	public class GameWorld : World
 	{
-		static GameWorld instance;
-		GameWorldType _type = null; public new GameWorldType Type { get { return _type; } }
+		// ReSharper disable once ArrangeAccessorOwnerBody
+		// ReSharper disable once FieldCanBeMadeReadOnly.Local
+		// ReSharper disable once ArrangeTypeMemberModifiers
+		// ReSharper disable once ConvertToAutoProperty
+		GameWorldType _type = null; public new GameWorldType Type => _type;
 
 		public GameWorld()
 		{
-			instance = this;
+			Instance = this;
 		}
 
-		public static new GameWorld Instance
-		{
-			get { return instance; }
-		}
+		public static new GameWorld Instance { get; private set; }
 	}
 }

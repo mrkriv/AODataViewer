@@ -8,8 +8,6 @@ namespace Game
 {
     public static class Program
     {
-        public static bool needRestartApplication;
-
         [STAThread]
         static void Main()
         {
@@ -32,7 +30,8 @@ namespace Game
 
         static void Main2()
         {
-            string date = DateTime.Now.ToString("HH.mm.dd.MM.yy");
+            var date = DateTime.Now.ToString("HH.mm.dd.MM.yy");
+            
             if (!VirtualFileSystem.Init("user:Logs/" + date + ".log", true, null, null, null, null))
                 return;
 
@@ -57,9 +56,6 @@ namespace Game
             Log.DumpToFile("Program END\r\n");
 
             VirtualFileSystem.Shutdown();
-
-            if (needRestartApplication)
-                Process.Start(System.Reflection.Assembly.GetExecutingAssembly().Location, "");
         }
     }
 }

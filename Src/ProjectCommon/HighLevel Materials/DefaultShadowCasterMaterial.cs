@@ -9,29 +9,13 @@ namespace ProjectCommon
 	[Browsable( false )]
 	public class DefaultShadowCasterMaterial : HighLevelMaterial
 	{
-		RenderLightType lightType;
-		bool atiHardwareShadows;
-		bool nvidiaHardwareShadows;
-
 		//
 
-		public RenderLightType LightType
-		{
-			get { return lightType; }
-			set { lightType = value; }
-		}
+		public RenderLightType LightType { get; set; }
 
-		public bool AtiHardwareShadows
-		{
-			get { return atiHardwareShadows; }
-			set { atiHardwareShadows = value; }
-		}
+		public bool AtiHardwareShadows { get; set; }
 
-		public bool NvidiaHardwareShadows
-		{
-			get { return nvidiaHardwareShadows; }
-			set { nvidiaHardwareShadows = value; }
-		}
+		public bool NvidiaHardwareShadows { get; set; }
 
 		protected override void OnClone( HighLevelMaterial sourceMaterial )
 		{
@@ -110,13 +94,13 @@ namespace ProjectCommon
 				if( RenderSystem.Instance.IsOpenGLES() )
 					arguments.Append( " -DOPENGL_ES" );
 
-				arguments.AppendFormat( " -DLIGHTTYPE_{0}", lightType.ToString().ToUpper() );
+				arguments.AppendFormat( " -DLIGHTTYPE_{0}", LightType.ToString().ToUpper() );
 
-				if( lightType == RenderLightType.Directional || lightType == RenderLightType.Spot )
+				if( LightType == RenderLightType.Directional || LightType == RenderLightType.Spot )
 				{
-					if( atiHardwareShadows )
+					if( AtiHardwareShadows )
 						arguments.Append( " -DATI_HARDWARE_SHADOWS" );
-					if( nvidiaHardwareShadows )
+					if( NvidiaHardwareShadows )
 						arguments.Append( " -DNVIDIA_HARDWARE_SHADOWS" );
 				}
 

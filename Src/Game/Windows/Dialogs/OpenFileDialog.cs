@@ -3,6 +3,7 @@ using System.IO;
 using Engine;
 using Engine.UISystem;
 using ProjectCommon;
+using ProjectCommon.Controls;
 
 namespace Game.Windows.Dialogs
 {
@@ -20,7 +21,7 @@ namespace Game.Windows.Dialogs
 
         public string Dir
         {
-            get { return dir; }
+            get => dir;
             private set
             {
                 var flag = value.EndsWith("..");

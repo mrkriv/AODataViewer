@@ -18,28 +18,24 @@ namespace Game
 {
 	public class GameEngineApp : EngineApp
 	{
-		//fading out functionality. Using for loading maps and for exit application.
-		const float FadingTime = 1;
-		float _fadingOutTimer;
+		public const float FadingTime = 1;
+		private float _fadingOutTimer;
 
-		//load map or world
-		string _needMapLoadName;
-		bool _needRunExampleOfProceduralMapCreation;
-		string _needWorldLoadName;
+		private string _needMapLoadName;
+		private bool _needRunExampleOfProceduralMapCreation;
+		private string _needWorldLoadName;
 
-		//application exit screen fading
-		bool _needFadingOutAndExit;
+		private bool _needFadingOutAndExit;
 
-		//fading in
-		float _fadingInRemainingTime;
-		int _fadingInSkipFirstFrames;
+		private float _fadingInRemainingTime;
+		private int _fadingInSkipFirstFrames;
 
-		static float _gamma = 1;
+		private static float _gamma = 1;
 
 		[Config("Video", "gamma")]
 		public static float Gamma
 		{
-			get { return _gamma; }
+			get => _gamma;
 			set
 			{
 				_gamma = value;
@@ -52,7 +48,7 @@ namespace Game
 		[Config("Video", "showSystemCursor")]
 		public static bool ShowSystemCursor
 		{
-			get { return _showSystemCursor; }
+			get => _showSystemCursor;
 			set
 			{
 				_showSystemCursor = value;
@@ -82,7 +78,7 @@ namespace Game
 		[Config("Video", "drawFPS")]
 		public static bool DrawFps
 		{
-			get { return _drawFps; }
+			get => _drawFps;
 			set
 			{
 				_drawFps = value;
@@ -95,7 +91,7 @@ namespace Game
 		[Config("Video", "materialScheme")]
 		public static MaterialSchemes MaterialScheme
 		{
-			get { return _materialScheme; }
+			get => _materialScheme;
 			set
 			{
 				_materialScheme = value;
@@ -140,34 +136,6 @@ namespace Game
 
 		[Config("Video", "showDecorativeObjects")]
 		public static bool ShowDecorativeObjects { get; set; } = true;
-
-		static float _soundVolume = .8f;
-
-		[Config("Sound", "soundVolume")]
-		public static float SoundVolume
-		{
-			get { return _soundVolume; }
-			set
-			{
-				_soundVolume = value;
-				if (EngineApp.Instance.DefaultSoundChannelGroup != null)
-					EngineApp.Instance.DefaultSoundChannelGroup.Volume = _soundVolume;
-			}
-		}
-
-		static float _musicVolume = .4f;
-
-		[Config("Sound", "musicVolume")]
-		public static float MusicVolume
-		{
-			get { return _musicVolume; }
-			set
-			{
-				_musicVolume = value;
-				if (GameMusic.MusicChannelGroup != null)
-					GameMusic.MusicChannelGroup.Volume = _musicVolume;
-			}
-		}
 
 		[Config("Environment", "autorunMapName")]
 		public static string AutorunMapName = "";
@@ -348,9 +316,6 @@ namespace Game
 			if (!base.OnCreate())
 				return false;
 
-			SoundVolume = _soundVolume;
-			MusicVolume = _musicVolume;
-
 			ControlManager = new ScreenControlManager(ScreenGuiRenderer);
 			if (!ControlsWorld.Init())
 				return false;
@@ -374,8 +339,8 @@ namespace Game
 			camera.Position = new Vec3(-10, -10, 10);
 			camera.LookAt(new Vec3(0, 0, 0));
 
-			var programLoadingWindow = ControlDeclarationManager.Instance.CreateControl(
-				"Gui\\Loading.gui");
+			var programLoadingWindow = ControlDeclarationManager.Instance.CreateControl("Gui\\Loading.gui");
+			
 			if (programLoadingWindow != null)
 				ControlManager.Controls.Add(programLoadingWindow);
 
@@ -398,9 +363,6 @@ namespace Game
 			}
 
 			RenderScene();
-
-			//Game controls
-			GameControlsManager.Init();
 
 			//EntitySystem
 			if (!EntitySystemWorld.Init(new EntitySystemWorld()))
@@ -479,7 +441,6 @@ namespace Game
 
 			Server_DestroyServer("The server has been destroyed");
 			EntitySystemWorld.Shutdown();
-			GameControlsManager.Shutdown();
 
 			ControlsWorld.Shutdown();
 			ControlManager = null;
@@ -751,7 +712,7 @@ namespace Game
 				else
 					_fadingInSkipFirstFrames--;
 
-				var alpha = (float) _fadingInRemainingTime / 1;
+				var alpha = _fadingInRemainingTime / 1;
 				MathFunctions.Saturate(ref alpha);
 				renderer.AddQuad(new Rect(0, 0, 1, 1), new ColorValue(0, 0, 0, alpha));
 			}

@@ -12,8 +12,6 @@ namespace ProjectCommon
 {
 	public sealed class EngineConsole
 	{
-		static EngineConsole instance;
-
 		//visual
 		bool needLoadTextureAndFont = true;
 		Font font;
@@ -23,12 +21,10 @@ namespace ProjectCommon
 		float maxTransparency = .9f;
 
 		//commands
-		Command.Method defaultCommandHandler;
 		List<Command> commands = new List<Command>();
 
 		//actions
 		bool active;
-		bool autoOpening = true;
 		float transparency;
 
 		struct OldString
@@ -63,48 +59,33 @@ namespace ProjectCommon
 			public delegate void Method( string arguments );
 			public delegate void MethodExtended( string arguments, object userData );
 
-			public string Name
-			{
-				get { return name; }
-			}
+			public string Name => name;
 
-			public Method Handler
-			{
-				get { return handler; }
-			}
+			public Method Handler => handler;
 
-			public MethodExtended ExtendedHandler
-			{
-				get { return extendedHandler; }
-			}
+			public MethodExtended ExtendedHandler => extendedHandler;
 
-			public string Description
-			{
-				get { return description; }
-			}
+			public string Description => description;
 
-			public object UserData
-			{
-				get { return userData; }
-			}
+			public object UserData => userData;
 		}
 
 		///////////////////////////////////////////
 
 		public static void Init()
 		{
-			if( instance != null )
+			if( Instance != null )
 				Log.Fatal( "EngineConsole: Init: instance != null." );
-			instance = new EngineConsole();
-			instance.InitInternal();
+			Instance = new EngineConsole();
+			Instance.InitInternal();
 		}
 
 		public static void Shutdown()
 		{
-			if( instance != null )
+			if( Instance != null )
 			{
-				instance.ShutdownInternal();
-				instance = null;
+				Instance.ShutdownInternal();
+				Instance = null;
 			}
 		}
 
@@ -119,14 +100,11 @@ namespace ProjectCommon
 		{
 		}
 
-		static public EngineConsole Instance
-		{
-			get { return instance; }
-		}
+		static public EngineConsole Instance { get; private set; }
 
 		public bool Active
 		{
-			get { return active; }
+			get => active;
 			set
 			{
 				if( this.active == value )
@@ -137,11 +115,7 @@ namespace ProjectCommon
 			}
 		}
 
-		public bool AutoOpening
-		{
-			get { return autoOpening; }
-			set { autoOpening = value; }
-		}
+		public bool AutoOpening { get; set; } = true;
 
 		void AddCommand( string name, Command.Method handler, Command.MethodExtended extendedHandler,
 			string description, object userData )
@@ -196,16 +170,9 @@ namespace ProjectCommon
 				commands.Remove( command );
 		}
 
-		Command.Method DefaultCommandHandler
-		{
-			get { return defaultCommandHandler; }
-			set { defaultCommandHandler = value; }
-		}
+		private Command.Method DefaultCommandHandler { get; set; }
 
-		public ReadOnlyCollection<Command> Commands
-		{
-			get { return commands.AsReadOnly(); }
-		}
+		public ReadOnlyCollection<Command> Commands => commands.AsReadOnly();
 
 		Command GetCommandByName( string name )
 		{
@@ -292,8 +259,8 @@ namespace ProjectCommon
 			var command = GetCommandByName( name );
 			if( command == null )
 			{
-				if( defaultCommandHandler != null )
-					defaultCommandHandler( str );
+				if( DefaultCommandHandler != null )
+					DefaultCommandHandler( str );
 				else
 					Print($"Unknown command \"{name}\"", new ColorValue( 1, 0, 0 ) );
 				return false;
