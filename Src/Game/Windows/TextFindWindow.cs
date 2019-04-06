@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
-using Engine.MathEx;
 using Engine.UISystem;
+using Game.Structures;
 
-namespace Game
+namespace Game.Windows
 {
     class TextFind : Window
     {
@@ -34,7 +34,7 @@ namespace Game
         {
             var lb = ((ListBox)window.Controls["list"]);
             if (lb.SelectedIndex != -1)
-                new LocView(_index[lb.SelectedIndex]);
+                new TextViewWindow(_index[lb.SelectedIndex]);
         }
 
         void bw_ProgressChanged(object sender, ProgressChangedEventArgs e)

@@ -1,13 +1,14 @@
 ﻿using System.Text;
 using Engine.UISystem;
+using Game.Structures;
 
-namespace Game
+namespace Game.Windows
 {
-    class LocView : Window
+    class TextViewWindow : Window
     {
-        private static LocView _instance;
+        private static TextViewWindow _instance;
 
-        public LocView(VFile vFile)
+        public TextViewWindow(VFile vFile)
             : base("LocView")
         {
             if (_instance == null)

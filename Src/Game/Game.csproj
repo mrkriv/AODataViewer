@@ -170,25 +170,25 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="3dWindow.cs" />
-    <Compile Include="Data.cs" />
-    <Compile Include="Face.cs" />
     <Compile Include="GameEngineApp.cs" />
-    <Compile Include="LocView.cs" />
-    <Compile Include="MainMenuWindow.cs" />
-    <Compile Include="MapingWinow.cs" />
-    <Compile Include="OpenFileDialog.cs" />
-    <Compile Include="PakView.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SaveFileDialog.cs" />
-    <Compile Include="TextFind.cs" />
-    <Compile Include="TextureView.cs" />
-    <Compile Include="VDirectory.cs" />
-    <Compile Include="VerInfo.cs" />
-    <Compile Include="Vertex.cs" />
-    <Compile Include="VFile.cs" />
-    <Compile Include="Window.cs" />
+    <Compile Include="Structures\Data.cs" />
+    <Compile Include="Structures\Face.cs" />
+    <Compile Include="Structures\VDirectory.cs" />
+    <Compile Include="Structures\Vertex.cs" />
+    <Compile Include="Structures\VFile.cs" />
+    <Compile Include="Windows\Dialogs\OpenFileDialog.cs" />
+    <Compile Include="Windows\Dialogs\SaveFileDialog.cs" />
+    <Compile Include="Windows\Dialogs\VerInfoDialog.cs" />
+    <Compile Include="Windows\ModelViewWindow.cs" />
+    <Compile Include="Windows\TextViewWindow.cs" />
+    <Compile Include="Windows\MainMenuWindow.cs" />
+    <Compile Include="Windows\MapingWinow.cs" />
+    <Compile Include="Windows\PakViewWindow.cs" />
+    <Compile Include="Windows\TextFindWindow.cs" />
+    <Compile Include="Windows\TextureViewWindow.cs" />
+    <Compile Include="Windows\Window.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

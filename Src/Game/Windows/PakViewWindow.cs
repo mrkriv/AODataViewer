@@ -1,10 +1,12 @@
 ﻿using System;
 using Engine;
 using Engine.UISystem;
+using Game.Structures;
+using Game.Windows.Dialogs;
 
-namespace Game
+namespace Game.Windows
 {
-    public class PakView : Window
+    public class PakViewWindow : Window
     {
         private string _path;
         public static Data Data;
@@ -60,7 +62,7 @@ namespace Game
             return "file";
         }
 
-        public PakView(string path)
+        public PakViewWindow(string path)
             : base("PakView")
         {
             Data = new Data(path);
@@ -176,13 +178,13 @@ namespace Game
             switch (GetType(file.Name))
             {
                 case "texture":
-                    new TextureView(file);
+                    new TextureViewWindow(file);
                     break;
                 case "texture_hi":
-                    new TextureView(file);
+                    new TextureViewWindow(file);
                     break;
                 case "loc":
-                    new LocView(file);
+                    new TextViewWindow(file);
                     break;
                 case "model":
                     new ModelViewWindow(file);

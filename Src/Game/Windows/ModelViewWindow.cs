@@ -4,15 +4,17 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Engine;
-using Engine.Renderer;
 using Engine.MathEx;
+using Engine.Renderer;
 using Engine.Renderer.ModelImporting;
-using Engine.Utils;
 using Engine.UISystem;
+using Engine.Utils;
 using FBXModelImport;
+using Game.Structures;
+using Game.Windows.Dialogs;
 using RVertex = Engine.Renderer.DynamicMeshManager.Vertex;
 
-namespace Game
+namespace Game.Windows
 {
     public class ModelViewWindow : Window
     {

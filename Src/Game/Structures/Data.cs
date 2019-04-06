@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using ICSharpCode.SharpZipLib.Zip;
 using System.IO;
+using System.Text;
+using Game.Windows.Dialogs;
+using ICSharpCode.SharpZipLib.Zip;
 using ProjectCommon;
 
-namespace Game
+namespace Game.Structures
 {
     public class Data
     {
@@ -16,10 +17,10 @@ namespace Game
         {
             var loadBeginDate = DateTime.Now;
 
-            VerInfo.TotalSize = 0;
-            VerInfo.TotalFile = 0;
-            VerInfo.TotalVFile = 0;
-            VerInfo.Path = path;
+            VerInfoDialog.TotalSize = 0;
+            VerInfoDialog.TotalFile = 0;
+            VerInfoDialog.TotalVFile = 0;
+            VerInfoDialog.Path = path;
 
             RootDirectory = new VDirectory("");
             _locFiles = new List<VFile>();
@@ -36,7 +37,7 @@ namespace Game
             var offest = DateTime.Now - loadBeginDate;
             EngineConsole.Instance.Print("Файловая система загружена " + offest.TotalSeconds.ToString("0.00") + "c");
 
-            VerInfo.LoadTime = offest.TotalSeconds;
+            VerInfoDialog.LoadTime = offest.TotalSeconds;
         }
 
         private void LoadFs(string path, string dataFolder)
@@ -50,8 +51,8 @@ namespace Game
                         var file = new VFile(entry.Name, packFile, (int) entry.Size);
                         RootDirectory.AddFile(file);
                         
-                        VerInfo.TotalSize += entry.Size;
-                        VerInfo.TotalFile++;
+                        VerInfoDialog.TotalSize += entry.Size;
+                        VerInfoDialog.TotalFile++;
 
                         if (entry.Name.EndsWith("*.loc"))
                         {
@@ -88,7 +89,7 @@ namespace Game
 
                     RootDirectory.AddFile(new VFile(itemName, "", fileData));
 
-                    VerInfo.TotalVFile++;
+                    VerInfoDialog.TotalVFile++;
                 }
 
                 loc.ClearCache();

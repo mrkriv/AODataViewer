@@ -2,11 +2,13 @@ using System;
 using System.IO;
 using Engine;
 using Engine.FileSystem;
-using Engine.UISystem;
 using Engine.MathEx;
 using Engine.Renderer;
+using Engine.UISystem;
+using Game.Structures;
+using Game.Windows.Dialogs;
 
-namespace Game
+namespace Game.Windows
 {
     public class MainMenuWindow : Control
     {
@@ -52,8 +54,8 @@ namespace Game
                 {
                     if (Directory.Exists(file))
                     {
-                        new PakView(file);
-                        new VerInfo(file);
+                        new PakViewWindow(file);
+                        new VerInfoDialog(file);
                     }
                 }, false);
         }

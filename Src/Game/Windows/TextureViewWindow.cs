@@ -1,23 +1,25 @@
-﻿using Engine.MathEx;
+﻿using System;
+using System.Collections.Generic;
+using Engine.MathEx;
 using Engine.Renderer;
 using Engine.UISystem;
-using System;
-using System.Collections.Generic;
+using Game.Structures;
+using Game.Windows.Dialogs;
 
-namespace Game
+namespace Game.Windows
 {
-    class TextureView : Window
+    class TextureViewWindow : Window
     {
         List<byte> buffer;
         bool isInit;
-        static TextureView instance;
+        static TextureViewWindow instance;
         bool first = true;
         VFile _vFile;
         int Width = 4096;
         int Height = 4096;
         int type = 1;
 
-        public TextureView(VFile vFile)
+        public TextureViewWindow(VFile vFile)
             : base("TextureView")
         {
             if (instance == null)

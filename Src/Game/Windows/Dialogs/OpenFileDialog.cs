@@ -4,7 +4,7 @@ using Engine;
 using Engine.UISystem;
 using ProjectCommon;
 
-namespace Game
+namespace Game.Windows.Dialogs
 {
     public class OpenFileDialog : Window
     {

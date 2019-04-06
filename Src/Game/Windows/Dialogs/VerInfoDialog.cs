@@ -1,11 +1,11 @@
-﻿using Engine;
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
+using Engine;
 
-namespace Game
+namespace Game.Windows.Dialogs
 {
-    public class VerInfo : Window
+    public class VerInfoDialog : Window
     {
         public static string Ver = "";
         public static string Head = "";
@@ -15,7 +15,7 @@ namespace Game
         public static double LoadTime;
         public static string Path = "";
 
-        public VerInfo(string path)
+        public VerInfoDialog(string path)
             : base("VerInfo")
         {
 

@@ -2,7 +2,7 @@
 using Engine.MathEx;
 using Engine.UISystem;
 
-namespace Game
+namespace Game.Windows
 {
     public class Window : Control
     {

@@ -1,4 +1,4 @@
-﻿namespace Game
+﻿namespace Game.Windows
 {
     class MapingWinow : Window
     {

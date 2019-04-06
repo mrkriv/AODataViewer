@@ -2,7 +2,7 @@
 using Engine;
 using Engine.UISystem;
 
-namespace Game
+namespace Game.Windows.Dialogs
 {
     public delegate void FileSelectDelegate(string path);
 

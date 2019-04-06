@@ -4,7 +4,7 @@ using System.IO.Compression;
 using System.Linq;
 using ICSharpCode.SharpZipLib.Zip;
 
-namespace Game
+namespace Game.Structures
 {
     public class VFile
     {
