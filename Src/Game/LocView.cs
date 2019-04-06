@@ -7,7 +7,7 @@ namespace Game
     {
         private static LocView _instance;
 
-        public LocView(Data.File file)
+        public LocView(VFile vFile)
             : base("LocView")
         {
             if (_instance == null)
@@ -15,11 +15,11 @@ namespace Game
             else
                 Close();
 
-            ((Button)window.Controls["find"]).Click += Find_Click;
-            _instance.window.Text = file.GetOnlyName();
+            ((Button) window.Controls["find"]).Click += Find_Click;
+            _instance.window.Text = vFile.Name;
             try
             {
-                _instance.window.Controls["text"].Text = Encoding.Unicode.GetString(file.Data.ToArray());
+                _instance.window.Controls["text"].Text = Encoding.Unicode.GetString(vFile.Data.ToArray());
                 _instance.window.Controls["text"].ColorMultiplier = new Engine.MathEx.ColorValue(1, .98f, .62f);
             }
             catch

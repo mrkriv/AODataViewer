@@ -184,8 +184,10 @@
     <Compile Include="SaveFileDialog.cs" />
     <Compile Include="TextFind.cs" />
     <Compile Include="TextureView.cs" />
+    <Compile Include="VDirectory.cs" />
     <Compile Include="VerInfo.cs" />
     <Compile Include="Vertex.cs" />
+    <Compile Include="VFile.cs" />
     <Compile Include="Window.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

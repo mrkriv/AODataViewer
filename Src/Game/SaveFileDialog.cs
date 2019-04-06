@@ -12,7 +12,7 @@ namespace Game
         public static string dir = ".";
 
         private event FileSelectDelegate FileSelectEvent;
-        
+
         public event FileSelectDelegate OnFileSelect
         {
             add => FileSelectEvent += value;
@@ -31,14 +31,14 @@ namespace Game
 
                 var c = window.Controls["list"] as IconListBox;
                 c.Items.Clear();
-                
-                c.Items.Add(new[] {"<--", "back"});
-                
+
+                c.Items.Add("<--", "back");
+
                 foreach (var d in Directory.GetDirectories(dir))
-                    c.Items.Add(new[] {Path.GetFileName(d), "dir"});
+                    c.Items.Add(Path.GetFileName(d), "dir");
 
                 foreach (var f in Directory.GetFiles(dir))
-                    c.Items.Add(new[] {Path.GetFileName(f), "file"});
+                    c.Items.Add(Path.GetFileName(f), "file");
             }
         }
 
@@ -64,7 +64,7 @@ namespace Game
                 ((ComboBox) window.Controls["format"]).Items.Add(f);
 
             ((ComboBox) window.Controls["format"]).SelectedIndex = 0;
-            
+
             window.Controls["file"].Text = fileName;
             Dir = dir;
         }
@@ -73,7 +73,7 @@ namespace Game
         {
             if (sender.SelectedItem != null)
             {
-                var item = ((string[]) sender.SelectedItem)[0];
+                var item = sender.SelectedItem.Text;
                 var path = Path.Combine(dir, item.Replace("<--", ".."));
 
                 if (File.Exists(path))
@@ -104,7 +104,7 @@ namespace Game
 
             if (((ComboBox) window.Controls["format"]).SelectedIndex != -1)
                 path += "." + ((ComboBox) window.Controls["format"]).SelectedItem;
-            
+
             OnFileSelectEvent(path);
 
             SetShouldDetach();

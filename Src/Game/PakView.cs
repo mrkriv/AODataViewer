@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using Engine;
 using Engine.UISystem;
 
@@ -7,7 +7,6 @@ namespace Game
     public class PakView : Window
     {
         private string _path;
-        private List<Data.File> _files;
         public static Data Data;
 
         public string Path
@@ -17,50 +16,28 @@ namespace Game
             {
                 _path = value.Trim('/');
                 window.Controls["text_path"].Text = _path;
-                _files = new List<Data.File>();
-                var items = new List<string>();
+
                 var c = window.Controls["list"] as IconListBox;
                 c.Items.Clear();
 
                 if (_path != "")
-                    c.Items.Add(new[] {"<-", "back"});
+                    c.Items.Add("<-", "back");
 
                 var mask = window.Controls["mask"].Text;
-                var useMask = ((CheckBox) window.Controls["find"]).Checked && !string.IsNullOrEmpty(mask);
+                var useMask =
+                    ((CheckBox) window.Controls["find"]).Checked && !string.IsNullOrEmpty(mask); //todo:: add scearch
 
-                foreach (var f in Data.Files)
+                var directory = Data.RootDirectory.GetDirectory(_path);
+                directory.Files.Sort((a, b) => string.Compare(a.Path, b.Path, StringComparison.Ordinal));
+
+                foreach (var name in directory.Directories.Keys)
                 {
-                    var name = f.Name;
-
-                    if (!name.StartsWith(_path))
-                        continue;
-
-                    if (useMask && !name.Contains(mask))
-                        continue;
-
-                    _files.Add(f);
+                    c.Items.Add(name, "dir");
                 }
 
-                _files.Sort((a, b) => a.Name.CompareTo(b.Name));
-
-                foreach (var f in _files)
+                foreach (var file in directory.Files)
                 {
-                    var name = f.Name.Trim('/');
-
-                    name = name.Substring(_path.Length);
-                    name = name.TrimStart('/');
-                    name = name.Split('/')[0];
-
-                    if (items.Contains(name))
-                        continue;
-
-                    var s = new[] {name, "dir"};
-
-                    if (name.Contains("."))
-                        s[1] = GetType(name);
-
-                    items.Add(name);
-                    c.Items.Add(s);
+                    c.Items.Add(file.Name, GetType(file.Name), file);
                 }
             }
         }
@@ -92,7 +69,6 @@ namespace Game
             ((Button) window.Controls["edit"]).Click += EditFile;
             ((Button) window.Controls["more"]).Click += MoreSwitch;
             ((Button) window.Controls["specal\\save"]).Click += Specal_save;
-            ((Button) window.Controls["specal\\ungzip"]).Click += Specal_ungzip;
             window.Controls["mask"].TextChange += Find;
             window.Controls["Progress"].Visible = false;
             window.Controls["specal"].Visible = false;
@@ -103,34 +79,26 @@ namespace Game
 
         void Specal_save(Control sender)
         {
-            Save(false);
-            window.Controls["specal"].Visible = false;
-        }
-
-        void Specal_ungzip(Control sender)
-        {
-            Save(true);
-            window.Controls["specal"].Visible = false;
-        }
-
-        void Save(bool ungzip)
-        {
             try
             {
-                var lb = window.Controls["list"] as IconListBox;
-                var file = ((string[]) lb.SelectedItem)[0];
-                var f = _files[lb.SelectedIndex - 1];
-                f.ReadData(ungzip);
-                
-                var saveWindow = new SaveFileDialog(f.Data.ToArray());
-                saveWindow.Show(file, new[] {"dds"});
-                
-                f.ClearCache();
+                var file = GetSelectFile();
+
+                var saveWindow = new SaveFileDialog(file.Data.ToArray());
+                saveWindow.Show(file.Path, new[] {"dds"});
+
+                file.ClearCache();
             }
             catch
             {
                 window.Controls["info"].Text = "Ошибка.";
             }
+            window.Controls["specal"].Visible = false;
+        }
+
+        VFile GetSelectFile()
+        {
+            var lb = window.Controls["list"] as IconListBox;
+            return (VFile) lb.SelectedItem.Data;
         }
 
         void Find_CheckedChange(CheckBox sender)
@@ -154,10 +122,9 @@ namespace Game
             window.Controls["specal"].Visible = false;
             if (IsFile())
             {
-                var lb = window.Controls["list"] as IconListBox;
                 ((Button) window.Controls["edit"]).Enable = true;
                 ((Button) window.Controls["more"]).Enable = true;
-                window.Controls["info"].Text = _files[lb.SelectedIndex - 1].Pak;
+                window.Controls["info"].Text = GetSelectFile().Pak;
             }
             else
             {
@@ -172,23 +139,17 @@ namespace Game
         bool IsFile()
         {
             var lb = window.Controls["list"] as IconListBox;
-            if (lb.SelectedItem != null)
-            {
-                var item = ((string[]) lb.SelectedItem)[0];
-                return item.IndexOf(".") != -1;
-            }
-
-            return false;
+            return lb?.SelectedItem?.Data != null;
         }
 
         void ListClick(object sender, EMouseButtons btn)
         {
             var selectItem = ((IconListBox) sender).SelectedItem;
 
-            var item = ((string[]) selectItem)?[0];
-
-            if (item == null)
+            if (selectItem == null)
                 return;
+
+            var item = selectItem.Text;
 
             if (item != "<-")
             {
@@ -210,21 +171,21 @@ namespace Game
         {
             /*try
             {*/
-            var lb = window.Controls["list"] as IconListBox;
-            var file = ((string[]) lb.SelectedItem)[0];
-            switch (GetType(file))
+            var file = GetSelectFile();
+
+            switch (GetType(file.Name))
             {
                 case "texture":
-                    new TextureView(_files[lb.SelectedIndex - 1]);
+                    new TextureView(file);
                     break;
                 case "texture_hi":
-                    new TextureView(_files[lb.SelectedIndex - 1]);
+                    new TextureView(file);
                     break;
                 case "loc":
-                    new LocView(_files[lb.SelectedIndex - 1]);
+                    new LocView(file);
                     break;
                 case "model":
-                    new ModelViewWindow(_files[lb.SelectedIndex - 1]);
+                    new ModelViewWindow(file);
                     break;
             }
 

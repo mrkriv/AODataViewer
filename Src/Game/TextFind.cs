@@ -8,7 +8,7 @@ namespace Game
 {
     class TextFind : Window
     {
-        private List<Data.File> _index;
+        private List<VFile> _index;
         private readonly BackgroundWorker _bw;
         private readonly float _pgBaseScaleW;
 
@@ -39,18 +39,18 @@ namespace Game
 
         void bw_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            float p = e.ProgressPercentage / PakView.Data.Files.Count * 100;
+           /* float p = e.ProgressPercentage / PakView.Data.Files.Count * 100;
             window.Controls["count"].Text = $"{e.ProgressPercentage}/{PakView.Data.Files.Count} ({p}%)";
             window.Controls["bar_s"].Size = new ScaleValue(ScaleType.Parent, new Vec2(_pgBaseScaleW * p, window.Controls["bar"].Size.Value.Y));
                 
             if(e.UserState != null)
             {
-                ((ListBox)window.Controls["list"]).Items.Add(((Data.File)e.UserState).Name);
-                _index.Add((Data.File)e.UserState);
+                ((ListBox)window.Controls["list"]).Items.Add(((VFile)e.UserState).Name);
+                _index.Add((VFile)e.UserState);
 
                 if (((CheckBox)window.Controls["isOnlyFind"]).Checked)
                     _bw.CancelAsync();
-            }
+            }*/
         }
 
         void bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -64,10 +64,10 @@ namespace Game
             window.Controls["stop"].Enable = true;
             window.Controls["start"].Enable = false;
 
-            _index = new List<Data.File>();
+            _index = new List<VFile>();
             ((ListBox)window.Controls["list"]).Items.Clear();
 
-            _bw.RunWorkerAsync(new object[] { window.Controls["text"].Text, window.Controls["mask"].Text, PakView.Data.Files });
+           // _bw.RunWorkerAsync(new object[] { window.Controls["text"].Text, window.Controls["mask"].Text, PakView.Data.Files });
         }
 
         void Stop_Click(Button sender)
@@ -87,7 +87,7 @@ namespace Game
 
             var text = obj[0] as string;
             var mask = obj[1] as string;
-            var files = obj[2] as List<Data.File>;
+            var files = obj[2] as List<VFile>;
 
             if (text == null || mask == null || files == null)
                 return;
@@ -109,7 +109,7 @@ namespace Game
                         progressReported = progress;
                     }
 
-                    if (file.Name.Contains(mask))
+                    if (file.Path.Contains(mask))
                     {
                         var t = Encoding.Unicode.GetString(file.Data.ToArray());
                         if (t.Contains(text))

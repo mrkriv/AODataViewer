@@ -36,17 +36,17 @@ namespace Game
                 {
                     var allDrives = DriveInfo.GetDrives();
                     foreach (var d in allDrives)
-                        c.Items.Add(new[] { d.Name, "hdd" });
+                        c.Items.Add(d.Name, "hdd");
                 }
                 else
                 {
-                    c.Items.Add(new[] { "<--", "back" });
+                    c.Items.Add("<--", "back");
                     foreach (var d in Directory.GetDirectories(dir))
-                        c.Items.Add(new[] { Path.GetFileName(d), "dir" });
+                        c.Items.Add(Path.GetFileName(d), "dir");
 
                     if (SelectFile)
                         foreach (var f in Directory.GetFiles(dir, File_mask))
-                            c.Items.Add(new[] { Path.GetFileName(f), "file" });
+                            c.Items.Add(Path.GetFileName(f), "file");
                 }
             }
         }
@@ -82,16 +82,16 @@ namespace Game
         void OpenFileDialog_SelectedIndexChange(IconListBox sender)
         {
             if (sender.SelectedItem != null)
-                window.Controls["file"].Text = ((string[])sender.SelectedItem)[0];
+                window.Controls["file"].Text =sender.SelectedItem.Text;
         }
 
         void ListClick(object sender, ListBox.ItemMouseEventArgs e)
         {
             try
             {
-                var path = Path.Combine(dir, ((string[])(e.Item))[0].Replace("<--", ".."));
+                var path = Path.Combine(dir, ((IconListBox.Item)(e.Item)).Text.Replace("<--", ".."));
 
-                if (File.Exists(path) || File.Exists(path + "\\Profiles\\game.version"))
+                if (File.Exists(path) || Directory.Exists(path + "\\data\\Packs"))
                 {
                     window.Controls["file"].Text = Path.GetFileName(path);
                     Ok(null);

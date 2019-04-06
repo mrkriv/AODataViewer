@@ -12,12 +12,12 @@ namespace Game
         bool isInit;
         static TextureView instance;
         bool first = true;
-        Data.File File;
+        VFile _vFile;
         int Width = 4096;
         int Height = 4096;
         int type = 1;
 
-        public TextureView(Data.File file)
+        public TextureView(VFile vFile)
             : base("TextureView")
         {
             if (instance == null)
@@ -25,14 +25,14 @@ namespace Game
             else
                 Close();
 
-            instance.Init(file);
+            instance.Init(vFile);
         }
 
-        public void Init(Data.File file)
+        public void Init(VFile vFile)
         {
             isInit = true;
 
-            instance.window.Text = file.GetOnlyName();
+            instance.window.Text = vFile.Name;
 
             if (instance.first)
             {
@@ -61,9 +61,8 @@ namespace Game
                 instance.first = false;
             }
 
-            File?.ClearCache();
-            File = file;
-            File.ReadData(true);
+            _vFile?.ClearCache();
+            _vFile = vFile;
 
             Width = 4096;
             Height = 4096;
@@ -74,7 +73,7 @@ namespace Game
                 if (type == 1)
                     size /= 2;
 
-                if (size > File.Data.Count)
+                if (size > _vFile.Data.Count)
                 {
                     Width /= 2;
                     Height /= 2;
@@ -95,13 +94,13 @@ namespace Game
 
         public void Export_express(Button sender)
         {
-            System.IO.File.WriteAllBytes(SaveFileDialog.dir + "\\" + File.GetOnlyName() + ".dds", buffer.ToArray());
+            System.IO.File.WriteAllBytes(SaveFileDialog.dir + "\\" + _vFile.Name + ".dds", buffer.ToArray());
         }
 
         public void Export(Button sender)
         {
             var saveWindow = new SaveFileDialog(buffer.ToArray());
-            saveWindow.Show(File.GetOnlyName(), new[] {"dds"});
+            saveWindow.Show(_vFile.Name, new[] {"dds"});
         }
 
         int GetPowerOfTwo(int x)
@@ -150,7 +149,7 @@ namespace Game
 
         void Render()
         {
-            Decoder("Data\\GUI\\Textures\\dec.dds", File.Data, type, Width, Height);
+            Decoder("Data\\GUI\\Textures\\dec.dds", _vFile.Data, type, Width, Height);
 
             TextureManager.Instance.Unload("GUI\\Textures\\dec.dds");
             window.Controls["img"].BackTexture = TextureManager.Instance.Load("GUI\\Textures\\dec.dds");
@@ -160,7 +159,7 @@ namespace Game
         {
             base.OnDetach();
 
-            File?.ClearCache();
+            _vFile?.ClearCache();
 
             if (this == instance)
                 instance = null;

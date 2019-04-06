@@ -24,6 +24,13 @@ namespace Engine.UISystem
         private ItemMouseEventHandler Handler;
 
         string iconDir = "GUI\\Icon";
+        
+        public class Item
+        {
+            public string Text { get; set; }
+            public string Icon { get; set; }
+            public object Data { get; set; }
+        }
 
         [Category("List Box")]
         [DefaultValue("GUI\\Icon")]
@@ -254,7 +261,7 @@ namespace Engine.UISystem
 
         [Browsable(false)]
         [LogicSystemBrowsable(true)]
-        public object SelectedItem
+        public Item SelectedItem
         {
             get
             {
@@ -421,19 +428,17 @@ namespace Engine.UISystem
                 {
                     if (btns.Count <= i)
                         break;
+                    
                     var item = btns[i];
-                    if (items[i] is string[])
+                    var it = items[i];
+                    item.Text = it.Text;
+                    
+                    if (item.Controls[0].Controls.Count != 0 && !string.IsNullOrEmpty(it.Icon))
                     {
-                        var it = items[i] as string[];
-                        item.Text = it[0];
-                        if (item.Controls[0].Controls.Count != 0 && it.Length > 1 && it[1] != "")
-                        {
-                            foreach (var c in item.Controls)
-                                c.Controls[0].BackTexture = TextureManager.Instance.Load(iconDir + "\\" + it[1] + ".png");
-                        }
+                        foreach (var c in item.Controls)
+                            c.Controls[0].BackTexture = TextureManager.Instance.Load(iconDir + "\\" + it.Icon + ".png");
                     }
-                    else
-                        item.Text = items[i].ToString();
+
 
                     var active = selectIndex == i;
                     if (hideSelectionWhenDisabled && !base.IsEnabledInHierarchy())
@@ -574,10 +579,10 @@ namespace Engine.UISystem
         }
 
         [LogicSystemBrowsable(true)]
-        public class IconListBoxItemCollection : IList<object>, ICollection<object>, IEnumerable<object>, IEnumerable
+        public class IconListBoxItemCollection : IList<Item>, ICollection<Item>, IEnumerable<Item>, IEnumerable
         {
             private IconListBox owner;
-            private List<object> items;
+            private List<Item> items;
 
             [LogicSystemBrowsable(true)]
             public int Count
@@ -597,7 +602,7 @@ namespace Engine.UISystem
             }
 
             [LogicSystemBrowsable(true)]
-            public object this [int index]
+            public Item this [int index]
             {
                 get
                 {
@@ -619,7 +624,7 @@ namespace Engine.UISystem
 
             internal IconListBoxItemCollection(IconListBox A)
             {
-                items = new List<object>();
+                items = new List<Item>();
                 owner = A;
             }
 
@@ -629,7 +634,13 @@ namespace Engine.UISystem
             }
 
             [LogicSystemBrowsable(true)]
-            public void Add(object item)
+            public void Add(string text, string icon, object data = null)
+            {
+                Add(new Item {Text = text, Icon = icon, Data = data});
+            }
+
+            [LogicSystemBrowsable(true)]
+            public void Add(Item item)
             {
                 items.Add(item);
                 owner.needUpdate = true;
@@ -644,36 +655,36 @@ namespace Engine.UISystem
             }
 
             [LogicSystemBrowsable(true)]
-            public bool Contains(object item)
+            public bool Contains(Item item)
             {
                 return items.Contains(item);
             }
 
-            public void CopyTo(object[] array, int arrayIndex)
+            public void CopyTo(Item[] array, int arrayIndex)
             {
                 items.CopyTo(array, arrayIndex);
             }
 
-            public IEnumerator<object> GetEnumerator()
+            public IEnumerator<Item> GetEnumerator()
             {
                 return items.GetEnumerator();
             }
 
             [LogicSystemBrowsable(true)]
-            public int IndexOf(object item)
+            public int IndexOf(Item item)
             {
                 return items.IndexOf(item);
             }
 
             [LogicSystemBrowsable(true)]
-            public void Insert(int index, object item)
+            public void Insert(int index, Item item)
             {
                 items.Insert(index, item);
                 owner.needUpdate = true;
             }
 
             [LogicSystemBrowsable(true)]
-            public bool Remove(object item)
+            public bool Remove(Item item)
             {
                 var num = items.IndexOf(item);
                 if (num != -1)

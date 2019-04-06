@@ -23,7 +23,7 @@ namespace Game
         private List<byte> _skelet;
         private List<Vertex> _vertexs;
         private List<Face> _faces;
-        private Data.File _file;
+        private VFile _vFile;
         private SceneBox _viewport;
         private SceneBox.SceneBoxMesh _obj;
         private VertexType _vertexType;
@@ -45,21 +45,20 @@ namespace Game
             get { return _instance; }
         }
 
-        public ModelViewWindow(Data.File file) : base("3dWindow")
+        public ModelViewWindow(VFile vFile) : base("3dWindow")
         {
             _instance?.Close();
             _instance = this;
 
-            Init(file);
+            Init(vFile);
         }
 
-        public void Init(Data.File file)
+        public void Init(VFile vFile)
         {
-            _file?.ClearCache();
-            _file = file;
-            _file.ReadData(true);
+            _vFile?.ClearCache();
+            _vFile = vFile;
 
-            window.Text = file.GetOnlyName();
+            window.Text = vFile.Name;
             _viewport = (SceneBox) window.Controls["viewport"];
 
             ((IntCounter) window.Controls["tab\\format\\size"]).Focus();
@@ -79,16 +78,16 @@ namespace Game
             _viewport.MouseMove += viewport_MouseMove;
             _viewport.MouseWheel += viewport_MouseWheel;
 
-            _vertexSize = BitConverter.ToInt32(_file.Data.GetRange(4, 4).ToArray(), 0);
+            _vertexSize = BitConverter.ToInt32(_vFile.Data.GetRange(4, 4).ToArray(), 0);
             
-            if(_file.Data.Count <= _vertexSize + 12)
+            if(_vFile.Data.Count <= _vertexSize + 12)
                 return;
 
-            _faceSize = BitConverter.ToInt32(_file.Data.GetRange(12 + _vertexSize, 4).ToArray(), 0);
-            _skeletSize = BitConverter.ToInt32(_file.Data.GetRange(20 + _faceSize + _vertexSize, 4).ToArray(), 0);
+            _faceSize = BitConverter.ToInt32(_vFile.Data.GetRange(12 + _vertexSize, 4).ToArray(), 0);
+            _skeletSize = BitConverter.ToInt32(_vFile.Data.GetRange(20 + _faceSize + _vertexSize, 4).ToArray(), 0);
 
-            _vertex = _file.Data.GetRange(8, _vertexSize);
-            _face = _file.Data.GetRange(16 + _vertexSize, _faceSize);
+            _vertex = _vFile.Data.GetRange(8, _vertexSize);
+            _face = _vFile.Data.GetRange(16 + _vertexSize, _faceSize);
 
             AutoFormat();
 
@@ -352,7 +351,7 @@ namespace Game
             var saveWindow = new SaveFileDialog();
             saveWindow.OnFileSelect += Export;
 
-            saveWindow.Show(_file.GetOnlyName(), new[] {"fbx"});
+            saveWindow.Show(_vFile.Name, new[] {"fbx"});
         }
 
         private void Export(string path)
@@ -547,7 +546,7 @@ namespace Game
         {
             base.OnDetach();
 
-            _file?.ClearCache();
+            _vFile?.ClearCache();
 
             if (this == _instance)
                 _instance = null;

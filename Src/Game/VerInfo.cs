@@ -18,10 +18,21 @@ namespace Game
         public VerInfo(string path)
             : base("VerInfo")
         {
-            var gv = File.ReadAllBytes(path + "\\Profiles\\game.version");
 
-            Head = Encoding.UTF8.GetString(gv, 4, 4);
-            Ver = Encoding.UTF8.GetString(gv, 12, BitConverter.ToInt32(gv, 8));
+            var versionFilePath = path + "\\Profiles\\game.version";
+
+            if (File.Exists(versionFilePath))
+            {
+                var gv = File.ReadAllBytes(versionFilePath);
+
+                Head = Encoding.UTF8.GetString(gv, 4, 4);
+                Ver = Encoding.UTF8.GetString(gv, 12, BitConverter.ToInt32(gv, 8));
+            }
+            else
+            {
+                Head = "raw data";
+                Ver = "undefine";
+            }
 
             window.Controls["time"].Text += LoadTime.ToString("0.00") + "с";
             window.Controls["ver"].Text += Ver;
