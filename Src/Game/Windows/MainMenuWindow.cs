@@ -51,7 +51,6 @@ namespace Game.Windows
                     if (Directory.Exists(file))
                     {
                         new PakViewWindow(file);
-                        new VerInfoDialog(file);
                     }
                 }, false);
         }

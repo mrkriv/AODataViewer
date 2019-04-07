@@ -13,12 +13,9 @@ namespace Game.Windows.Dialogs
         public static int TotalFile;
         public static int TotalVFile;
         public static double LoadTime;
-        public static string Path = "";
 
-        public VerInfoDialog(string path)
-            : base("VerInfo")
+        public VerInfoDialog(string path) : base("VerInfo")
         {
-
             var versionFilePath = path + "\\Profiles\\game.version";
 
             if (File.Exists(versionFilePath))
@@ -34,12 +31,9 @@ namespace Game.Windows.Dialogs
                 Ver = "undefine";
             }
 
-            window.Controls["time"].Text += LoadTime.ToString("0.00") + "с";
             window.Controls["ver"].Text += Ver;
             window.Controls["hd"].Text += Head;
-            window.Controls["count"].Text += TotalFile;
-            window.Controls["counti"].Text += TotalVFile;
-            window.Controls["size"].Text += TotalSize;
+            window.Controls["done"].Visible = false;
         }
 
         protected override bool OnKeyDown(KeyEvent e)
@@ -48,6 +42,24 @@ namespace Game.Windows.Dialogs
                 SetShouldDetach();
 
             return base.OnKeyDown(e);
+        }
+
+        public void Report(object state)
+        {
+            window.Controls["count_files"].Text = "Кличество файлов: " + TotalFile;
+            window.Controls["count_loc_files"].Text = "Файлов локанизации: " + TotalVFile;
+            window.Controls["size"].Text = "Общий размер: " + TotalSize;
+
+            if (state == null)
+            {
+                window.Controls["time"].Text = "Время загрузки: " + LoadTime.ToString("0.00") + "с";
+                window.Controls["status"].Visible = false;
+                window.Controls["done"].Visible = true;
+            }
+            else
+            {
+                window.Controls["status"].Text = state.ToString();
+            }
         }
     }
 }

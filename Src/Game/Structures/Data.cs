@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -12,16 +13,17 @@ namespace Game.Structures
 {
     public class Data
     {
+        private readonly BackgroundWorker _backgroundWorker;
         public readonly VDirectory RootDirectory;
 
-        public Data(string path)
+        public Data(string path, BackgroundWorker backgroundWorker)
         {
+            _backgroundWorker = backgroundWorker;
             var loadBeginDate = DateTime.Now;
 
             VerInfoDialog.TotalSize = 0;
             VerInfoDialog.TotalFile = 0;
             VerInfoDialog.TotalVFile = 0;
-            VerInfoDialog.Path = path;
 
             RootDirectory = new VDirectory("");
 
@@ -38,12 +40,16 @@ namespace Game.Structures
             EngineConsole.Instance.Print("Файловая система загружена " + offest.TotalSeconds.ToString("0.00") + "c");
 
             VerInfoDialog.LoadTime = offest.TotalSeconds;
+            
+            _backgroundWorker.ReportProgress(0, null);
         }
 
         private void LoadFs(string path, string dataFolder)
         {
             foreach (var packFile in Directory.GetFiles(path + "\\" + dataFolder + "\\Packs", "*.pak"))
             {
+                _backgroundWorker.ReportProgress(0, Path.GetFileName(packFile));
+                
                 using (var archive = new ZipFile(packFile))
                 {
                     foreach (ZipEntry entry in archive)
@@ -82,6 +88,7 @@ namespace Game.Structures
                 var itemCount = BitConverter.ToInt32(buffer, 12);
 
                 var pakName = loc.Pak + "/" + loc.Path.Replace('/', '\\');
+                _backgroundWorker.ReportProgress(0, loc.Name);
                 
                 for (var i = 0; i < itemCount; i++)
                 {

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.ComponentModel;
+using System.Linq;
 using Engine;
 using Engine.UISystem;
 using Game.Structures;
@@ -13,6 +14,7 @@ namespace Game.Windows
         public static Data Data;
 
         private readonly IconListBox _fileListControl;
+        private readonly VerInfoDialog _verInfoDialog;
         
         public string Path
         {
@@ -66,7 +68,7 @@ namespace Game.Windows
             ((Button) window.Controls["more"]).Click += MoreSwitch;
             ((Button) window.Controls["specal\\save"]).Click += Specal_save;
             ((CheckBox) window.Controls["find"]).CheckedChange += Find_CheckedChange;
-            
+
             window.Controls["mask"].TextChange += Find;
             window.Controls["Progress"].Visible = false;
             window.Controls["specal"].Visible = false;
@@ -74,8 +76,30 @@ namespace Game.Windows
             _fileListControl = (IconListBox) window.Controls["list"];
             _fileListControl.SelectedIndexChange += SelectedIndexChange;
             //_fileListControl.MouseDown += ListClick;
+
+            Visible = false;
+
+            _verInfoDialog = new VerInfoDialog(path);
             
-            Data = new Data(path);
+            var bw = new BackgroundWorker();
+            bw.WorkerReportsProgress = true;
+            bw.WorkerSupportsCancellation = false;
+
+            bw.RunWorkerCompleted += bw_RunWorkerCompleted;
+            bw.ProgressChanged += bw_ProgressChanged;
+            bw.DoWork += (s, e) => Data = new Data(path, bw);
+            
+            bw.RunWorkerAsync();
+        }
+
+        private void bw_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            _verInfoDialog.Report(e.UserState);
+        }
+
+        private void bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            Visible = true;
             Path = "";
         }
 
