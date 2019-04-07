@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using Game.Windows.Dialogs;
 using ICSharpCode.SharpZipLib.Zip;
@@ -11,7 +13,6 @@ namespace Game.Structures
     public class Data
     {
         public readonly VDirectory RootDirectory;
-        private readonly List<VFile> _locFiles;
 
         public Data(string path)
         {
@@ -23,8 +24,7 @@ namespace Game.Structures
             VerInfoDialog.Path = path;
 
             RootDirectory = new VDirectory("");
-            _locFiles = new List<VFile>();
-            
+
             LoadFs(path, "data");
 
             if (Directory.Exists(path + "\\data_warp"))
@@ -50,14 +50,9 @@ namespace Game.Structures
                     {
                         var file = new VFile(entry.Name, packFile, (int) entry.Size);
                         RootDirectory.AddFile(file);
-                        
+
                         VerInfoDialog.TotalSize += entry.Size;
                         VerInfoDialog.TotalFile++;
-
-                        if (entry.Name.EndsWith("*.loc"))
-                        {
-                            _locFiles.Add(file);
-                        }
                     }
                 }
             }
@@ -65,14 +60,29 @@ namespace Game.Structures
 
         private void LoadTexts()
         {
-            foreach (var loc in _locFiles)
+            var locFiles = RootDirectory.FindFile(".loc").ToList();
+            var hashs = new List<string>();
+
+            var sha256 = SHA256.Create();
+
+            foreach (var loc in locFiles)
             {
-                var buffer = loc.Data.GetRange(0, 16).ToArray();
+                var buffer = loc.Data.ToArray();
+                
+                var hash = string.Concat(sha256.ComputeHash(buffer).Select(x => $"{x:X2}"));
+
+                if (hashs.Contains(hash))
+                    continue;
+
+                hashs.Add(hash);
+                
                 var data = loc.Data.GetRange(16, loc.Data.Count - 16);
 
                 var sizesPos = BitConverter.ToInt32(buffer, 4);
                 var itemCount = BitConverter.ToInt32(buffer, 12);
 
+                var pakName = loc.Pak + "/" + loc.Path.Replace('/', '\\');
+                
                 for (var i = 0; i < itemCount; i++)
                 {
                     var item = data.GetRange(i * 12, 12).ToArray();
@@ -87,7 +97,7 @@ namespace Game.Structures
                     var itemName = Encoding.UTF8.GetString(data.GetRange(pos + 12 * id, strSize - 1).ToArray());
                     var fileData = data.GetRange(8 + sizesPos + itemFilepos + itemCount * 8, itemFilesize * 2);
 
-                    RootDirectory.AddFile(new VFile(itemName, "", fileData));
+                    RootDirectory.AddFile(new VFile(itemName, pakName, fileData));
 
                     VerInfoDialog.TotalVFile++;
                 }
@@ -96,20 +106,11 @@ namespace Game.Structures
             }
         }
 
-        private byte[] ReadFromZip(string pathToArchive, string pathToFile)
+        public static byte[] SubArray(byte[] data, int index, int length)
         {
-            using (var archive = new ZipFile(pathToArchive))
-            {
-                var file = archive.GetEntry(pathToFile);
-                using (var s = archive.GetInputStream(file))
-                {
-                    var buffer = new byte[file.Size];
-                    s.Read(buffer, 0, (int)file.Size);
-
-                    return buffer;
-                }
-            }
+            var result = new byte[length];
+            Array.Copy(data, index, result, 0, length);
+            return result;
         }
-
     }
 }

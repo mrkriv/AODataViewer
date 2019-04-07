@@ -90,7 +90,7 @@ namespace Game.Windows.Dialogs
         {
             try
             {
-                var path = Path.Combine(dir, ((IconListBox.Item)(e.Item)).Text.Replace("<--", ".."));
+                var path = Path.Combine(dir, ((IconListBox.Item)e.Item).Text.Replace("<--", ".."));
 
                 if (File.Exists(path) || Directory.Exists(path + "\\data\\Packs"))
                 {

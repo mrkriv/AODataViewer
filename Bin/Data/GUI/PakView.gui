@@ -2,8 +2,9 @@
 
 control "GUI\\Window.gui"
 {
+	position = Parent 0.004882813 0.0004882123
 	verticalAlign = Center
-	size = ScaleByResolution 654.9999 724.9999
+	size = ScaleByResolution 625.9999 760.7499
 	text = "\x0424\x0430\x0439\x043b\x043e\x0432\x0430\x044f \x0441\x0438\x0441\x0442\x0435\x043c\x0430 \x0438\x0433\x0440\x044b"
 	mouseCover = True
 	control Control
@@ -24,14 +25,13 @@ control "GUI\\Window.gui"
 	control "GUI\\Controls\\DefaultIconListBox.gui"
 	{
 		position = ScaleByResolution 10 61.00001
-		size = ScaleByResolution 634.9999 589
+		size = ScaleByResolution 605.9999 624.75
 		anchor = Left, Bottom, Top, Right
 		name = list
 	}
 	control "GUI\\Controls\\DefaultButton.gui"
 	{
-		position = ScaleByResolution 450 -4.999863
-		verticalAlign = Bottom
+		position = ScaleByResolution 419 723.75
 		anchor = Bottom, Right
 		name = edit
 		text = "\x0420\x0435\x0434\x0430\x043a\x0442\x0438\x0440\x043e\x0432\x0430\x0442\x044c"
@@ -50,24 +50,24 @@ control "GUI\\Window.gui"
 	control TextBox
 	{
 		textHorizontalAlign = Left
-		font = Default 0.021
+		font = Default 0.02
 		textColor = 0.9490197 1 0.7882354
-		position = ScaleByResolution 9.999997 655
-		size = Parent 0.6717554 0.04137918
+		position = ScaleByResolution 9.999997 690.75
+		size = Parent 0.6519012 0.04137918
 		anchor = Left, Bottom, Right
 		name = info
 		backColor = 0 0 0 0.09019608
 	}
 	control "GUI\\Controls\\DefaultEditBox.gui"
 	{
-		position = ScaleByResolution 454.9999 655
+		position = ScaleByResolution 425.9999 690.75
 		size = ScaleByResolution 163 30
 		anchor = Bottom, Right
 		name = mask
 	}
 	control CheckBox
 	{
-		position = ScaleByResolution 621.9999 655
+		position = ScaleByResolution 592.9999 690.75
 		size = ScaleByResolution 22 30
 		anchor = Bottom, Right
 		name = find
@@ -131,8 +131,7 @@ control "GUI\\Window.gui"
 	}
 	control "GUI\\Controls\\DefaultButton.gui"
 	{
-		position = ScaleByResolution 387 -4.999863
-		verticalAlign = Bottom
+		position = ScaleByResolution 355 723.75
 		size = ScaleByResolution 67 30
 		anchor = Bottom, Right
 		name = more
@@ -141,20 +140,11 @@ control "GUI\\Window.gui"
 	}
 	control Control
 	{
-		position = ScaleByResolution -70 -34.50003
-		horizontalAlign = Right
-		verticalAlign = Bottom
-		size = ScaleByResolution 197 59.99995
+		position = ScaleByResolution 358 697.25
+		size = ScaleByResolution 197 29.99995
 		anchor = Bottom, Right
 		name = specal
 		backColor = 0 0 0
-		control "GUI\\Controls\\DefaultButton.gui"
-		{
-			position = ScaleByResolution 0 30
-			horizontalAlign = Center
-			name = ungzip
-			text = "\x0421\x043e\x0445\x0440\x0430\x043d\x0438\x0442\x044c GZip"
-		}
 		control "GUI\\Controls\\DefaultButton.gui"
 		{
 			position = ScaleByResolution 0 0

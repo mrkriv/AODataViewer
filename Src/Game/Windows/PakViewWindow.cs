@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Engine;
 using Engine.UISystem;
 using Game.Structures;
@@ -50,7 +49,13 @@ namespace Game.Windows
                     if (!string.IsNullOrEmpty(mask) && !file.Name.Contains(mask))
                         continue;
 
-                    _fileListControl.Items.Add(file.Name, GetType(file.Name), file);
+                    var name = file.Name;
+                    if (files.Count(x => x.Name == name) > 1)
+                    {
+                        name += $" [{System.IO.Path.GetFileNameWithoutExtension(file.Pak)}]";
+                    }
+                    
+                    _fileListControl.Items.Add(name, GetType(file.Name), file);
                 }
             }
         }

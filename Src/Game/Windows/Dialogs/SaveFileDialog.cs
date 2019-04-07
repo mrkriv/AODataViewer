@@ -86,7 +86,7 @@ namespace Game.Windows.Dialogs
         {
             try
             {
-                var path = Path.Combine(dir, ((string[]) (e.Item))[0].Replace("<--", ".."));
+                var path = Path.Combine(dir, ((IconListBox.Item)e.Item).Text.Replace("<--", ".."));
 
                 if (File.Exists(path))
                     window.Controls["file"].Text = Path.GetFileName(path);

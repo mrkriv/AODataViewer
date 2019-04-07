@@ -2,8 +2,8 @@
 
 control "GUI\\Window.gui"
 {
-	position = Parent 0.6152344 0.1796875
-	size = ScaleByResolution 364 468.4998
+	position = Parent 0.4912109 0.1575521
+	size = ScaleByResolution 507 616.4998
 	text = TEXTURE_FILE_NAME
 	control Control
 	{
@@ -15,7 +15,7 @@ control "GUI\\Window.gui"
 	}
 	control "GUI\\Controls\\DefaultButton.gui"
 	{
-		position = ScaleByResolution 187.9999 433.0001
+		position = ScaleByResolution 330.9999 581.0001
 		size = ScaleByResolution 169.5001 30
 		anchor = Bottom, Right
 		name = done
@@ -24,7 +24,7 @@ control "GUI\\Window.gui"
 	control Control
 	{
 		position = ScaleByResolution 15 40.00002
-		size = ScaleByResolution 334 330.0001
+		size = ScaleByResolution 477 478.0001
 		anchor = Left, Bottom, Top, Right
 		name = img
 		backColor = 1 1 1 0.882353
@@ -38,7 +38,7 @@ control "GUI\\Window.gui"
 			position = ScaleByResolution 1.047974 19.35992
 			horizontalAlign = Right
 			verticalAlign = Bottom
-			size = Screen 0.127 0.02
+			size = Screen 0.1239474 0.02
 			name = info
 			text = 4096x4096 DTX5
 		}
@@ -46,7 +46,7 @@ control "GUI\\Window.gui"
 	control "GUI\\Controls\\DefaultComboBox.gui"
 	{
 		textIfNoSelection = DTX1
-		position = ScaleByResolution 5.999939 397.0001
+		position = ScaleByResolution 5.999939 545.0001
 		size = ScaleByResolution 98.00006 30
 		anchor = Left, Bottom
 		name = type
@@ -54,7 +54,7 @@ control "GUI\\Window.gui"
 	}
 	control "GUI\\Controls\\DefaultComboBox.gui"
 	{
-		position = ScaleByResolution 144 397
+		position = ScaleByResolution 287 545
 		size = ScaleByResolution 92.99994 30
 		anchor = Bottom, Right
 		name = w
@@ -62,7 +62,7 @@ control "GUI\\Window.gui"
 	}
 	control "GUI\\Controls\\DefaultComboBox.gui"
 	{
-		position = ScaleByResolution 266 397
+		position = ScaleByResolution 409 545
 		size = ScaleByResolution 86 30
 		anchor = Bottom, Right
 		name = h
@@ -70,25 +70,24 @@ control "GUI\\Window.gui"
 	}
 	control "GUI\\Controls\\DefaultCheckBox.gui"
 	{
-		checked = True
-		position = ScaleByResolution 240 402
+		position = ScaleByResolution 383 550
 		anchor = Bottom, Right
 		name = cube
 	}
 	control "GUI\\Controls\\DefaultButton.gui"
 	{
-		position = ScaleByResolution 3.999939 433.0001
-		size = ScaleByResolution 135.5003 30
-		anchor = Left, Bottom
-		name = export
-		text = "\x042d\x043a\x0441\x043f\x043e\x0440\x0442"
-	}
-	control "GUI\\Controls\\DefaultButton.gui"
-	{
-		position = ScaleByResolution 132 433
+		position = ScaleByResolution 132 581
 		size = ScaleByResolution 37.50026 30
 		anchor = Left, Bottom
 		name = export_express
 		text = " >>"
+	}
+	control "GUI\\Controls\\DefaultButton.gui"
+	{
+		position = ScaleByResolution 3.999939 581.0001
+		size = ScaleByResolution 135.5003 30
+		anchor = Left, Bottom
+		name = export
+		text = "\x042d\x043a\x0441\x043f\x043e\x0440\x0442"
 	}
 }
