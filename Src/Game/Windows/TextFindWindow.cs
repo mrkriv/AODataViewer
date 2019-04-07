@@ -35,7 +35,7 @@ namespace Game.Windows
         {
             var lb = ((ListBox) window.Controls["list"]);
             if (lb.SelectedIndex != -1)
-                new TextViewWindow(_index[lb.SelectedIndex]);
+                new TextViewWindow(_index[lb.SelectedIndex], Encoding.Unicode);
         }
 
         void bw_ProgressChanged(object sender, ProgressChangedEventArgs e)

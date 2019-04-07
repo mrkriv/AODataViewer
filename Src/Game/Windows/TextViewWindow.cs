@@ -8,7 +8,7 @@ namespace Game.Windows
     {
         private static TextViewWindow _instance;
 
-        public TextViewWindow(VFile vFile)
+        public TextViewWindow(VFile vFile, Encoding encoding)
             : base("LocView")
         {
             if (_instance == null)
@@ -20,7 +20,7 @@ namespace Game.Windows
             _instance.window.Text = vFile.Name;
             try
             {
-                _instance.window.Controls["text"].Text = Encoding.Unicode.GetString(vFile.Data.ToArray());
+                _instance.window.Controls["text"].Text = encoding.GetString(vFile.Data.ToArray());
                 _instance.window.Controls["text"].ColorMultiplier = new Engine.MathEx.ColorValue(1, .98f, .62f);
             }
             catch

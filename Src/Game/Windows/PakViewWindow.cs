@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Linq;
+using System.Text;
 using Engine;
 using Engine.UISystem;
 using Game.Structures;
@@ -110,7 +111,10 @@ namespace Game.Windows
                 var file = GetSelectFile();
 
                 var saveWindow = new SaveFileDialog(file.Data.ToArray());
-                saveWindow.Show(file.Path, new[] {"dds"});
+                saveWindow.Show(System.IO.Path.GetFileNameWithoutExtension(file.Name), new[]
+                {
+                    System.IO.Path.GetExtension(file.Name)?.TrimStart('.')
+                });
 
                 file.ClearCache();
             }
@@ -204,7 +208,10 @@ namespace Game.Windows
                     new TextureViewWindow(file);
                     break;
                 case "txt":
-                    new TextViewWindow(file);
+                    new TextViewWindow(file, Encoding.Unicode);
+                    break;
+                case "xdb":
+                    new TextViewWindow(file, Encoding.Default);
                     break;
                 case "model":
                     new ModelViewWindow(file);
